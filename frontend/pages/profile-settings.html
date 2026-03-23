@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Profile Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/globals.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/pages.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <a href="dashboard.html" class="sidebar-logo"><span>TradeWise Pro</span></a>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+        <a href="active-trades.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>Active Trades</a>
+        <a href="analytics.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics</a>
+        <a href="earnings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Earnings</a>
+        <a href="kyc-setup.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.91 14a16 16 0 006.06 6.06l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>KYC Setup</a>
+        <a href="notifications.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
+        <a href="profile-settings.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+        <a href="account-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Settings</a>
+      </nav>
+    </aside>
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <div class="main-content">
+      <header class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="hamburger" id="hamburger" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+          <h1 class="topbar-title">Profile Settings</h1>
+        </div>
+        <div class="topbar-right">
+          <button class="btn btn-icon btn-ghost" id="notif-bell" aria-label="Notifications">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="notif-badge hidden" id="notif-badge">0</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+        </div>
+      </header>
+
+      <main class="page-content">
+        <div class="page-header">
+          <h2 class="page-title">Profile Settings</h2>
+          <p class="page-subtitle">Manage your public pro-trader profile</p>
+        </div>
+
+        <div id="profile-alert" class="alert hidden" role="alert" aria-live="polite"></div>
+
+        <!-- Avatar Section -->
+        <div class="profile-avatar-section">
+          <div id="avatar-preview" class="avatar-placeholder avatar-xl">P</div>
+          <div>
+            <h3 id="display-name-heading" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">—</h3>
+            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Profile Picture</p>
+            <div style="display: flex; gap: 0.75rem;">
+              <label class="btn btn-secondary btn-sm" for="avatar-upload" style="cursor: pointer;" aria-label="Upload profile picture">
+                Change Photo
+                <input type="file" id="avatar-upload" accept="image/jpeg,image/png" style="display:none" aria-hidden="true" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <form id="profile-form" novalidate>
+          <div class="profile-form-grid">
+
+            <div class="form-group">
+              <label class="form-label" for="years-exp">Years of Experience <span class="required">*</span></label>
+              <input type="number" id="years-exp" name="years_of_experience" class="input" min="0" max="50" placeholder="e.g. 5" />
+              <span class="form-error" id="years-error"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="trading-style">Trading Style <span class="required">*</span></label>
+              <select id="trading-style" name="trading_style" class="input">
+                <option value="">— Select style —</option>
+                <option value="day_trading">Day Trading</option>
+                <option value="swing_trading">Swing Trading</option>
+                <option value="position_trading">Position Trading</option>
+                <option value="scalping">Scalping</option>
+              </select>
+              <span class="form-error" id="style-error"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="portfolio-url">External Portfolio URL</label>
+              <input type="url" id="portfolio-url" name="external_portfolio_url" class="input" placeholder="https://your-portfolio.com" />
+              <span class="form-error" id="url-error"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Specializations</label>
+              <div class="checkbox-group" id="specializations">
+                <label class="checkbox-item"><input type="checkbox" value="nifty50" /> <span class="checkbox-label">Nifty 50</span></label>
+                <label class="checkbox-item"><input type="checkbox" value="banknifty" /> <span class="checkbox-label">Bank Nifty</span></label>
+                <label class="checkbox-item"><input type="checkbox" value="crypto" /> <span class="checkbox-label">Crypto</span></label>
+                <label class="checkbox-item"><input type="checkbox" value="forex" /> <span class="checkbox-label">Forex</span></label>
+                <label class="checkbox-item"><input type="checkbox" value="commodities" /> <span class="checkbox-label">Commodities</span></label>
+                <label class="checkbox-item"><input type="checkbox" value="midcap" /> <span class="checkbox-label">Mid Cap</span></label>
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for="bio">Bio <span class="required">*</span></label>
+              <textarea id="bio" name="bio" class="input" rows="5" placeholder="Describe yourself as a trader... (min 100 characters)"></textarea>
+              <div class="flex justify-between">
+                <span class="form-error" id="bio-error"></span>
+                <span class="word-counter" id="bio-counter" aria-live="polite">0 / 2000 chars</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button type="submit" class="btn btn-primary btn-lg" id="save-profile-btn">
+              <span class="btn-text">Save Changes</span>
+              <div class="btn-spinner spinner" aria-hidden="true"></div>
+            </button>
+            <button type="button" class="btn btn-secondary btn-lg" id="cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script type="module">
+    import Auth from '../js/auth.js';
+    import { profileAPI } from '../js/api.js';
+    import { validateRequired, validateURL, validateFileSize, validateFileType } from '../js/utils.js';
+    import Storage from '../js/storage.js';
+    import App from '../js/main.js';
+
+    if (!Auth.requireAuth()) throw new Error('Not authenticated');
+    window.Toast = { show(m, t = 'info') { const c = document.getElementById('toast-container'); const el = document.createElement('div'); el.className = `toast toast-${t}`; el.innerHTML = `<div class="toast-content"><div class="toast-message">${m}</div></div><button class="toast-dismiss">×</button>`; c.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); const d = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }; el.querySelector('.toast-dismiss').addEventListener('click', d); setTimeout(d, 4000); } };
+    App.init();
+
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    document.getElementById('hamburger').addEventListener('click', () => { const o = sidebar.classList.toggle('open'); overlay.classList.toggle('active', o); });
+    overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+    document.getElementById('logout-btn').addEventListener('click', () => Auth.logout());
+    document.getElementById('notif-bell').addEventListener('click', () => window.location.href = 'notifications.html');
+    document.getElementById('cancel-btn').addEventListener('click', () => window.location.href = 'dashboard.html');
+
+    // Bio character counter
+    document.getElementById('bio').addEventListener('input', (e) => {
+      const len = e.target.value.length;
+      const counter = document.getElementById('bio-counter');
+      counter.textContent = `${len} / 2000 chars`;
+      counter.className = 'word-counter' + (len < 100 ? ' error' : '');
+    });
+
+    // Avatar upload
+    document.getElementById('avatar-upload').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const err = validateFileSize(file, 2) || validateFileType(file, ['image/jpeg', 'image/png']);
+      if (err) { window.Toast.show(err, 'error'); return; }
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const preview = document.getElementById('avatar-preview');
+        preview.outerHTML = `<img src="${ev.target.result}" id="avatar-preview" class="avatar-xl" alt="Profile picture" style="border-radius:50%" />`;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Load profile
+    async function loadProfile() {
+      try {
+        const cached = Storage.getProProfile();
+        if (cached) populateForm(cached);
+
+        const data = await profileAPI.getProfile();
+        const profile = data.profile || data;
+        Storage.setProProfile(profile);
+        populateForm(profile);
+      } catch (err) {
+        console.error('Failed to load profile:', err);
+      }
+    }
+
+    function populateForm(profile) {
+      document.getElementById('bio').value = profile.bio || '';
+      document.getElementById('bio-counter').textContent = `${(profile.bio || '').length} / 2000 chars`;
+      document.getElementById('years-exp').value = profile.years_of_experience || '';
+      document.getElementById('portfolio-url').value = profile.external_portfolio_url || '';
+      document.getElementById('display-name-heading').textContent = profile.display_name || 'Pro Trader';
+
+      const styleSelect = document.getElementById('trading-style');
+      if (profile.trading_style) styleSelect.value = profile.trading_style;
+
+      // Specializations
+      if (profile.specializations) {
+        const specs = Array.isArray(profile.specializations)
+          ? profile.specializations
+          : (profile.specializations || '').split(',');
+        document.querySelectorAll('#specializations input[type="checkbox"]').forEach(cb => {
+          cb.checked = specs.includes(cb.value);
+        });
+      }
+
+      // Avatar
+      if (profile.profile_picture_url) {
+        const preview = document.getElementById('avatar-preview');
+        if (preview) {
+          preview.outerHTML = `<img src="${profile.profile_picture_url}" id="avatar-preview" class="avatar-xl" alt="Profile picture" style="border-radius:50%;width:80px;height:80px;object-fit:cover" />`;
+        }
+      }
+    }
+
+    // Submit
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const alertEl = document.getElementById('profile-alert');
+      alertEl.classList.add('hidden');
+
+      const bio = document.getElementById('bio').value.trim();
+      const url = document.getElementById('portfolio-url').value.trim();
+      const years = document.getElementById('years-exp').value;
+      const style = document.getElementById('trading-style').value;
+
+      let valid = true;
+      const setErr = (id, msg) => { document.getElementById(id).textContent = msg; if (msg) valid = false; };
+
+      if (bio.length < 100) { setErr('bio-error', 'Bio must be at least 100 characters.'); valid = false; }
+      else setErr('bio-error', '');
+      setErr('url-error', url ? validateURL(url) : '');
+      setErr('years-error', years && Number(years) < 0 ? 'Must be 0 or more.' : '');
+      if (!valid) return;
+
+      const specializations = Array.from(
+        document.querySelectorAll('#specializations input[type="checkbox"]:checked')
+      ).map(cb => cb.value);
+
+      const payload = {
+        bio,
+        external_portfolio_url: url || null,
+        years_of_experience: years ? parseInt(years) : null,
+        trading_style: style || null,
+        specializations,
+      };
+
+      const btn = document.getElementById('save-profile-btn');
+      btn.classList.add('loading');
+      try {
+        await profileAPI.updateProfile(payload);
+        Storage.setProProfile({ ...Storage.getProProfile(), ...payload });
+        alertEl.textContent = 'Profile updated successfully!';
+        alertEl.className = 'alert alert-success';
+        alertEl.classList.remove('hidden');
+        window.Toast.show('Profile updated successfully!', 'success');
+      } catch (err) {
+        alertEl.textContent = err.message || 'Failed to update profile.';
+        alertEl.className = 'alert alert-error';
+        alertEl.classList.remove('hidden');
+      } finally {
+        btn.classList.remove('loading');
+      }
+    });
+
+    loadProfile();
+  </script>
+</body>
+</html>

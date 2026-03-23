@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Earnings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/globals.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/pages.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <a href="dashboard.html" class="sidebar-logo"><span>TradeWise Pro</span></a>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+        <a href="post-trade.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Post Trade</a>
+        <a href="active-trades.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>Active Trades</a>
+        <a href="analytics.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics</a>
+        <a href="earnings.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Earnings</a>
+        <a href="subscribers.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Subscribers</a>
+        <a href="notifications.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
+        <a href="profile-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+      </nav>
+    </aside>
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <div class="main-content">
+      <header class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="hamburger" id="hamburger" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+          <h1 class="topbar-title">Earnings & Payouts</h1>
+        </div>
+        <div class="topbar-right">
+          <button class="btn btn-icon btn-ghost" id="notif-bell" aria-label="Notifications">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="notif-badge hidden" id="notif-badge">0</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+        </div>
+      </header>
+
+      <main class="page-content">
+        <div class="page-header">
+          <h2 class="page-title">Earnings & Payouts</h2>
+          <p class="page-subtitle">Manage your revenue and withdrawals</p>
+        </div>
+
+        <!-- Balance Hero -->
+        <div class="balance-hero">
+          <div>
+            <div class="balance-label">Available Balance</div>
+            <div class="balance-amount" id="available-balance" aria-live="polite">₹0.00</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;" id="min-withdrawal-msg"></div>
+          </div>
+          <button class="btn btn-primary btn-lg" id="withdraw-btn">
+            Withdraw to Bank
+          </button>
+        </div>
+
+        <!-- Earnings Metrics -->
+        <div class="earnings-metrics">
+          <div class="metric-card">
+            <div class="metric-label">Total Lifetime Earnings</div>
+            <div class="metric-value success" id="lifetime-earnings">—</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">This Month's Earnings</div>
+            <div class="metric-value" id="month-earnings">—</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Monthly Recurring Revenue</div>
+            <div class="metric-value" id="mrr">—</div>
+            <div class="metric-trend" id="subscriber-count" style="margin-top: 0.5rem;"></div>
+          </div>
+        </div>
+
+        <!-- Subscription Price -->
+        <div class="card" style="margin-bottom: 2rem;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Subscription Price</div>
+              <div class="card-subtitle">Current monthly subscription fee for subscribers</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="edit-price-btn">Edit Price</button>
+          </div>
+          <div style="font-size: 2rem; font-weight: 800; color: var(--color-primary);" id="subscription-price">₹—/month</div>
+        </div>
+
+        <!-- Earnings Chart -->
+        <div class="card" style="margin-bottom: 2rem;">
+          <div class="card-header"><div class="card-title">Monthly Earnings Chart</div><div class="card-subtitle">Last 12 months</div></div>
+          <div class="chart-container" style="height: 240px;">
+            <canvas id="earnings-chart" aria-label="Monthly earnings chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Payout History -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Payout History</div></div>
+          <div class="table-container">
+            <table class="table" id="payouts-table" aria-label="Payout history table">
+              <thead>
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Cashfree ID</th>
+                  <th scope="col">Bank</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="payouts-tbody">
+                <tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Withdrawal Modal -->
+  <div class="modal-overlay" id="withdraw-modal" role="dialog" aria-modal="true" aria-labelledby="withdraw-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="withdraw-title">Withdraw to Bank</h2>
+        <button class="modal-close" id="close-withdraw-modal" aria-label="Close">×</button>
+      </div>
+      <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">Money will arrive within 24 hours</p>
+      <div class="form-group">
+        <label class="form-label" for="withdraw-amount">Amount (₹) <span class="required">*</span></label>
+        <input type="number" id="withdraw-amount" class="input" min="100" step="1" />
+        <span class="form-error" id="withdraw-error"></span>
+        <span class="form-hint">Minimum withdrawal: ₹100</span>
+      </div>
+      <div id="bank-info" style="padding: 1rem; background: var(--bg-surface); border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-secondary);">
+        Withdrawal will be sent to your registered bank account.
+      </div>
+      <div id="withdraw-alert" class="alert hidden" role="alert"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancel-withdraw">Cancel</button>
+        <button class="btn btn-primary" id="confirm-withdraw">
+          <span class="btn-text">Confirm Withdrawal</span>
+          <div class="btn-spinner spinner" aria-hidden="true"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Subscription Price Modal -->
+  <div class="modal-overlay" id="price-modal" role="dialog" aria-modal="true" aria-labelledby="price-modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="price-modal-title">Update Subscription Price</h2>
+        <button class="modal-close" id="close-price-modal" aria-label="Close">×</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="new-price">New Monthly Price (₹) <span class="required">*</span></label>
+        <input type="number" id="new-price" class="input" min="1" step="1" placeholder="e.g. 599" />
+        <span class="form-error" id="price-error"></span>
+      </div>
+      <div id="price-alert" class="alert hidden" role="alert"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancel-price">Cancel</button>
+        <button class="btn btn-primary" id="confirm-price">
+          <span class="btn-text">Update Price</span>
+          <div class="btn-spinner spinner" aria-hidden="true"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script type="module">
+    import Auth from '../js/auth.js';
+    import { earningsAPI, subscribersAPI, analyticsAPI } from '../js/api.js';
+    import { formatCurrency, formatNumber, formatDateTime } from '../js/utils.js';
+    import { createEarningsChart } from '../js/charts.js';
+    import Realtime from '../js/realtime.js';
+    import Storage from '../js/storage.js';
+    import App from '../js/main.js';
+
+    if (!Auth.requireAuth()) throw new Error('Not authenticated');
+
+    window.Toast = {
+      show(msg, type = 'info') {
+        const c = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        t.className = `toast toast-${type}`;
+        t.innerHTML = `<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;
+        c.appendChild(t);
+        requestAnimationFrame(() => t.classList.add('show'));
+        const d = () => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); };
+        t.querySelector('.toast-dismiss').addEventListener('click', d);
+        setTimeout(d, 4000);
+      }
+    };
+
+    App.init();
+
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    document.getElementById('hamburger').addEventListener('click', () => {
+      const open = sidebar.classList.toggle('open'); overlay.classList.toggle('active', open);
+    });
+    overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+    document.getElementById('logout-btn').addEventListener('click', () => Auth.logout());
+    document.getElementById('notif-bell').addEventListener('click', () => window.location.href = 'notifications.html');
+
+    let availableBalance = 0;
+
+    async function loadEarnings() {
+      try {
+        const [balanceData, earningsData, subscribersData, payoutsData, monthlyData] = await Promise.allSettled([
+          earningsAPI.getBalance(),
+          earningsAPI.getEarnings(),
+          subscribersAPI.getSubscribers(),
+          earningsAPI.getPayouts(),
+          analyticsAPI.getMonthlyStats(),
+        ]);
+
+        // Balance
+        if (balanceData.status === 'fulfilled') {
+          availableBalance = balanceData.value.available_balance ?? balanceData.value.balance ?? 0;
+          document.getElementById('available-balance').textContent = formatCurrency(availableBalance);
+          const withdrawBtn = document.getElementById('withdraw-btn');
+          if (availableBalance < 100) {
+            withdrawBtn.disabled = true;
+            document.getElementById('min-withdrawal-msg').textContent = 'Minimum ₹100 required to withdraw.';
+          }
+          document.getElementById('withdraw-amount').value = Math.floor(availableBalance);
+        }
+
+        // Earnings
+        if (earningsData.status === 'fulfilled') {
+          const d = earningsData.value;
+          document.getElementById('lifetime-earnings').textContent = formatCurrency(d.lifetime_earnings ?? d.total_earnings ?? 0);
+          document.getElementById('month-earnings').textContent = formatCurrency(d.monthly_earnings ?? d.current_month ?? 0);
+          document.getElementById('subscription-price').textContent = `₹${d.subscription_price ?? d.monthly_subscription_price ?? 0}/month`;
+        }
+
+        // Subscribers + MRR
+        if (subscribersData.status === 'fulfilled') {
+          const subs = subscribersData.value.subscribers || subscribersData.value || [];
+          const activeCount = subs.filter(s => s.status === 'active').length;
+          document.getElementById('subscriber-count').textContent = `${activeCount} active subscribers`;
+          if (earningsData.status === 'fulfilled') {
+            const price = earningsData.value.subscription_price ?? earningsData.value.monthly_subscription_price ?? 0;
+            document.getElementById('mrr').textContent = formatCurrency(activeCount * price);
+          }
+        }
+
+        // Payouts table
+        if (payoutsData.status === 'fulfilled') {
+          renderPayouts(payoutsData.value.payouts || payoutsData.value || []);
+        }
+
+        // Chart
+        if (monthlyData.status === 'fulfilled') {
+          const rows = monthlyData.value.data || monthlyData.value || [];
+          createEarningsChart('earnings-chart', {
+            labels: rows.map(r => r.month || r.label),
+            earnings: rows.map(r => r.earnings || r.revenue || 0),
+          });
+        }
+
+        // Realtime payout updates
+        const user = Storage.getUser();
+        if (user?.id) {
+          Realtime.subscribeToPayouts(user.id, (payout) => {
+            window.Toast.show(`Payout status updated: ${payout.status}`, 'info');
+            loadEarnings();
+          });
+        }
+      } catch (err) {
+        console.error('Earnings error:', err);
+      }
+    }
+
+    function renderPayouts(payouts) {
+      const tbody = document.getElementById('payouts-tbody');
+      if (payouts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No payouts yet</td></tr>';
+        return;
+      }
+      const statusClass = { initiated: 'warning', processing: 'info', success: 'success', failed: 'danger' };
+      tbody.innerHTML = payouts.map(p => `<tr>
+        <td>${formatDateTime(p.created_at)}</td>
+        <td style="font-weight:600">${formatCurrency(p.amount)}</td>
+        <td><span class="badge badge-${statusClass[p.status] || 'neutral'}">${p.status}</span></td>
+        <td style="font-family:var(--font-mono);font-size:0.75rem">${p.cashfree_payout_id || '—'}</td>
+        <td>${p.bank_account_last4 ? `****${p.bank_account_last4}` : '—'}</td>
+        <td>${p.status === 'failed' ? `<button class="btn btn-secondary btn-sm retry-btn" data-id="${p.id}">Retry</button>` : ''}</td>
+      </tr>`).join('');
+    }
+
+    // Withdraw modal
+    document.getElementById('withdraw-btn').addEventListener('click', () => {
+      document.getElementById('withdraw-alert').classList.add('hidden');
+      document.getElementById('withdraw-modal').classList.add('active');
+    });
+    document.getElementById('close-withdraw-modal').addEventListener('click', () => document.getElementById('withdraw-modal').classList.remove('active'));
+    document.getElementById('cancel-withdraw').addEventListener('click', () => document.getElementById('withdraw-modal').classList.remove('active'));
+
+    document.getElementById('confirm-withdraw').addEventListener('click', async () => {
+      const amount = parseFloat(document.getElementById('withdraw-amount').value);
+      const errEl = document.getElementById('withdraw-error');
+      if (!amount || amount < 100) { errEl.textContent = 'Minimum withdrawal is ₹100.'; return; }
+      if (amount > availableBalance) { errEl.textContent = 'Amount exceeds available balance.'; return; }
+      errEl.textContent = '';
+
+      const btn = document.getElementById('confirm-withdraw');
+      btn.classList.add('loading');
+      try {
+        const result = await earningsAPI.initiatePayout({ amount });
+        document.getElementById('withdraw-modal').classList.remove('active');
+        window.Toast.show(`Withdrawal initiated! Payout ID: ${result.payout_id || result.id || 'N/A'}`, 'success');
+        loadEarnings();
+      } catch (err) {
+        const al = document.getElementById('withdraw-alert');
+        al.textContent = err.message || 'Withdrawal failed. Please try again.';
+        al.className = 'alert alert-error';
+        al.classList.remove('hidden');
+      } finally {
+        btn.classList.remove('loading');
+      }
+    });
+
+    // Edit price modal
+    document.getElementById('edit-price-btn').addEventListener('click', () => {
+      document.getElementById('price-alert').classList.add('hidden');
+      document.getElementById('price-modal').classList.add('active');
+    });
+    document.getElementById('close-price-modal').addEventListener('click', () => document.getElementById('price-modal').classList.remove('active'));
+    document.getElementById('cancel-price').addEventListener('click', () => document.getElementById('price-modal').classList.remove('active'));
+
+    document.getElementById('confirm-price').addEventListener('click', async () => {
+      const price = parseInt(document.getElementById('new-price').value);
+      if (!price || price < 1) { document.getElementById('price-error').textContent = 'Enter a valid price.'; return; }
+      const btn = document.getElementById('confirm-price');
+      btn.classList.add('loading');
+      try {
+        await earningsAPI.updateSubscriptionPrice({ monthly_subscription_price: price });
+        document.getElementById('price-modal').classList.remove('active');
+        window.Toast.show('Subscription price updated!', 'success');
+        document.getElementById('subscription-price').textContent = `₹${price}/month`;
+      } catch (err) {
+        const al = document.getElementById('price-alert');
+        al.textContent = err.message || 'Failed to update price.';
+        al.className = 'alert alert-error';
+        al.classList.remove('hidden');
+      } finally {
+        btn.classList.remove('loading');
+      }
+    });
+
+    loadEarnings();
+  </script>
+</body>
+</html>

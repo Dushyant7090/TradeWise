@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Active Trades</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/globals.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/pages.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <a href="dashboard.html" class="sidebar-logo"><span>TradeWise Pro</span></a>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+        </a>
+        <a href="post-trade.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Post Trade
+        </a>
+        <a href="active-trades.html" class="nav-link active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>Active Trades
+        </a>
+        <a href="analytics.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics
+        </a>
+        <a href="earnings.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Earnings
+        </a>
+        <a href="notifications.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications
+        </a>
+        <a href="profile-settings.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile
+        </a>
+      </nav>
+    </aside>
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <div class="main-content">
+      <header class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="hamburger" id="hamburger" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+          <h1 class="topbar-title">Active Trades</h1>
+        </div>
+        <div class="topbar-right">
+          <button class="btn btn-icon btn-ghost" id="notif-bell" aria-label="Notifications">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="notif-badge hidden" id="notif-badge">0</span>
+          </button>
+          <a href="post-trade.html" class="btn btn-primary btn-sm">+ Post Trade</a>
+          <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+        </div>
+      </header>
+
+      <main class="page-content">
+        <div class="page-header">
+          <h2 class="page-title">My Trades</h2>
+          <p class="page-subtitle">Manage and monitor your posted trades</p>
+        </div>
+
+        <!-- Filters -->
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="filter-bar">
+            <button class="filter-chip active" data-filter="all">All</button>
+            <button class="filter-chip" data-filter="active">Active</button>
+            <button class="filter-chip" data-filter="target_hit">Target Hit</button>
+            <button class="filter-chip" data-filter="sl_hit">SL Hit</button>
+          </div>
+          <div class="search-wrapper" style="width: 240px;">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="search-input" class="input search-input" placeholder="Search symbol..." aria-label="Search trades" />
+          </div>
+        </div>
+
+        <!-- Trades List -->
+        <div class="trades-grid" id="trades-grid">
+          <div class="empty-state">
+            <div class="spinner spinner-lg" style="margin: 0 auto;" aria-label="Loading trades"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Close Trade Modal -->
+  <div class="modal-overlay" id="close-modal" role="dialog" aria-modal="true" aria-labelledby="close-modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="close-modal-title">Close Trade</h2>
+        <button class="modal-close" id="close-modal-btn" aria-label="Close">×</button>
+      </div>
+      <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">Select the outcome for this trade.</p>
+      <div class="form-group">
+        <label class="form-label" for="close-outcome">Outcome <span class="required">*</span></label>
+        <select id="close-outcome" class="input">
+          <option value="">— Select outcome —</option>
+          <option value="target_hit">✅ Target Hit (Win)</option>
+          <option value="sl_hit">❌ Stop-Loss Hit (Loss)</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancel-close">Cancel</button>
+        <button class="btn btn-primary" id="confirm-close">
+          <span class="btn-text">Close Trade</span>
+          <div class="btn-spinner spinner" aria-hidden="true"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script type="module">
+    import Auth from '../js/auth.js';
+    import { tradesAPI } from '../js/api.js';
+    import { timeAgo, formatPrice, debounce } from '../js/utils.js';
+    import Realtime from '../js/realtime.js';
+    import Storage from '../js/storage.js';
+    import App from '../js/main.js';
+
+    if (!Auth.requireAuth()) throw new Error('Not authenticated');
+
+    window.Toast = {
+      show(msg, type = 'info') {
+        const c = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        t.className = `toast toast-${type}`;
+        t.innerHTML = `<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;
+        c.appendChild(t);
+        requestAnimationFrame(() => t.classList.add('show'));
+        const d = () => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); };
+        t.querySelector('.toast-dismiss').addEventListener('click', d);
+        setTimeout(d, 4000);
+      }
+    };
+
+    App.init();
+
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    document.getElementById('hamburger').addEventListener('click', () => {
+      const open = sidebar.classList.toggle('open');
+      overlay.classList.toggle('active', open);
+    });
+    overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+    document.getElementById('logout-btn').addEventListener('click', () => Auth.logout());
+    document.getElementById('notif-bell').addEventListener('click', () => window.location.href = 'notifications.html');
+
+    let allTrades = [];
+    let currentFilter = 'all';
+    let closingTradeId = null;
+
+    // Load trades
+    async function loadTrades() {
+      try {
+        const data = await tradesAPI.list();
+        allTrades = data.trades || data || [];
+        renderTrades();
+      } catch (err) {
+        document.getElementById('trades-grid').innerHTML = `<div class="alert alert-error">${err.message || 'Failed to load trades.'}</div>`;
+      }
+    }
+
+    function filterTrades() {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      return allTrades.filter(t => {
+        const matchStatus = currentFilter === 'all' || t.status === currentFilter;
+        const matchSearch = !search || (t.symbol || '').toLowerCase().includes(search);
+        return matchStatus && matchSearch;
+      });
+    }
+
+    function renderTrades() {
+      const trades = filterTrades();
+      const grid = document.getElementById('trades-grid');
+      if (trades.length === 0) {
+        grid.innerHTML = `<div class="empty-state">
+          <div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+          <p class="empty-state-title">No trades found</p>
+          <p class="empty-state-text">Try changing the filter or post a new trade.</p>
+          <a href="post-trade.html" class="btn btn-primary btn-sm">Post Trade</a>
+        </div>`;
+        return;
+      }
+      grid.innerHTML = trades.map(t => tradeCard(t)).join('');
+      attachCardEvents();
+    }
+
+    function tradeCard(t) {
+      const isBuy = t.direction === 'buy';
+      const statusBadge = {
+        active: 'badge-success', target_hit: 'badge-info', sl_hit: 'badge-danger'
+      }[t.status] || 'badge-neutral';
+      const flagWarning = t.flag_count >= 10 ? `<span class="badge badge-danger" title="Flagged">⚠ ${t.flag_count} flags</span>` : '';
+
+      return `<div class="trade-card" id="trade-${t.id}">
+        <div class="trade-card-header" data-id="${t.id}" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-${t.id}">
+          <div class="trade-card-main">
+            <div class="trade-symbol">${t.symbol}</div>
+            <span class="badge badge-${isBuy ? 'buy' : 'sell'}">${(t.direction || '').toUpperCase()}</span>
+            <div class="trade-prices">
+              <div class="trade-price-item"><div class="trade-price-label">Entry</div><div class="trade-price-value">₹${formatPrice(t.entry_price)}</div></div>
+              <div class="trade-price-item"><div class="trade-price-label">SL</div><div class="trade-price-value" style="color: var(--color-danger)">₹${formatPrice(t.stop_loss_price)}</div></div>
+              <div class="trade-price-item"><div class="trade-price-label">Target</div><div class="trade-price-value" style="color: var(--color-success)">₹${formatPrice(t.target_price)}</div></div>
+              <div class="trade-price-item"><div class="trade-price-label">RRR</div><div class="trade-price-value">${t.rrr ? t.rrr.toFixed(2) : '—'}</div></div>
+            </div>
+            <span class="badge ${statusBadge}">${(t.status || 'active').replace('_', ' ')}</span>
+            ${flagWarning}
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 0.75rem; color: var(--text-muted);">${timeAgo(t.created_at)}</span>
+            ${t.status === 'active' ? `<button class="btn btn-danger btn-sm close-trade-btn" data-id="${t.id}">Close Trade</button>` : ''}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="expand-icon" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="trade-card-expand" id="expand-${t.id}" aria-hidden="true">
+          ${t.chart_image_url ? `<img src="${t.chart_image_url}" alt="Chart for ${t.symbol}" class="trade-chart-image" loading="lazy" />` : ''}
+          <div class="trade-rationale">${t.technical_rationale || ''}</div>
+          <div style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">
+            <span>👁 ${t.view_count || 0} views</span>
+            <span>🔓 ${t.unlock_count || 0} unlocks</span>
+          </div>
+          <div class="comments-section" id="comments-${t.id}">
+            <p style="font-size: 0.875rem; color: var(--text-muted);">Loading comments...</p>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function attachCardEvents() {
+      // Toggle expand
+      document.querySelectorAll('.trade-card-header').forEach(header => {
+        header.addEventListener('click', (e) => {
+          if (e.target.closest('.close-trade-btn')) return;
+          const id = header.dataset.id;
+          const card = document.getElementById(`trade-${id}`);
+          const expand = document.getElementById(`expand-${id}`);
+          const isExpanded = card.classList.toggle('expanded');
+          expand.setAttribute('aria-hidden', !isExpanded);
+          header.setAttribute('aria-expanded', isExpanded);
+          if (isExpanded) loadComments(id);
+        });
+        header.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') header.click();
+        });
+      });
+
+      // Close trade buttons
+      document.querySelectorAll('.close-trade-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          closingTradeId = btn.dataset.id;
+          document.getElementById('close-outcome').value = '';
+          document.getElementById('close-modal').classList.add('active');
+        });
+      });
+    }
+
+    // Load comments for a trade
+    async function loadComments(tradeId) {
+      const section = document.getElementById(`comments-${tradeId}`);
+      try {
+        const data = await tradesAPI.getComments(tradeId);
+        const comments = data.comments || data || [];
+        section.innerHTML = `
+          <div class="card-title" style="margin-bottom: 0.75rem;">Comments (${comments.length})</div>
+          <div class="comment-list">${comments.map(c => `
+            <div class="comment-item">
+              <div class="avatar-placeholder avatar-sm">${(c.user?.display_name || c.author_name || 'U')[0].toUpperCase()}</div>
+              <div class="comment-body">
+                <div class="comment-meta">
+                  <span class="comment-author">${c.user?.display_name || c.author_name || 'Subscriber'}</span>
+                  <span class="comment-time">${timeAgo(c.created_at)}</span>
+                </div>
+                <div class="comment-text">${c.content}</div>
+              </div>
+            </div>`).join('')}
+          </div>
+          <form class="comment-form" data-trade="${tradeId}">
+            <input type="text" class="input comment-input" placeholder="Write a reply..." aria-label="Write a comment" />
+            <button type="submit" class="btn btn-primary btn-sm">Reply</button>
+          </form>`;
+
+        section.querySelector('.comment-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const input = e.currentTarget.querySelector('.comment-input');
+          const content = input.value.trim();
+          if (!content) return;
+          try {
+            await tradesAPI.addComment(tradeId, { content });
+            input.value = '';
+            loadComments(tradeId);
+          } catch (err) {
+            window.Toast.show(err.message || 'Failed to post comment.', 'error');
+          }
+        });
+      } catch {
+        section.innerHTML = '<p style="font-size:0.875rem; color: var(--text-muted);">Could not load comments.</p>';
+      }
+    }
+
+    // Close trade modal
+    document.getElementById('close-modal-btn').addEventListener('click', () => document.getElementById('close-modal').classList.remove('active'));
+    document.getElementById('cancel-close').addEventListener('click', () => document.getElementById('close-modal').classList.remove('active'));
+
+    document.getElementById('confirm-close').addEventListener('click', async () => {
+      const outcome = document.getElementById('close-outcome').value;
+      if (!outcome) { window.Toast.show('Please select an outcome.', 'warning'); return; }
+
+      const btn = document.getElementById('confirm-close');
+      btn.classList.add('loading');
+      try {
+        await tradesAPI.close(closingTradeId, {
+          status: outcome,
+          outcome: outcome === 'target_hit' ? 'win' : 'loss'
+        });
+        document.getElementById('close-modal').classList.remove('active');
+        window.Toast.show('Trade closed! Accuracy updated.', 'success');
+        await loadTrades();
+      } catch (err) {
+        window.Toast.show(err.message || 'Failed to close trade.', 'error');
+      } finally {
+        btn.classList.remove('loading');
+      }
+    });
+
+    // Filters
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        currentFilter = chip.dataset.filter;
+        renderTrades();
+      });
+    });
+
+    // Search
+    document.getElementById('search-input').addEventListener('input', debounce(renderTrades, 200));
+
+    // Realtime
+    const user = Storage.getUser();
+    if (user?.id) {
+      Realtime.subscribeToTrades(user.id, {
+        onInsert: () => loadTrades(),
+        onUpdate: () => loadTrades(),
+      });
+    }
+
+    loadTrades();
+  </script>
+</body>
+</html>

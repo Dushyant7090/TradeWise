@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Notifications</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/globals.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/pages.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <a href="dashboard.html" class="sidebar-logo"><span>TradeWise Pro</span></a>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+        <a href="post-trade.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Post Trade</a>
+        <a href="active-trades.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>Active Trades</a>
+        <a href="analytics.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics</a>
+        <a href="earnings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Earnings</a>
+        <a href="notifications.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
+        <a href="profile-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+        <a href="settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2"/></svg>Preferences</a>
+      </nav>
+    </aside>
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <div class="main-content">
+      <header class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="hamburger" id="hamburger" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+          <h1 class="topbar-title">Notifications</h1>
+        </div>
+        <div class="topbar-right">
+          <button class="btn btn-ghost btn-sm" id="clear-all-btn">Clear All</button>
+          <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+        </div>
+      </header>
+
+      <main class="page-content">
+        <div class="page-header">
+          <h2 class="page-title">Notifications</h2>
+          <p class="page-subtitle" id="unread-count-text" aria-live="polite">Loading...</p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="tabs" style="max-width: 320px; margin-bottom: 1.5rem;">
+          <div class="tab active" data-filter="all" role="tab" tabindex="0">All</div>
+          <div class="tab" data-filter="unread" role="tab" tabindex="0">Unread</div>
+          <div class="tab" data-filter="read" role="tab" tabindex="0">Read</div>
+        </div>
+
+        <div class="notifications-list" id="notifications-list" role="list" aria-label="Notifications">
+          <div class="empty-state">
+            <div class="spinner spinner-lg" style="margin: 0 auto;" aria-label="Loading notifications"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script type="module">
+    import Auth from '../js/auth.js';
+    import { notificationsAPI } from '../js/api.js';
+    import { timeAgo } from '../js/utils.js';
+    import Realtime from '../js/realtime.js';
+    import Storage from '../js/storage.js';
+    import App from '../js/main.js';
+
+    if (!Auth.requireAuth()) throw new Error('Not authenticated');
+    window.Toast = { show(m, t = 'info') { const c = document.getElementById('toast-container'); const el = document.createElement('div'); el.className = `toast toast-${t}`; el.innerHTML = `<div class="toast-content"><div class="toast-message">${m}</div></div><button class="toast-dismiss">×</button>`; c.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); const d = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }; el.querySelector('.toast-dismiss').addEventListener('click', d); setTimeout(d, 4000); } };
+    App.init();
+
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    document.getElementById('hamburger').addEventListener('click', () => { const o = sidebar.classList.toggle('open'); overlay.classList.toggle('active', o); });
+    overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+    document.getElementById('logout-btn').addEventListener('click', () => Auth.logout());
+
+    let allNotifs = [];
+    let currentFilter = 'all';
+
+    const notifIcons = {
+      new_subscriber: '👤',
+      trade_closed: '📊',
+      payment_success: '💰',
+      flag_alert: '🚩',
+      kyc_update: '🔐',
+      payout_status: '💳',
+      default: '🔔',
+    };
+
+    async function loadNotifications() {
+      try {
+        const data = await notificationsAPI.getAll();
+        allNotifs = data.notifications || data || [];
+        renderNotifications();
+      } catch (err) {
+        document.getElementById('notifications-list').innerHTML = `<div class="alert alert-error">${err.message || 'Failed to load notifications.'}</div>`;
+      }
+    }
+
+    function filterNotifs() {
+      if (currentFilter === 'unread') return allNotifs.filter(n => !n.is_read);
+      if (currentFilter === 'read') return allNotifs.filter(n => n.is_read);
+      return allNotifs;
+    }
+
+    function renderNotifications() {
+      const notifs = filterNotifs();
+      const unread = allNotifs.filter(n => !n.is_read).length;
+      document.getElementById('unread-count-text').textContent = unread > 0
+        ? `${unread} unread notification${unread !== 1 ? 's' : ''}`
+        : 'All caught up!';
+
+      const list = document.getElementById('notifications-list');
+      if (notifs.length === 0) {
+        list.innerHTML = `<div class="empty-state">
+          <div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+          <p class="empty-state-title">No notifications</p>
+          <p class="empty-state-text">You're all caught up!</p>
+        </div>`;
+        return;
+      }
+
+      list.innerHTML = notifs.map(n => `
+        <div class="notification-item ${n.is_read ? '' : 'unread'}" data-id="${n.id}" role="listitem">
+          <div class="notification-icon" style="background: var(--bg-card-hover);" aria-hidden="true">
+            ${notifIcons[n.type] || notifIcons.default}
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">${n.title || 'Notification'}</div>
+            <div class="notification-message">${n.message || n.body || ''}</div>
+            <div class="notification-time">${timeAgo(n.created_at)}</div>
+          </div>
+          <div class="notification-actions">
+            ${!n.is_read ? `<button class="btn btn-ghost btn-sm mark-read-btn" data-id="${n.id}" title="Mark as read" aria-label="Mark as read">✓</button>` : ''}
+            <button class="btn btn-ghost btn-sm delete-notif-btn" data-id="${n.id}" title="Delete" aria-label="Delete notification">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      // Mark read
+      list.querySelectorAll('.mark-read-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const id = btn.dataset.id;
+          try {
+            await notificationsAPI.markRead(id);
+            const notif = allNotifs.find(n => n.id === id || n.id === parseInt(id));
+            if (notif) notif.is_read = true;
+            renderNotifications();
+          } catch (err) {
+            window.Toast.show(err.message || 'Failed.', 'error');
+          }
+        });
+      });
+
+      // Delete
+      list.querySelectorAll('.delete-notif-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const id = btn.dataset.id;
+          try {
+            await notificationsAPI.delete(id);
+            allNotifs = allNotifs.filter(n => n.id !== id && n.id !== parseInt(id));
+            renderNotifications();
+          } catch (err) {
+            window.Toast.show(err.message || 'Failed.', 'error');
+          }
+        });
+      });
+
+      // Click to mark read
+      list.querySelectorAll('.notification-item.unread').forEach(item => {
+        item.addEventListener('click', async () => {
+          const id = item.dataset.id;
+          try {
+            await notificationsAPI.markRead(id);
+            const notif = allNotifs.find(n => n.id === id || n.id === parseInt(id));
+            if (notif) notif.is_read = true;
+            renderNotifications();
+          } catch {}
+        });
+      });
+    }
+
+    // Filter tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentFilter = tab.dataset.filter;
+        renderNotifications();
+      });
+      tab.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') tab.click(); });
+    });
+
+    // Clear all
+    document.getElementById('clear-all-btn').addEventListener('click', async () => {
+      if (!allNotifs.length) return;
+      if (!confirm('Clear all notifications?')) return;
+      try {
+        await notificationsAPI.clearAll();
+        allNotifs = [];
+        renderNotifications();
+        window.Toast.show('All notifications cleared.', 'success');
+      } catch (err) {
+        window.Toast.show(err.message || 'Failed.', 'error');
+      }
+    });
+
+    // Realtime notifications
+    const user = Storage.getUser();
+    if (user?.id) {
+      Realtime.subscribeToNotifications(user.id, (notif) => {
+        allNotifs.unshift({ ...notif, is_read: false });
+        renderNotifications();
+        window.Toast.show(notif.title || 'New notification', 'info');
+      });
+    }
+
+    loadNotifications();
+  </script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+/* =====================================================
+   responsive.css — Media Queries
+   ===================================================== */
+
+/* ===== TABLET (768px) ===== */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 0px;
+  }
+
+  /* Sidebar becomes drawer */
+  .sidebar {
+    transform: translateX(-100%);
+    width: 260px;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Sidebar overlay */
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 199;
+    display: none;
+  }
+
+  .sidebar-overlay.active { display: block; }
+
+  /* Main content full width */
+  .main-content {
+    margin-left: 0;
+  }
+
+  /* Hamburger visible */
+  .hamburger { display: flex; }
+
+  /* Metrics grid */
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Dashboard grid */
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Analytics */
+  .analytics-hero {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Earnings */
+  .earnings-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .balance-hero {
+    flex-direction: column;
+    gap: var(--space-5);
+    text-align: center;
+  }
+
+  /* KYC docs */
+  .kyc-docs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Profile form */
+  .profile-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-form-grid .full-width {
+    grid-column: span 1;
+  }
+
+  /* Role select */
+  .role-cards {
+    grid-template-columns: 1fr;
+  }
+
+  /* Profile avatar */
+  .profile-avatar-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  /* Trade prices */
+  .trade-prices {
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  /* Subscribers stats */
+  .subscribers-stats {
+    grid-template-columns: 1fr;
+  }
+
+  /* Page content padding */
+  .page-content {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  /* Quick actions */
+  .quick-actions {
+    flex-direction: column;
+  }
+
+  .quick-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Modal */
+  .modal {
+    padding: var(--space-6);
+  }
+
+  /* Table */
+  .table td, .table th {
+    padding: var(--space-3);
+  }
+}
+
+/* ===== MOBILE (480px) ===== */
+@media (max-width: 480px) {
+  /* Metrics grid single column */
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Analytics hero single column */
+  .analytics-hero {
+    grid-template-columns: 1fr;
+  }
+
+  /* Earnings metrics */
+  .earnings-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  /* Auth card */
+  .auth-card {
+    padding: var(--space-6);
+  }
+
+  /* Balance amount */
+  .balance-amount {
+    font-size: var(--text-3xl);
+  }
+
+  /* Trade card header */
+  .trade-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .trade-card-main {
+    flex-wrap: wrap;
+  }
+
+  /* Topbar */
+  .topbar {
+    padding: 0 var(--space-4);
+  }
+
+  .topbar-title {
+    font-size: var(--text-base);
+  }
+
+  /* Page title */
+  .page-title {
+    font-size: var(--text-xl);
+  }
+
+  /* Filter bar */
+  .filter-bar {
+    gap: var(--space-2);
+  }
+
+  /* Notification item */
+  .notification-item {
+    padding: var(--space-3);
+  }
+
+  /* Comment form */
+  .comment-form {
+    flex-direction: column;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    max-height: 80vh;
+  }
+
+  /* Toast container */
+  .toast-container {
+    left: var(--space-4);
+    right: var(--space-4);
+    bottom: var(--space-4);
+  }
+
+  .toast {
+    min-width: auto;
+    max-width: 100%;
+  }
+}
+
+/* ===== LARGE SCREENS (1280px+) ===== */
+@media (min-width: 1280px) {
+  .metrics-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ===== PRINT ===== */
+@media print {
+  .sidebar,
+  .topbar,
+  .toast-container,
+  .btn,
+  .filter-bar,
+  .hamburger {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+}
