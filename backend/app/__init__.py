@@ -58,6 +58,16 @@ def _register_blueprints(app):
     from app.routes.notifications import notifications_bp
     from app.routes.exports import exports_bp
     from app.routes.webhooks import webhooks_bp
+    from app.routes.learner_profile import learner_profile_bp
+    from app.routes.learner_feed import learner_feed_bp
+    from app.routes.learner_credits import learner_credits_bp
+    from app.routes.learner_subscriptions import learner_subscriptions_bp
+    from app.routes.learner_payments import learner_payments_bp
+    from app.routes.learner_flags import learner_flags_bp
+    from app.routes.learner_ratings import learner_ratings_bp
+    from app.routes.learner_notifications import learner_notifications_bp
+    from app.routes.learner_comments import learner_comments_bp
+    from app.routes.pro_traders_public import pro_traders_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(profile_bp, url_prefix="/api/pro-trader")
@@ -71,6 +81,16 @@ def _register_blueprints(app):
     app.register_blueprint(notifications_bp, url_prefix="/api/pro-trader")
     app.register_blueprint(exports_bp, url_prefix="/api/pro-trader")
     app.register_blueprint(webhooks_bp, url_prefix="/api/webhooks")
+    app.register_blueprint(learner_profile_bp, url_prefix="/api/learner")
+    app.register_blueprint(learner_feed_bp, url_prefix="/api/learner")
+    app.register_blueprint(learner_credits_bp, url_prefix="/api/learner")
+    app.register_blueprint(learner_subscriptions_bp, url_prefix="/api/learner")
+    app.register_blueprint(learner_payments_bp, url_prefix="/api/payments")
+    app.register_blueprint(learner_flags_bp, url_prefix="/api/learner")
+    app.register_blueprint(learner_ratings_bp, url_prefix="/api/learner")
+    app.register_blueprint(learner_notifications_bp, url_prefix="/api/learner")
+    app.register_blueprint(learner_comments_bp, url_prefix="/api/learner")
+    app.register_blueprint(pro_traders_bp, url_prefix="/api/pro-traders")
 
 
 def _register_error_handlers(app):

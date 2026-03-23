@@ -97,6 +97,15 @@ def register():
         pt_profile = ProTraderProfile(user_id=user.id)
         db.session.add(pt_profile)
 
+    # If public_trader, create learner profile with 7 starting credits
+    if role == "public_trader":
+        from app.models.learner_profile import LearnerProfile
+        from app.models.learner_notification_preferences import LearnerNotificationPreferences
+        learner_profile = LearnerProfile(user_id=user.id, credits=7)
+        db.session.add(learner_profile)
+        learner_prefs = LearnerNotificationPreferences(user_id=user.id)
+        db.session.add(learner_prefs)
+
     db.session.commit()
 
     access_token = create_access_token(identity=user.id)
@@ -328,3 +337,35 @@ def disable_2fa():
     db.session.commit()
 
     return jsonify({"message": "2FA disabled successfully"}), 200
+
+
+@auth_bp.route("/change-password", methods=["POST"])
+@jwt_required()
+def change_password():
+    """Change the authenticated user's password."""
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    data = request.get_json() or {}
+    current_password = data.get("current_password", "")
+    new_password = data.get("new_password", "")
+
+    if not current_password or not new_password:
+        return jsonify({"error": "current_password and new_password are required"}), 400
+
+    if not user.password_hash:
+        return jsonify({"error": "Password change not supported for OAuth accounts"}), 400
+
+    if not bcrypt.checkpw(current_password.encode(), user.password_hash.encode()):
+        return jsonify({"error": "Current password is incorrect"}), 401
+
+    valid_pw, pw_msg = validate_password(new_password)
+    if not valid_pw:
+        return jsonify({"error": pw_msg}), 400
+
+    user.password_hash = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
+    db.session.commit()
+
+    return jsonify({"message": "Password changed successfully"}), 200
