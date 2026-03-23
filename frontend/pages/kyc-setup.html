@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — KYC Setup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/globals.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/pages.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <a href="dashboard.html" class="sidebar-logo"><span>TradeWise Pro</span></a>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+        <a href="active-trades.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>Active Trades</a>
+        <a href="analytics.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics</a>
+        <a href="earnings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Earnings</a>
+        <a href="kyc-setup.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.91 14a16 16 0 006.06 6.06l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>KYC Setup</a>
+        <a href="notifications.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
+        <a href="profile-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+      </nav>
+    </aside>
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <div class="main-content">
+      <header class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="hamburger" id="hamburger" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+          <h1 class="topbar-title">KYC & Bank Setup</h1>
+        </div>
+        <div class="topbar-right">
+          <button class="btn btn-icon btn-ghost" id="notif-bell" aria-label="Notifications">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="notif-badge hidden" id="notif-badge">0</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+        </div>
+      </header>
+
+      <main class="page-content">
+        <div class="page-header">
+          <h2 class="page-title">KYC & Bank Setup</h2>
+          <p class="page-subtitle">Complete verification to enable withdrawals</p>
+        </div>
+
+        <!-- KYC Status Banner -->
+        <div class="kyc-status-banner not-verified" id="kyc-banner" role="status" aria-live="polite">
+          <div style="font-size: 2rem;" aria-hidden="true" id="kyc-icon">🔄</div>
+          <div>
+            <div style="font-weight: 700; font-size: 1rem;" id="kyc-status-text">KYC Status: Loading...</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary);" id="kyc-status-desc"></div>
+          </div>
+          <button class="btn btn-primary btn-sm hidden" id="resubmit-btn">Resubmit Documents</button>
+        </div>
+
+        <!-- Document Upload -->
+        <div style="margin-bottom: 2rem;">
+          <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1.5rem;">Upload Documents</h3>
+          <div class="kyc-docs-grid">
+            <!-- PAN Card -->
+            <div class="kyc-doc-card">
+              <h4 style="font-weight: 600; margin-bottom: 0.75rem;">PAN Card</h4>
+              <div class="file-dropzone" id="pan-dropzone" role="button" tabindex="0" aria-label="Upload PAN card">
+                <input type="file" id="pan-file" accept="image/jpeg,image/png,image/gif,application/pdf" aria-describedby="pan-hint" />
+                <div class="dropzone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                <div class="dropzone-text"><strong>Upload PAN Card</strong></div>
+                <div class="dropzone-hint" id="pan-hint">JPG, PNG, PDF — max 5MB</div>
+              </div>
+              <div id="pan-status" class="badge badge-neutral" style="margin-top: 0.75rem;">Not Uploaded</div>
+              <span class="form-error" id="pan-error"></span>
+            </div>
+
+            <!-- ID Proof -->
+            <div class="kyc-doc-card">
+              <h4 style="font-weight: 600; margin-bottom: 0.75rem;">Government ID Proof</h4>
+              <div class="file-dropzone" id="id-dropzone" role="button" tabindex="0" aria-label="Upload government ID">
+                <input type="file" id="id-file" accept="image/jpeg,image/png,image/gif,application/pdf" />
+                <div class="dropzone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                <div class="dropzone-text"><strong>Upload ID Proof</strong></div>
+                <div class="dropzone-hint">Aadhaar, Passport, Voter ID — max 5MB</div>
+              </div>
+              <div id="id-status" class="badge badge-neutral" style="margin-top: 0.75rem;">Not Uploaded</div>
+              <span class="form-error" id="id-error"></span>
+            </div>
+
+            <!-- Bank Statement -->
+            <div class="kyc-doc-card">
+              <h4 style="font-weight: 600; margin-bottom: 0.75rem;">Bank Statement</h4>
+              <div class="file-dropzone" id="bank-dropzone" role="button" tabindex="0" aria-label="Upload bank statement">
+                <input type="file" id="bank-file" accept="image/jpeg,image/png,image/gif,application/pdf" />
+                <div class="dropzone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                <div class="dropzone-text"><strong>Upload Bank Statement</strong></div>
+                <div class="dropzone-hint">Last 3 months — max 5MB</div>
+              </div>
+              <div id="bank-stmt-status" class="badge badge-neutral" style="margin-top: 0.75rem;">Not Uploaded</div>
+              <span class="form-error" id="bank-stmt-error"></span>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="submit-review-btn" disabled>
+            <span class="btn-text">Submit for Review</span>
+            <div class="btn-spinner spinner" aria-hidden="true"></div>
+          </button>
+        </div>
+
+        <!-- Bank Details Form -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Bank Account Details</div>
+            <div class="card-subtitle">Required for withdrawals</div>
+          </div>
+          <div id="bank-alert" class="alert hidden" role="alert"></div>
+          <form id="bank-form" novalidate>
+            <div class="profile-form-grid">
+              <div class="form-group">
+                <label class="form-label" for="account-number">Account Number <span class="required">*</span></label>
+                <input type="text" id="account-number" class="input" placeholder="Enter account number" />
+                <span class="form-error" id="acc-error"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="ifsc">IFSC Code <span class="required">*</span></label>
+                <input type="text" id="ifsc" class="input" placeholder="e.g. SBIN0012345" maxlength="11" />
+                <span class="form-error" id="ifsc-error"></span>
+              </div>
+              <div class="form-group full-width">
+                <label class="form-label" for="account-holder">Account Holder Name <span class="required">*</span></label>
+                <input type="text" id="account-holder" class="input" placeholder="As per bank records" />
+                <span class="form-error" id="holder-error"></span>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="save-bank-btn">
+              <span class="btn-text">Save Bank Details</span>
+              <div class="btn-spinner spinner" aria-hidden="true"></div>
+            </button>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script type="module">
+    import Auth from '../js/auth.js';
+    import { kycAPI } from '../js/api.js';
+    import { validateIFSC, validateRequired, validateFileSize, validateFileType } from '../js/utils.js';
+    import App from '../js/main.js';
+
+    if (!Auth.requireAuth()) throw new Error('Not authenticated');
+    window.Toast = { show(m, t = 'info') { const c = document.getElementById('toast-container'); const el = document.createElement('div'); el.className = `toast toast-${t}`; el.innerHTML = `<div class="toast-content"><div class="toast-message">${m}</div></div><button class="toast-dismiss">×</button>`; c.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); const d = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }; el.querySelector('.toast-dismiss').addEventListener('click', d); setTimeout(d, 4000); } };
+    App.init();
+
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    document.getElementById('hamburger').addEventListener('click', () => { const o = sidebar.classList.toggle('open'); overlay.classList.toggle('active', o); });
+    overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+    document.getElementById('logout-btn').addEventListener('click', () => Auth.logout());
+    document.getElementById('notif-bell').addEventListener('click', () => window.location.href = 'notifications.html');
+
+    const uploads = { pan: false, id: false, bank: false };
+
+    // Load KYC status
+    async function loadKYCStatus() {
+      try {
+        const data = await kycAPI.getStatus();
+        const status = data.kyc_status || data.status || 'not_verified';
+        const banner = document.getElementById('kyc-banner');
+        const icon = document.getElementById('kyc-icon');
+        const text = document.getElementById('kyc-status-text');
+        const desc = document.getElementById('kyc-status-desc');
+
+        banner.className = `kyc-status-banner ${status.replace('_', '-')}`;
+        const configs = {
+          verified: { icon: '✅', text: 'KYC Verified', desc: 'Your identity has been verified. Withdrawals are enabled.' },
+          pending: { icon: '⏳', text: 'KYC Pending Review', desc: 'Your documents are under review. This usually takes 1-2 business days.' },
+          rejected: { icon: '❌', text: 'KYC Rejected', desc: data.kyc_rejection_reason || 'Your KYC was rejected. Please resubmit your documents.' },
+          not_verified: { icon: '🔄', text: 'KYC Not Completed', desc: 'Please upload your documents to enable withdrawals.' },
+        };
+        const cfg = configs[status] || configs.not_verified;
+        icon.textContent = cfg.icon;
+        text.textContent = cfg.text;
+        desc.textContent = cfg.desc;
+
+        if (status === 'rejected') {
+          document.getElementById('resubmit-btn').classList.remove('hidden');
+        }
+      } catch {
+        // Silently handle
+      }
+    }
+
+    // File upload handlers
+    function setupDropzone(dropzoneId, fileInputId, statusId, errorId, docType) {
+      const dropzone = document.getElementById(dropzoneId);
+      const fileInput = document.getElementById(fileInputId);
+      const statusEl = document.getElementById(statusId);
+
+      dropzone.addEventListener('click', () => fileInput.click());
+      dropzone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+      dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+      dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+      dropzone.addEventListener('drop', (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
+      fileInput.addEventListener('change', (e) => { if (e.target.files[0]) processFile(e.target.files[0]); });
+
+      async function processFile(file) {
+        const errEl = document.getElementById(errorId);
+        const sizeErr = validateFileSize(file, 5);
+        const typeErr = validateFileType(file, ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']);
+        if (sizeErr || typeErr) { errEl.textContent = sizeErr || typeErr; return; }
+        errEl.textContent = '';
+        statusEl.textContent = 'Uploading...';
+        statusEl.className = 'badge badge-warning';
+
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('document_type', docType);
+          await kycAPI.uploadDocuments(formData);
+          statusEl.textContent = 'Uploaded ✓';
+          statusEl.className = 'badge badge-success';
+          uploads[docType.toLowerCase().split('_')[0]] = true;
+          checkAllUploaded();
+          window.Toast.show('Document uploaded successfully! Awaiting admin review.', 'success');
+        } catch (err) {
+          statusEl.textContent = 'Upload Failed';
+          statusEl.className = 'badge badge-danger';
+          errEl.textContent = err.message || 'Upload failed.';
+        }
+      }
+    }
+
+    function checkAllUploaded() {
+      const allUploaded = Object.values(uploads).every(Boolean);
+      document.getElementById('submit-review-btn').disabled = !allUploaded;
+    }
+
+    setupDropzone('pan-dropzone', 'pan-file', 'pan-status', 'pan-error', 'pan_card');
+    setupDropzone('id-dropzone', 'id-file', 'id-status', 'id-error', 'id_proof');
+    setupDropzone('bank-dropzone', 'bank-file', 'bank-stmt-status', 'bank-stmt-error', 'bank_statement');
+
+    // Submit for review
+    document.getElementById('submit-review-btn').addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      btn.classList.add('loading');
+      try {
+        await kycAPI.submitReview();
+        window.Toast.show('Submitted for admin review! Status: Pending.', 'success');
+        loadKYCStatus();
+      } catch (err) {
+        window.Toast.show(err.message || 'Failed to submit.', 'error');
+      } finally {
+        btn.classList.remove('loading');
+      }
+    });
+
+    // Bank details form
+    document.getElementById('bank-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const accNum = document.getElementById('account-number').value.trim();
+      const ifsc = document.getElementById('ifsc').value.trim().toUpperCase();
+      const holder = document.getElementById('account-holder').value.trim();
+      const alertEl = document.getElementById('bank-alert');
+      alertEl.classList.add('hidden');
+
+      let valid = true;
+      const setErr = (id, msg) => { document.getElementById(id).textContent = msg; if (msg) valid = false; };
+
+      setErr('acc-error', validateRequired(accNum, 'Account number'));
+      setErr('ifsc-error', validateIFSC(ifsc));
+      setErr('holder-error', validateRequired(holder, 'Account holder name'));
+      if (!valid) return;
+
+      const btn = document.getElementById('save-bank-btn');
+      btn.classList.add('loading');
+      try {
+        await kycAPI.updateBankDetails({ bank_account_number: accNum, ifsc_code: ifsc, account_holder_name: holder });
+        alertEl.textContent = 'Bank details saved successfully!';
+        alertEl.className = 'alert alert-success';
+        alertEl.classList.remove('hidden');
+      } catch (err) {
+        alertEl.textContent = err.message || 'Failed to save bank details.';
+        alertEl.className = 'alert alert-error';
+        alertEl.classList.remove('hidden');
+      } finally {
+        btn.classList.remove('loading');
+      }
+    });
+
+    loadKYCStatus();
+  </script>
+</body>
+</html>
