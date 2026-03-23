@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeWise — Master the Markets with Verified Trade Analysis</title>
+    <meta name="description"
+        content="Stop following signals blindly. Access high-quality trade ideas from vetted Pro-Traders on Indian Equity Markets (NSE/BSE), complete with technical rationale and chart evidence.">
+    <meta property="og:title" content="TradeWise — Master the Markets with Verified Trade Analysis">
+    <meta property="og:description"
+        content="Evidence-based trade ideas from verified mentors on Indian Equity Markets (NSE/BSE). Learn the 'why' behind every trade.">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-brand">
+            <img src="logo.svg" alt="TradeWise" class="logo-icon">
+            <span>TradeWise</span>
+        </div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#value-props">Why TradeWise</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#trust">Trust &amp; Security</a></li>
+            <li><a href="pages/auth.html" class="nav-signin-btn">Get Started</a></li>
+        </ul>
+
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text fade-in">
+                    <div class="section-badge">
+                        <span class="dot"></span>
+                        Indian Equity Markets &bull; NSE / BSE
+                    </div>
+                    <h1>Master the Markets with<br><span class="gradient">Verified Trade Analysis.</span></h1>
+                    <p>Stop following "signals" and start learning the <strong>"why."</strong> Access high-quality trade
+                        ideas from vetted Pro-Traders, complete with technical rationale and chart evidence.</p>
+                    <div class="hero-ctas">
+                        <a href="pages/auth.html" class="btn-primary">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                            </svg>
+                            Get Started
+                        </a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" data-target="1200">0</span>
+                            <span class="stat-label">Active Traders</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" data-target="85">0</span>
+                            <span class="stat-label">Avg Win Rate %</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" data-target="15000">0</span>
+                            <span class="stat-label">Trade Ideas Shared</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-visual fade-in">
+                    <div class="hero-card">
+                        <div class="float-badge accuracy">
+                            <span class="badge-icon green">✓</span>
+                            <span>87.3% Accuracy</span>
+                        </div>
+                        <div class="float-badge win-rate">
+                            <span class="badge-icon blue">↗</span>
+                            <span>RRR: 2.4x</span>
+                        </div>
+
+                        <div class="hero-card-header">
+                            <h3>Live Trade Ideas</h3>
+                            <div class="live-badge">
+                                <span class="live-dot"></span>
+                                Live
+                            </div>
+                        </div>
+
+                        <div class="mock-trade">
+                            <div class="trade-row">
+                                <span class="trade-symbol">RELIANCE</span>
+                                <span class="trade-type buy">BUY</span>
+                            </div>
+                            <div class="trade-row">
+                                <div class="trade-meta">
+                                    <span>Entry: <strong>₹2,845</strong></span>
+                                    <span>Target: <strong>₹2,960</strong></span>
+                                    <span>SL: <strong>₹2,790</strong></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mock-trade">
+                            <div class="trade-row">
+                                <span class="trade-symbol">INFY</span>
+                                <span class="trade-type sell">SELL</span>
+                            </div>
+                            <div class="trade-row">
+                                <div class="trade-meta">
+                                    <span>Entry: <strong>₹1,520</strong></span>
+                                    <span>Target: <strong>₹1,450</strong></span>
+                                    <span>SL: <strong>₹1,555</strong></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chart-mini">
+                            <svg viewBox="0 0 400 80" preserveAspectRatio="none">
+                                <defs>
+                                    <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#10B981" stop-opacity="0.3" />
+                                        <stop offset="100%" stop-color="#10B981" stop-opacity="0" />
+                                    </linearGradient>
+                                </defs>
+                                <path class="chart-area"
+                                    d="M0,60 L30,55 L60,45 L90,50 L120,35 L150,40 L180,25 L210,30 L240,15 L270,20 L300,10 L330,18 L360,8 L400,12 L400,80 L0,80 Z" />
+                                <path class="chart-line"
+                                    d="M0,60 L30,55 L60,45 L90,50 L120,35 L150,40 L180,25 L210,30 L240,15 L270,20 L300,10 L330,18 L360,8 L400,12" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CORE VALUE PROPOSITIONS ===== -->
+    <section class="value-props" id="value-props">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-badge">
+                    <span class="dot"></span>
+                    Why TradeWise
+                </div>
+                <h2 class="section-title">More Than Just <span class="gradient">Trade Calls</span></h2>
+                <p class="section-subtitle">We built a platform rooted in transparency, accountability, and education —
+                    not hype.</p>
+            </div>
+
+            <div class="value-grid">
+                <div class="value-card fade-in">
+                    <div class="value-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+                    </div>
+                    <h3>Transparency First</h3>
+                    <p>Every trade idea requires a <strong>50-word technical rationale</strong> and a <strong>mandatory
+                            chart image</strong>. No vague "buy now" signals — only evidence-backed analysis you can
+                        learn from.</p>
+                    <div class="value-tag">Rationale + Chart Required</div>
+                </div>
+
+                <div class="value-card fade-in">
+                    <div class="value-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 20V10" />
+                            <path d="M12 20V4" />
+                            <path d="M6 20v-6" />
+                        </svg>
+                    </div>
+                    <h3>Performance-Based Leaderboard</h3>
+                    <p>We track <strong>win/loss ratios</strong> and <strong>risk-reward metrics (RRR)</strong>
+                        automatically, so you know exactly who you are learning from. No inflated stats.</p>
+                    <div class="value-tag">Auto-Tracked Metrics</div>
+                </div>
+
+                <div class="value-card fade-in">
+                    <div class="value-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                        </svg>
+                    </div>
+                    <h3>Educational Ecosystem</h3>
+                    <p>TradeWise is a marketplace focused on <strong>Indian Equity Markets (NSE/BSE)</strong>, ensuring
+                        regulatory compliance and quality education for every trader.</p>
+                    <div class="value-tag">NSE / BSE Focused</div>
+                </div>
+
+                <div class="value-card fade-in">
+                    <div class="value-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                    </div>
+                    <h3>Secure & Professional</h3>
+                    <p>Built with professional-grade FinTech integrations including <strong>Cashfree Payments</strong> for
+                        automated, secure revenue splitting between mentors and the platform.</p>
+                    <div class="value-tag">Cashfree-Powered Payments</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-badge">
+                    <span class="dot"></span>
+                    How It Works
+                </div>
+                <h2 class="section-title">Two Paths, <span class="gradient">One Platform</span></h2>
+                <p class="section-subtitle">Whether you're here to learn or to teach, TradeWise has a clear path
+                    designed for you.</p>
+            </div>
+
+            <div class="hiw-columns fade-in">
+                <!-- Public Traders Column -->
+                <div class="hiw-column">
+                    <div class="hiw-column-header public-trader">
+                        <div class="hiw-column-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                            </svg>
+                        </div>
+                        <h3>For Public Traders</h3>
+                        <span class="hiw-role-tag">Public Traders</span>
+                    </div>
+                    <div class="hiw-steps">
+                        <div class="hiw-step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Discover & Browse</h4>
+                                <p>Browse a <strong>blurred feed</strong> of verified market analysis from top-rated
+                                    Pro-Traders across NSE/BSE.</p>
+                            </div>
+                        </div>
+                        <div class="hiw-step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Unlock & Analyze</h4>
+                                <p>Use <strong>trial credits</strong> or subscribe to unlock the full technical logic,
+                                    chart analysis, and trade rationale.</p>
+                            </div>
+                        </div>
+                        <div class="hiw-step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Grow & Improve</h4>
+                                <p>Learn from <strong>real-world examples</strong> and historical performance data to
+                                    sharpen your own trading skills.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="pages/auth.html" class="hiw-cta btn-primary">Get Started Free</a>
+                </div>
+
+                <!-- Divider -->
+                <div class="hiw-divider">
+                    <div class="hiw-divider-line"></div>
+                    <span class="hiw-divider-text">OR</span>
+                    <div class="hiw-divider-line"></div>
+                </div>
+
+                <!-- Pro-Traders Column -->
+                <div class="hiw-column">
+                    <div class="hiw-column-header mentor">
+                        <div class="hiw-column-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                        </div>
+                        <h3>For Pro-Traders</h3>
+                        <span class="hiw-role-tag pro">Mentors</span>
+                    </div>
+                    <div class="hiw-steps">
+                        <div class="hiw-step">
+                            <div class="step-number pro">1</div>
+                            <div class="step-content">
+                                <h4>Verify & Onboard</h4>
+                                <p>Complete your <strong>KYC and professional vetting</strong> via Cashfree to
+                                    establish your credentials.</p>
+                            </div>
+                        </div>
+                        <div class="hiw-step">
+                            <div class="step-number pro">2</div>
+                            <div class="step-content">
+                                <h4>Analyse & Post</h4>
+                                <p>Post your trade analysis with <strong>entry, stop-loss, and target
+                                        parameters</strong> along with your technical rationale.</p>
+                            </div>
+                        </div>
+                        <div class="hiw-step">
+                            <div class="step-number pro">3</div>
+                            <div class="step-content">
+                                <h4>Earn & Grow</h4>
+                                <p>Earn a <strong>90% revenue share</strong> on your subscriptions automatically via
+                                    Cashfree. We handle the rest.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="pages/auth.html" class="hiw-cta btn-secondary">Apply as Mentor</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PLATFORM FEATURES ===== -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-badge">
+                    <span class="dot"></span>
+                    Platform Features
+                </div>
+                <h2 class="section-title">Built for <span class="gradient">Smart Trading</span></h2>
+                <p class="section-subtitle">Powerful tools designed to ensure quality, accountability, and a seamless
+                    learning experience.</p>
+            </div>
+
+            <div class="features-grid">
+                <!-- Accuracy Engine -->
+                <div class="feature-card fade-in">
+                    <span class="feature-number">01</span>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                        </svg>
+                    </div>
+                    <h3>Accuracy Engine</h3>
+                    <p>Automated calculation of mentor success rates — tracking every trade to its target or stop-loss.
+                        WIN or LOSS, the numbers don't lie. <strong>Eliminates fraud.</strong></p>
+                    <div class="feature-decoration">
+                        <div class="bar active" style="height:90%"></div>
+                        <div class="bar active" style="height:75%"></div>
+                        <div class="bar" style="height:40%"></div>
+                        <div class="bar active" style="height:85%"></div>
+                        <div class="bar" style="height:55%"></div>
+                        <div class="bar active" style="height:95%"></div>
+                        <div class="bar active" style="height:70%"></div>
+                        <div class="bar" style="height:50%"></div>
+                    </div>
+                </div>
+
+                <!-- Smart Credit System -->
+                <div class="feature-card fade-in">
+                    <span class="feature-number">02</span>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
+                            <path d="M12 18V6" />
+                        </svg>
+                    </div>
+                    <h3>Smart Credit System</h3>
+                    <p>A <strong>"try-before-you-buy"</strong> model allowing users to unlock specific posts with
+                        credits — no full subscription needed to start learning.</p>
+                    <div class="feature-decoration">
+                        <div class="bar" style="height:30%"></div>
+                        <div class="bar" style="height:50%"></div>
+                        <div class="bar active" style="height:80%"></div>
+                        <div class="bar" style="height:60%"></div>
+                        <div class="bar active" style="height:95%"></div>
+                        <div class="bar" style="height:70%"></div>
+                        <div class="bar" style="height:45%"></div>
+                        <div class="bar active" style="height:85%"></div>
+                    </div>
+                </div>
+
+                <!-- Verified Mentorship -->
+                <div class="feature-card fade-in">
+                    <span class="feature-number">03</span>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            <path d="m9 12 2 2 4-4" />
+                        </svg>
+                    </div>
+                    <h3>Verified Mentorship</h3>
+                    <p>A <strong>strict vetting process</strong> for Pro-Traders ensures only experienced analysts with
+                        proven track records share content on the platform.</p>
+                    <div class="feature-decoration">
+                        <div class="bar" style="height:60%"></div>
+                        <div class="bar active" style="height:80%"></div>
+                        <div class="bar active" style="height:95%"></div>
+                        <div class="bar" style="height:50%"></div>
+                        <div class="bar" style="height:35%"></div>
+                        <div class="bar active" style="height:90%"></div>
+                        <div class="bar" style="height:65%"></div>
+                        <div class="bar active" style="height:75%"></div>
+                    </div>
+                </div>
+
+                <!-- Interactive Dashboard -->
+                <div class="feature-card fade-in">
+                    <span class="feature-number">04</span>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7" />
+                            <rect x="14" y="3" width="7" height="7" />
+                            <rect x="14" y="14" width="7" height="7" />
+                            <rect x="3" y="14" width="7" height="7" />
+                        </svg>
+                    </div>
+                    <h3>Interactive Dashboard</h3>
+                    <p><strong>Personalized feeds</strong> and tracking for your subscriptions, learning progress, and
+                        followed mentors — all in one clean dashboard.</p>
+                    <div class="feature-decoration">
+                        <div class="bar active" style="height:85%"></div>
+                        <div class="bar" style="height:55%"></div>
+                        <div class="bar active" style="height:70%"></div>
+                        <div class="bar" style="height:45%"></div>
+                        <div class="bar active" style="height:90%"></div>
+                        <div class="bar" style="height:60%"></div>
+                        <div class="bar active" style="height:80%"></div>
+                        <div class="bar" style="height:40%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TECHNICAL TRUST SIGNALS ===== -->
+    <section class="trust-signals" id="trust">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-badge">
+                    <span class="dot"></span>
+                    Trust & Security
+                </div>
+                <h2 class="section-title">Your Security is <span class="gradient">Non-Negotiable</span></h2>
+                <p class="section-subtitle">Enterprise-grade security measures to protect your data, identity, and
+                    trading experience.</p>
+            </div>
+
+            <div class="trust-grid">
+                <div class="trust-card fade-in">
+                    <div class="trust-icon-wrapper">
+                        <div class="trust-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                                <path d="m16 11 2 2 4-4" />
+                            </svg>
+                        </div>
+                        <div class="trust-glow"></div>
+                    </div>
+                    <h3>Identity Security</h3>
+                    <p>Secure authentication via <strong>Google OAuth</strong> and <strong>Email login</strong>
+                        protocols with encrypted sessions and multi-factor support.</p>
+                    <div class="trust-tags">
+                        <span>Google OAuth</span>
+                        <span>Email Auth</span>
+                        <span>Encrypted</span>
+                    </div>
+                </div>
+
+                <div class="trust-card fade-in">
+                    <div class="trust-icon-wrapper">
+                        <div class="trust-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <ellipse cx="12" cy="5" rx="9" ry="3" />
+                                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                            </svg>
+                        </div>
+                        <div class="trust-glow"></div>
+                    </div>
+                    <h3>Data Integrity</h3>
+                    <p>Backed by a <strong>relational database</strong> with <strong>Row Level Security (RLS)</strong>
+                        to keep your information safe and isolated per user.</p>
+                    <div class="trust-tags">
+                        <span>PostgreSQL</span>
+                        <span>RLS Policies</span>
+                        <span>Encrypted</span>
+                    </div>
+                </div>
+
+                <div class="trust-card fade-in">
+                    <div class="trust-icon-wrapper">
+                        <div class="trust-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                                <line x1="4" y1="22" x2="4" y2="15" />
+                            </svg>
+                        </div>
+                        <div class="trust-glow"></div>
+                    </div>
+                    <h3>Community Governance</h3>
+                    <p>Robust <strong>flagging system</strong> allowing users to report misleading content for
+                        administrative audit, ensuring platform quality.</p>
+                    <div class="trust-tags">
+                        <span>Content Flags</span>
+                        <span>Admin Audit</span>
+                        <span>Moderation</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== BOTTOM CTA ===== -->
+    <section class="bottom-cta" id="cta">
+        <div class="container">
+            <div class="cta-content fade-in">
+                <h2>Ready to Trade <span class="gradient">Smarter?</span></h2>
+                <p>Join thousands of traders learning from the best verified mentors on Indian equity markets.</p>
+                <div class="cta-buttons">
+                    <a href="pages/auth.html" class="btn-primary cta-main-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                            <polyline points="10 17 15 12 10 7" />
+                            <line x1="15" y1="12" x2="3" y2="12" />
+                        </svg>
+                        Get Started Free — 7 Credits Included
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer" id="footer">
+        <div class="container">
+            <div class="footer-main">
+                <div class="footer-brand-col">
+                    <div class="footer-brand">
+                        <img src="logo.svg" alt="TradeWise" class="logo-icon">
+                        <span>TradeWise</span>
+                    </div>
+                    <p class="footer-tagline">Master the markets with verified trade analysis from India's best
+                        Pro-Traders.</p>
+                    <div class="footer-socials">
+                        <a href="#" aria-label="Twitter">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="LinkedIn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                                <rect x="2" y="9" width="4" height="12" />
+                                <circle cx="4" cy="4" r="2" />
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="Instagram">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-links-col">
+                    <h4>Platform</h4>
+                    <ul>
+                        <li><a href="#value-props">Why TradeWise</a></li>
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#trust">Trust & Security</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Support</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Risk Disclosures</a></li>
+                        <li><a href="#">Refund Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <span class="footer-copy">&copy; 2026 TradeWise. All rights reserved.</span>
+                <div class="footer-compliance">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    <span>TradeWise is a financial education platform and does not provide SEBI-registered investment
+                        advisory services.</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

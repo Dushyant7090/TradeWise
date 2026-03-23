@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <g fill="currentColor">
+    <!-- T horizontal bar -->
+    <rect x="15" y="35" width="100" height="22" rx="2"/>
+    <!-- T vertical stem -->
+    <rect x="50" y="35" width="22" height="90" rx="2"/>
+    <!-- W as zigzag trending up with arrow -->
+    <polygon points="72,125 95,80 110,110 140,50 155,50 155,42 170,58 155,74 155,66 135,66 110,125 95,95 82,125"/>
+  </g>
+</svg>

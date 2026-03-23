@@ -1,0 +1,119 @@
+<!-- 
+    TradeWise — Email Confirmation Template
+    Paste this in: Supabase Dashboard → Authentication → Email Templates → Confirm signup
+    
+    Available variables:
+    {{ .ConfirmationURL }} — the confirmation link
+    {{ .SiteURL }} — your site URL
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body
+    style="margin:0;padding:0;background-color:#0a0a0a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',Roboto,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+        style="background-color:#0a0a0a;padding:40px 20px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="480" cellpadding="0" cellspacing="0"
+                    style="max-width:480px;width:100%;">
+
+                    <!-- Logo — Upload logo.png to Supabase Storage (public 'assets' bucket) -->
+                    <tr>
+                        <td align="center" style="padding-bottom:32px;">
+                            <img src="https://jzzazbmufhjaaivlbidk.supabase.co/storage/v1/object/public/assets/tradeWise_logo.png"
+                                alt="TradeWise" width="48" height="48" style="display:block;width:48px;height:48px;">
+                        </td>
+                    </tr>
+
+                    <!-- Main Card -->
+                    <tr>
+                        <td
+                            style="background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:40px 32px;">
+
+                            <!-- Icon -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center" style="padding-bottom:24px;">
+                                        <div
+                                            style="width:56px;height:56px;border-radius:14px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);display:inline-block;line-height:56px;text-align:center;">
+                                            <span style="font-size:24px;">✉️</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Heading -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center" style="padding-bottom:8px;">
+                                        <h1
+                                            style="margin:0;font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">
+                                            Verify your email</h1>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center" style="padding-bottom:28px;">
+                                        <p style="margin:0;font-size:14px;color:#a3a3a3;line-height:1.6;">
+                                            Thanks for signing up for TradeWise! Click the button below to confirm your
+                                            email and start your journey.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- CTA Button -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center" style="padding-bottom:28px;">
+                                        <a href="{{ .ConfirmationURL }}"
+                                            style="display:inline-block;padding:14px 40px;background:#10B981;color:#000000;font-size:15px;font-weight:600;text-decoration:none;border-radius:10px;letter-spacing:0.2px;">
+                                            Confirm My Email →
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Divider -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;">
+                                        <p
+                                            style="margin:0;font-size:12px;color:#737373;line-height:1.6;text-align:center;">
+                                            If the button doesn't work, copy and paste this link into your browser:
+                                        </p>
+                                        <p
+                                            style="margin:8px 0 0;font-size:11px;color:#525252;word-break:break-all;text-align:center;">
+                                            {{ .ConfirmationURL }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" style="padding-top:24px;">
+                            <p style="margin:0;font-size:12px;color:#525252;line-height:1.5;">
+                                You received this email because you signed up on <strong
+                                    style="color:#737373;">TradeWise</strong>.<br>
+                                If you didn't create an account, you can safely ignore this email.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>
