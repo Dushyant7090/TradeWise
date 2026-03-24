@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — My History</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/globals.css" />
+  <link rel="stylesheet" href="../../css/components.css" />
+  <link rel="stylesheet" href="../../css/pages.css" />
+  <link rel="stylesheet" href="../css/learner.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar-logo"><span>Trade<span style="color:var(--color-primary)">Wise</span></span></a>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a href="feed.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Trade Feed</a>
+      <a href="my-history.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>My History</a>
+      <a href="my-subscriptions.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Subscriptions</a>
+      <a href="notifications.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
+      <a href="profile-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        <h1 class="topbar-title">My History</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="credit-pill credits-green" id="credit-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span id="credit-pill-count">—</span> Credits</div>
+        <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="page-header">
+        <h2 class="page-title">My Learning History</h2>
+        <p class="page-subtitle">Track your unlocked trades, subscriptions, and learning progress</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="unlocked">📂 Unlocked Trades</button>
+        <button class="tab-btn" data-tab="subscriptions">💳 Subscriptions</button>
+        <button class="tab-btn" data-tab="progress">📈 Learning Progress</button>
+      </div>
+
+      <!-- Tab: Unlocked Trades -->
+      <div class="tab-panel active" id="tab-unlocked">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-4);margin-bottom:var(--space-4);">
+          <div class="filter-bar" id="history-filter-bar">
+            <button class="filter-chip active" data-hf="all">All</button>
+            <button class="filter-chip" data-hf="target_hit">Target Hit</button>
+            <button class="filter-chip" data-hf="sl_hit">SL Hit</button>
+            <button class="filter-chip" data-hf="active">Active</button>
+          </div>
+          <button class="export-btn" id="export-csv-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+        </div>
+        <div id="unlocked-list">
+          <div class="spinner spinner-lg" style="margin:var(--space-8) auto;"></div>
+        </div>
+        <div class="pagination" id="unlocked-pagination"></div>
+      </div>
+
+      <!-- Tab: Subscriptions -->
+      <div class="tab-panel hidden" id="tab-subscriptions">
+        <div id="subs-list">
+          <div class="spinner spinner-lg" style="margin:var(--space-8) auto;"></div>
+        </div>
+      </div>
+
+      <!-- Tab: Learning Progress -->
+      <div class="tab-panel hidden" id="tab-progress">
+        <!-- Stats -->
+        <div class="stat-grid" id="progress-stats" style="margin-bottom:var(--space-6);">
+          <div class="stat-item"><div class="stat-value" id="ps-total">—</div><div class="stat-label">Total Unlocked</div></div>
+          <div class="stat-item"><div class="stat-value" id="ps-wins">—</div><div class="stat-label">Target Hit</div></div>
+          <div class="stat-item"><div class="stat-value" id="ps-losses">—</div><div class="stat-label">SL Hit</div></div>
+          <div class="stat-item"><div class="stat-value" id="ps-winrate">—</div><div class="stat-label">Win Rate</div></div>
+          <div class="stat-item"><div class="stat-value" id="ps-streak">—</div><div class="stat-label">Learning Streak</div></div>
+          <div class="stat-item"><div class="stat-value" id="ps-markets">—</div><div class="stat-label">Markets Explored</div></div>
+        </div>
+        <!-- Charts -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:var(--space-5);">
+          <div class="card">
+            <div class="card-header"><h3 class="card-title">Trades Unlocked Over Time</h3></div>
+            <div style="height:200px;"><canvas id="progress-chart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3 class="card-title">Win / Loss Record</h3></div>
+            <div style="height:200px;"><canvas id="winloss-chart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3 class="card-title">Market Distribution</h3></div>
+            <div style="height:200px;"><canvas id="market-chart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3 class="card-title">Monthly Unlocks</h3></div>
+            <div style="height:200px;"><canvas id="monthly-chart"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script type="module">
+  import Auth from '../js/auth.js';
+  import { learnerHistoryAPI, learnerSubscriptionsAPI, learnerCreditsAPI } from '../js/api.js';
+  import { createLearningProgressChart, createWinLossChart, createMarketDistributionChart, createMonthlyUnlocksChart } from '../js/charts.js';
+  import { timeAgo, formatDate, formatCurrency } from '../js/utils.js';
+
+  if (!Auth.requireAuth()) throw new Error('Not authenticated');
+
+  window.Toast = {
+    show(msg,type='info'){const c=document.getElementById('toast-container'),t=document.createElement('div');t.className=`toast toast-${type}`;t.innerHTML=`<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;c.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));const d=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);};t.querySelector('.toast-dismiss').addEventListener('click',d);setTimeout(d,5000);}
+  };
+
+  const hamburger=document.getElementById('hamburger'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
+  hamburger.addEventListener('click',()=>{sidebar.classList.toggle('open');overlay.classList.toggle('active');});
+  overlay.addEventListener('click',()=>{sidebar.classList.remove('open');overlay.classList.remove('active');});
+  document.getElementById('logout-btn').addEventListener('click',()=>Auth.logout());
+
+  // ===== TABS =====
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>{ p.classList.remove('active'); p.classList.add('hidden'); });
+      btn.classList.add('active');
+      const panel = document.getElementById(`tab-${btn.dataset.tab}`);
+      panel.classList.remove('hidden'); panel.classList.add('active');
+      if (btn.dataset.tab==='subscriptions' && !subsLoaded) loadSubs();
+      if (btn.dataset.tab==='progress' && !progressLoaded) loadProgress();
+    });
+  });
+
+  // ===== HISTORY FILTER =====
+  let currentFilter = 'all';
+  let currentPage = 1;
+  document.querySelectorAll('#history-filter-bar .filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#history-filter-bar .filter-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      currentFilter = chip.dataset.hf;
+      currentPage = 1;
+      loadHistory();
+    });
+  });
+
+  let allTrades = [];
+
+  async function loadHistory() {
+    const list = document.getElementById('unlocked-list');
+    list.innerHTML = '<div class="spinner spinner-lg" style="margin:var(--space-8) auto;"></div>';
+    try {
+      const params = `?page=${currentPage}&limit=20${currentFilter!=='all'?'&filter='+currentFilter:''}`;
+      const data = await learnerHistoryAPI.getHistory(params);
+      allTrades = data.data || [];
+      if (!allTrades.length) { list.innerHTML='<div class="empty-state"><h3 class="empty-state-title">No trades yet</h3><p class="empty-state-text">Go to the feed and unlock your first trade!</p><a href="feed.html" class="btn btn-primary">Browse Feed</a></div>'; return; }
+      list.innerHTML = `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:.875rem;">
+        <thead><tr style="border-bottom:1px solid var(--border-subtle);">
+          <th style="padding:10px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Symbol</th>
+          <th style="padding:10px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Trader</th>
+          <th style="padding:10px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Market</th>
+          <th style="padding:10px 12px;text-align:left;color:var(--text-muted);font-weight:600;">RRR</th>
+          <th style="padding:10px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Status</th>
+          <th style="padding:10px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Unlocked</th>
+          <th style="padding:10px 12px;text-align:left;color:var(--text-muted);font-weight:600;">View</th>
+        </tr></thead>
+        <tbody>
+          ${allTrades.map(t=>`<tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:10px 12px;font-weight:700;font-family:var(--font-mono);">${t.symbol||'—'}</td>
+            <td style="padding:10px 12px;color:var(--text-secondary);">${t.pro_trader_name||t.trader_name||'—'}</td>
+            <td style="padding:10px 12px;color:var(--text-secondary);">${t.market||'—'}</td>
+            <td style="padding:10px 12px;color:var(--color-warning);">${t.rrr||'—'}</td>
+            <td style="padding:10px 12px;"><span class="trade-status status-${t.status||'active'}">${(t.status||'active').replace('_',' ')}</span></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">${formatDate(t.unlocked_at)}</td>
+            <td style="padding:10px 12px;"><a href="trade-detail.html?id=${t.trade_id||t.id}" class="btn btn-ghost btn-sm">View →</a></td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>`;
+    } catch (err) { list.innerHTML = `<div class="empty-state"><p style="color:var(--color-danger);">${err.message||'Failed to load history.'}</p></div>`; }
+  }
+
+  // CSV export
+  document.getElementById('export-csv-btn').addEventListener('click', () => {
+    if (!allTrades.length) { Toast.show('No trades to export.', 'warning'); return; }
+    const rows = [['Symbol','Trader','Market','RRR','Status','Unlocked At']];
+    allTrades.forEach(t => rows.push([t.symbol||'',t.pro_trader_name||'',t.market||'',t.rrr||'',t.status||'',t.unlocked_at||'']));
+    const csv = rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+    const blob = new Blob([csv],{type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download='tradewise-history.csv'; a.click(); URL.revokeObjectURL(url);
+    Toast.show('CSV exported!', 'success');
+  });
+
+  // ===== SUBS TAB =====
+  let subsLoaded = false;
+  async function loadSubs() {
+    subsLoaded = true;
+    const list = document.getElementById('subs-list');
+    try {
+      const data = await learnerSubscriptionsAPI.getAll();
+      const subs = data.data || [];
+      if (!subs.length) { list.innerHTML='<div class="empty-state"><h3 class="empty-state-title">No subscriptions</h3><p class="empty-state-text">Subscribe to a pro-trader to get unlimited access.</p><a href="my-subscriptions.html" class="btn btn-primary">Browse Traders</a></div>'; return; }
+      list.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--space-5);">` +
+        subs.map(s=>`<div class="sub-card ${s.status==='active'?'sub-card-active':'sub-card-expired'}">
+          <div class="sub-card-header"><div style="font-weight:700;">${s.pro_trader_name||s.pro_trader?.display_name||'Trader'}</div><span class="trade-status status-${s.status==='active'?'active':'sl_hit'}">${s.status}</span></div>
+          <div class="sub-card-meta">
+            <div class="sub-meta-item"><div class="sub-meta-label">Started</div><div class="sub-meta-value">${formatDate(s.started_at)}</div></div>
+            <div class="sub-meta-item"><div class="sub-meta-label">Expires</div><div class="sub-meta-value">${formatDate(s.ends_at)}</div></div>
+          </div>
+          <a href="my-subscriptions.html" class="btn btn-secondary btn-sm btn-full">Manage</a>
+        </div>`).join('') + '</div>';
+    } catch (err) { list.innerHTML=`<p style="color:var(--color-danger);">${err.message||'Failed to load subscriptions.'}</p>`; }
+  }
+
+  // ===== PROGRESS TAB =====
+  let progressLoaded = false;
+  async function loadProgress() {
+    progressLoaded = true;
+    try {
+      const data = await learnerHistoryAPI.getHistory('?page=1&limit=200');
+      const trades = data.data || [];
+      const wins = trades.filter(t=>t.status==='target_hit').length;
+      const losses = trades.filter(t=>t.status==='sl_hit').length;
+      const winRate = wins + losses > 0 ? Math.round((wins/(wins+losses))*100) : 0;
+      const markets = [...new Set(trades.filter(t=>t.market).map(t=>t.market))];
+      document.getElementById('ps-total').textContent = trades.length;
+      document.getElementById('ps-wins').textContent = wins;
+      document.getElementById('ps-losses').textContent = losses;
+      document.getElementById('ps-winrate').textContent = winRate + '%';
+      document.getElementById('ps-markets').textContent = markets.length;
+
+      // Charts
+      // Group by month
+      const monthMap = {};
+      trades.forEach(t => {
+        const month = t.unlocked_at ? new Date(t.unlocked_at).toLocaleDateString('en-IN',{month:'short',year:'2-digit'}) : 'Unknown';
+        monthMap[month] = (monthMap[month]||0)+1;
+      });
+      const months = Object.keys(monthMap).slice(-6);
+      const counts = months.map(m=>monthMap[m]);
+
+      createLearningProgressChart('progress-chart', { labels: months, values: counts });
+      createWinLossChart('winloss-chart', { labels: months, wins: [], losses: [] });
+      
+      // Market distribution
+      const marketCount = {};
+      trades.forEach(t => { if(t.market) marketCount[t.market] = (marketCount[t.market]||0)+1; });
+      createMarketDistributionChart('market-chart', { labels: Object.keys(marketCount), values: Object.values(marketCount) });
+      createMonthlyUnlocksChart('monthly-chart', { labels: months, values: counts });
+
+      // Streak (simplified: consecutive days with at least 1 unlock)
+      const today = new Date(); let streak = 0;
+      for (let d = 0; d < 30; d++) {
+        const day = new Date(today); day.setDate(today.getDate()-d);
+        const ds = day.toDateString();
+        const found = trades.find(t => t.unlocked_at && new Date(t.unlocked_at).toDateString()===ds);
+        if (found) streak++; else break;
+      }
+      document.getElementById('ps-streak').textContent = streak + ' day' + (streak!==1?'s':'');
+    } catch (err) { Toast.show(err.message||'Failed to load progress.', 'error'); }
+  }
+
+  // Load credits
+  async function loadCredits() {
+    try { const d=await learnerCreditsAPI.getCredits(); const n=parseInt(d.credits)||0; const cls=n>=4?'credits-green':n>=1?'credits-yellow':'credits-red'; document.getElementById('credit-pill-count').textContent=n; document.getElementById('credit-pill').className=`credit-pill ${cls}`; } catch { /* silent */ }
+  }
+
+  loadHistory();
+  loadCredits();
+</script>
+</body>
+</html>

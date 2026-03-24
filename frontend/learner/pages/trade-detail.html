@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Trade Detail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/globals.css" />
+  <link rel="stylesheet" href="../../css/components.css" />
+  <link rel="stylesheet" href="../../css/pages.css" />
+  <link rel="stylesheet" href="../css/learner.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar-logo"><span>Trade<span style="color:var(--color-primary)">Wise</span></span></a>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a href="feed.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Trade Feed</a>
+      <a href="my-history.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>My History</a>
+      <a href="my-subscriptions.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Subscriptions</a>
+      <a href="notifications.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
+      <a href="profile-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger" aria-label="Toggle"><span></span><span></span><span></span></button>
+        <a href="feed.html" class="btn btn-ghost btn-sm" style="gap:6px;">← Back to Feed</a>
+      </div>
+      <div class="topbar-right">
+        <div class="credit-pill credits-green" id="credit-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+          <span id="credit-pill-count">—</span> Credits
+        </div>
+        <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="page-content" id="page-content">
+      <div class="spinner spinner-lg" style="margin:4rem auto;" id="loading-spinner"></div>
+      <div id="trade-content" class="hidden"></div>
+    </main>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox hidden" onclick="this.classList.add('hidden')">
+  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.add('hidden')">×</button>
+  <img id="lightbox-img" src="" alt="Chart" />
+</div>
+
+<!-- Flag Modal -->
+<div class="modal-overlay" id="flag-modal" role="dialog">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Report Trade</h2>
+      <button class="modal-close" id="close-flag-modal">×</button>
+    </div>
+    <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:var(--space-4);">
+      Help keep TradeWise trustworthy. Admins will review your report.
+    </p>
+    <div class="form-group">
+      <label class="form-label" for="flag-reason">Reason <span class="required">*</span></label>
+      <select id="flag-reason" class="flag-reason-select input">
+        <option value="">Select a reason…</option>
+        <option value="fake_trade">Fake / fabricated trade</option>
+        <option value="misleading_analysis">Misleading analysis</option>
+        <option value="copied_content">Copied from another source</option>
+        <option value="inappropriate">Inappropriate content</option>
+        <option value="spam">Spam</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div id="flag-alert" class="alert hidden"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancel-flag">Cancel</button>
+      <button class="btn btn-danger" id="submit-flag-btn">
+        <span class="btn-text">Submit Report</span>
+        <div class="btn-spinner spinner" aria-hidden="true"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Rate Modal -->
+<div class="modal-overlay" id="rate-modal" role="dialog">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Rate this Trade</h2>
+      <button class="modal-close" id="close-rate-modal">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Your Rating</label>
+      <div class="star-rating" id="rating-stars">
+        <span class="star" data-value="1">★</span>
+        <span class="star" data-value="2">★</span>
+        <span class="star" data-value="3">★</span>
+        <span class="star" data-value="4">★</span>
+        <span class="star" data-value="5">★</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="rate-review">Review (optional)</label>
+      <textarea id="rate-review" class="input" rows="3" placeholder="Share your thoughts about this trade idea…"></textarea>
+    </div>
+    <div id="rate-alert" class="alert hidden"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancel-rate">Cancel</button>
+      <button class="btn btn-primary" id="submit-rate-btn">
+        <span class="btn-text">Submit Rating</span>
+        <div class="btn-spinner spinner" aria-hidden="true"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script type="module">
+  import Auth from '../js/auth.js';
+  import { learnerFeedAPI, learnerCreditsAPI, learnerCommentsAPI, learnerFlagsAPI, learnerRatingsAPI, paymentsAPI, learnerSubscriptionsAPI } from '../js/api.js';
+  import { timeAgo, getInitials } from '../js/utils.js';
+  import Realtime from '../js/realtime.js';
+
+  if (!Auth.requireAuth()) throw new Error('Not authenticated');
+
+  window.Toast = {
+    show(msg, type='info') {
+      const c=document.getElementById('toast-container'),t=document.createElement('div');
+      t.className=`toast toast-${type}`;
+      t.innerHTML=`<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;
+      c.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));
+      const d=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);};
+      t.querySelector('.toast-dismiss').addEventListener('click',d);setTimeout(d,5000);
+    }
+  };
+
+  const hamburger=document.getElementById('hamburger'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
+  hamburger.addEventListener('click',()=>{sidebar.classList.toggle('open');overlay.classList.toggle('active');});
+  overlay.addEventListener('click',()=>{sidebar.classList.remove('open');overlay.classList.remove('active');});
+  document.getElementById('logout-btn').addEventListener('click',()=>Auth.logout());
+
+  const params = new URLSearchParams(location.search);
+  const tradeId = params.get('id');
+  if (!tradeId) { location.href = 'feed.html'; throw new Error(); }
+
+  let tradeData = null;
+  let currentRating = 0;
+  let hasRated = false;
+
+  async function loadTrade() {
+    try {
+      const data = await learnerFeedAPI.getTrade(tradeId);
+      tradeData = data;
+      renderTrade(data);
+      loadComments();
+      loadCredits();
+      // Realtime trade status updates
+      const sbUrl=window.TW_SUPABASE_URL||'',sbKey=window.TW_SUPABASE_ANON_KEY||'';
+      Realtime.init(sbUrl,sbKey);
+      Realtime.subscribeToTradeUpdates(tradeId, { onUpdate(updated) { Toast.show(`Trade status updated: ${updated.status}`, 'info'); document.querySelector('.trade-status')?.textContent = (updated.status||'').replace('_',' '); } });
+      Realtime.subscribeToComments(tradeId, { onInsert(c) { appendComment(c); } });
+    } catch (err) {
+      document.getElementById('loading-spinner').classList.add('hidden');
+      document.getElementById('trade-content').innerHTML = `<div class="empty-state"><p style="color:var(--color-danger);">${err.message||'Failed to load trade.'}</p></div>`;
+      document.getElementById('trade-content').classList.remove('hidden');
+    }
+  }
+
+  async function loadCredits() {
+    try { const d = await learnerCreditsAPI.getCredits(); renderCredits(d.credits); } catch { /* silent */ }
+  }
+
+  function renderCredits(n) {
+    n=parseInt(n)||0;
+    const cls=n>=4?'credits-green':n>=1?'credits-yellow':'credits-red';
+    document.getElementById('credit-pill-count').textContent=n;
+    document.getElementById('credit-pill').className=`credit-pill ${cls}`;
+  }
+
+  function renderTrade(t) {
+    document.getElementById('loading-spinner').classList.add('hidden');
+    const locked = !t.is_unlocked;
+    const accuracy = t.pro_trader?.accuracy_score ?? 0;
+    const initials = getInitials(t.pro_trader?.display_name||'T');
+
+    const html = `
+    <div class="trade-detail-header">
+      <div class="trade-detail-title">
+        <span class="trade-detail-symbol">${t.symbol||'—'}</span>
+        ${!locked && t.direction ? `<span class="trade-direction-badge ${t.direction==='buy'?'direction-buy':'direction-sell'}">${t.direction.toUpperCase()}</span>` : ''}
+        <span class="trade-status status-${t.status||'active'}">${(t.status||'active').replace('_',' ')}</span>
+        ${locked ? '<span class="badge-locked">🔒 Locked</span>' : '<span class="badge-unlocked">✓ Unlocked</span>'}
+      </div>
+      <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;">
+        ${locked ? `<button class="btn btn-primary" id="unlock-btn">🔓 Unlock (1 Credit)</button>` : ''}
+        ${!locked ? `<button class="btn btn-ghost btn-sm" id="rate-btn" title="Rate this trade">★ Rate</button>` : ''}
+        ${!locked ? `<button class="btn btn-ghost btn-sm" id="flag-btn" style="color:var(--color-danger);" title="Report trade">⚑ Report</button>` : ''}
+      </div>
+    </div>
+
+    <!-- Pro Trader info -->
+    <div class="card" style="margin-bottom:var(--space-5);">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-4);">
+        <div style="display:flex;align-items:center;gap:var(--space-3);">
+          <div class="avatar-placeholder" style="width:48px;height:48px;font-size:var(--text-base);">${initials}</div>
+          <div>
+            <div style="font-size:var(--text-base);font-weight:700;">${t.pro_trader?.display_name||'Pro Trader'}</div>
+            <span class="trader-accuracy-badge ${accuracy>=70?'accuracy-high':accuracy>=50?'accuracy-medium':'accuracy-low'}">${accuracy}% accuracy</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:var(--space-4);">
+          <div class="trader-stat"><div class="trader-stat-value">${t.pro_trader?.total_trades||0}</div><div class="trader-stat-label">Trades</div></div>
+          <div class="trader-stat"><div class="trader-stat-value">${t.pro_trader?.win_rate||0}%</div><div class="trader-stat-label">Win Rate</div></div>
+          <div class="trader-stat"><div class="trader-stat-value">${t.pro_trader?.subscribers_count||0}</div><div class="trader-stat-label">Subscribers</div></div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="sub-trader-btn">Subscribe</button>
+      </div>
+    </div>
+
+    <!-- Price grid -->
+    <div class="trade-price-grid">
+      <div class="price-cell">
+        <div class="price-cell-label">Symbol</div>
+        <div class="price-cell-value" style="font-family:var(--font-mono);">${t.symbol||'—'}</div>
+      </div>
+      <div class="price-cell">
+        <div class="price-cell-label">RRR</div>
+        <div class="price-cell-value rrr">${t.rrr||t.risk_reward_ratio||'—'}</div>
+      </div>
+      ${locked ? `
+      <div class="price-cell">
+        <div class="price-cell-label">Entry</div>
+        <div class="price-cell-value blur-content">XXXX</div>
+      </div>
+      <div class="price-cell">
+        <div class="price-cell-label">Stop Loss</div>
+        <div class="price-cell-value blur-content" style="color:var(--color-danger);">XXXX</div>
+      </div>
+      <div class="price-cell">
+        <div class="price-cell-label">Target</div>
+        <div class="price-cell-value blur-content" style="color:var(--color-success);">XXXX</div>
+      </div>` : `
+      <div class="price-cell">
+        <div class="price-cell-label">Entry</div>
+        <div class="price-cell-value entry">${t.entry_price||'—'}</div>
+      </div>
+      <div class="price-cell">
+        <div class="price-cell-label">Stop Loss</div>
+        <div class="price-cell-value sl">${t.stop_loss||'—'}</div>
+      </div>
+      <div class="price-cell">
+        <div class="price-cell-label">Target</div>
+        <div class="price-cell-value target">${t.target_price||'—'}</div>
+      </div>`}
+      ${!locked && t.outcome ? `<div class="price-cell"><div class="price-cell-label">Outcome</div><div class="price-cell-value" style="color:var(--color-${t.status==='target_hit'?'success':'danger'});">${t.outcome}</div></div>` : ''}
+    </div>
+
+    ${t.chart_image ? `
+    <!-- Chart -->
+    <div class="card" style="margin-top:var(--space-5);">
+      <div class="card-header"><h3 class="card-title">Trade Chart</h3></div>
+      <div class="chart-image-wrap" id="chart-wrap">
+        ${locked ? `<div class="blur-content" style="height:200px;display:flex;align-items:center;justify-content:center;"><span style="color:var(--text-muted);">Chart hidden until unlocked</span></div>` : `<img src="${t.chart_image}" alt="Trade Chart" id="chart-img" />`}
+      </div>
+    </div>` : ''}
+
+    ${t.rationale ? `
+    <!-- Rationale -->
+    <div class="card" style="margin-top:var(--space-5);">
+      <div class="card-header"><h3 class="card-title">Technical Rationale</h3></div>
+      ${locked ? `<div class="blur-content rationale-box">This analysis is locked. Use a credit or subscribe to view the full reasoning behind this trade setup.</div>` : `<div class="rationale-box">${t.rationale}</div>`}
+    </div>` : ''}
+
+    ${locked ? `
+    <!-- Unlock CTA -->
+    <div class="card" style="margin-top:var(--space-5);text-align:center;padding:var(--space-8);">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" style="margin:0 auto var(--space-4);"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      <h3 style="font-size:var(--text-xl);margin-bottom:var(--space-3);">Unlock Full Analysis</h3>
+      <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:var(--space-6);">Use 1 credit to unlock entry, stop loss, target, chart and full rationale — or subscribe to this trader for unlimited access.</p>
+      <div style="display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-lg" id="unlock-btn-2">🔓 Unlock (1 Credit)</button>
+        <button class="btn btn-secondary btn-lg" id="subscribe-btn-cta">Subscribe for Unlimited Access</button>
+      </div>
+    </div>` : ''}
+
+    <!-- Comments -->
+    <div class="card" style="margin-top:var(--space-5);">
+      <div class="card-header">
+        <h3 class="card-title">Community Discussion</h3>
+        <span id="comment-count" style="font-size:.875rem;color:var(--text-muted);"></span>
+      </div>
+      <div class="comment-list" id="comment-list">
+        <div class="spinner" style="margin:var(--space-4) auto;"></div>
+      </div>
+      ${!locked ? `
+      <div class="comment-input-row" style="margin-top:var(--space-4);">
+        <input type="text" id="comment-input" class="input" placeholder="Add a comment…" maxlength="500" />
+        <button class="btn btn-primary" id="post-comment-btn">Post</button>
+      </div>` : `<p style="font-size:.875rem;color:var(--text-muted);margin-top:var(--space-3);">Unlock this trade to participate in the discussion.</p>`}
+    </div>`;
+
+    document.getElementById('trade-content').innerHTML = html;
+    document.getElementById('trade-content').classList.remove('hidden');
+
+    // Lightbox for chart
+    const chartImg = document.getElementById('chart-img');
+    if (chartImg) {
+      chartImg.style.cursor = 'zoom-in';
+      chartImg.addEventListener('click', () => { document.getElementById('lightbox-img').src = chartImg.src; document.getElementById('lightbox').classList.remove('hidden'); });
+    }
+
+    // Unlock handlers
+    const unlockBtn = document.getElementById('unlock-btn');
+    const unlockBtn2 = document.getElementById('unlock-btn-2');
+    [unlockBtn, unlockBtn2].filter(Boolean).forEach(btn => btn.addEventListener('click', () => handleUnlock(t)));
+
+    // Subscribe CTA
+    const subCta = document.getElementById('subscribe-btn-cta');
+    if (subCta) subCta.addEventListener('click', () => handleSubscribe(t));
+
+    // Sub button in trader card
+    document.getElementById('sub-trader-btn')?.addEventListener('click', () => handleSubscribe(t));
+
+    // Rate
+    document.getElementById('rate-btn')?.addEventListener('click', () => document.getElementById('rate-modal').classList.add('active'));
+
+    // Flag
+    document.getElementById('flag-btn')?.addEventListener('click', () => document.getElementById('flag-modal').classList.add('active'));
+  }
+
+  async function handleUnlock(t) {
+    try {
+      const res = await learnerFeedAPI.unlockTrade(t.id);
+      Toast.show(`Trade unlocked! Credits remaining: ${res.credits_remaining}`, 'success');
+      loadTrade();
+    } catch (err) {
+      if (err.status === 402) handleSubscribe(t);
+      else Toast.show(err.message||'Failed to unlock.', 'error');
+    }
+  }
+
+  async function handleSubscribe(t) {
+    const traderId = t.pro_trader_id || t.pro_trader?.id;
+    const price = t.pro_trader?.subscription_price || 499;
+    if (!traderId) { Toast.show('Trader info not available.', 'error'); return; }
+    try {
+      const user = Auth.getCurrentUser();
+      const order = await paymentsAPI.createOrder({ learner_id: user?.id, pro_trader_id: traderId, amount: price, subscription_type: 'monthly' });
+      if (order.payment_url) window.location.href = order.payment_url;
+    } catch (err) { Toast.show(err.message||'Payment error.', 'error'); }
+  }
+
+  async function loadComments() {
+    const list = document.getElementById('comment-list');
+    if (!list) return;
+    try {
+      const data = await learnerCommentsAPI.getComments(tradeId);
+      const comments = data.data || [];
+      document.getElementById('comment-count').textContent = `${comments.length} comments`;
+      if (!comments.length) { list.innerHTML = '<p style="color:var(--text-muted);font-size:.875rem;">No comments yet. Be the first!</p>'; return; }
+      list.innerHTML = comments.map(c => commentHTML(c)).join('');
+      attachCommentActions();
+    } catch { list.innerHTML = '<p style="color:var(--text-muted);font-size:.875rem;">Failed to load comments.</p>'; }
+  }
+
+  function commentHTML(c) {
+    const user = Auth.getCurrentUser();
+    const isOwn = c.user_id === user?.id;
+    return `<div class="comment-item" data-id="${c.id}">
+      <div class="comment-avatar">${getInitials(c.author_name||c.author||'U')}</div>
+      <div class="comment-bubble">
+        <div class="comment-meta">
+          <span class="comment-author">${c.author_name||c.author||'User'}</span>
+          <span class="comment-time">${timeAgo(c.created_at)}</span>
+        </div>
+        <div class="comment-text" id="comment-text-${c.id}">${c.content}</div>
+        ${isOwn ? `<div class="comment-actions">
+          <button class="btn btn-ghost btn-sm edit-comment-btn" data-id="${c.id}" style="font-size:.75rem;">Edit</button>
+          <button class="btn btn-ghost btn-sm delete-comment-btn" data-id="${c.id}" style="font-size:.75rem;color:var(--color-danger);">Delete</button>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  function appendComment(c) {
+    const list = document.getElementById('comment-list');
+    if (!list) return;
+    const placeholder = list.querySelector('p');
+    if (placeholder) placeholder.remove();
+    const div = document.createElement('div');
+    div.innerHTML = commentHTML(c);
+    list.appendChild(div.firstElementChild);
+  }
+
+  function attachCommentActions() {
+    document.querySelectorAll('.delete-comment-btn').forEach(btn => btn.addEventListener('click', async () => {
+      if (!confirm('Delete this comment?')) return;
+      try { await learnerCommentsAPI.deleteComment(tradeId, btn.dataset.id); btn.closest('.comment-item').remove(); Toast.show('Comment deleted.', 'success'); } catch (err) { Toast.show(err.message||'Failed.', 'error'); }
+    }));
+    document.querySelectorAll('.edit-comment-btn').forEach(btn => btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const textEl = document.getElementById(`comment-text-${id}`);
+      const original = textEl.textContent;
+      textEl.innerHTML = `<input type="text" class="input" value="${original}" id="edit-input-${id}" style="margin-bottom:.5rem;" /><div style="display:flex;gap:.5rem;"><button class="btn btn-primary btn-sm save-edit" data-id="${id}">Save</button><button class="btn btn-secondary btn-sm cancel-edit" data-id="${id}">Cancel</button></div>`;
+      document.querySelector(`.save-edit[data-id="${id}"]`).addEventListener('click', async () => {
+        const val = document.getElementById(`edit-input-${id}`).value.trim();
+        if (!val) return;
+        try { await learnerCommentsAPI.updateComment(tradeId, id, { content: val }); textEl.textContent = val; Toast.show('Comment updated.', 'success'); } catch (err) { Toast.show(err.message||'Failed.', 'error'); }
+      });
+      document.querySelector(`.cancel-edit[data-id="${id}"]`).addEventListener('click', () => { textEl.textContent = original; });
+    }));
+  }
+
+  // Post comment
+  document.addEventListener('click', async (e) => {
+    if (e.target.id === 'post-comment-btn') {
+      const input = document.getElementById('comment-input');
+      const val = input?.value.trim();
+      if (!val) return;
+      try {
+        const c = await learnerCommentsAPI.addComment(tradeId, { content: val });
+        appendComment(c.comment || c);
+        input.value = '';
+        Toast.show('Comment posted!', 'success');
+      } catch (err) { Toast.show(err.message||'Failed to post comment.', 'error'); }
+    }
+  });
+
+  // Star rating
+  let selectedRating = 0;
+  document.querySelectorAll('#rating-stars .star').forEach(star => {
+    star.addEventListener('click', () => {
+      selectedRating = parseInt(star.dataset.value);
+      document.querySelectorAll('#rating-stars .star').forEach((s, i) => s.classList.toggle('filled', i < selectedRating));
+    });
+  });
+
+  document.getElementById('close-rate-modal').addEventListener('click', () => document.getElementById('rate-modal').classList.remove('active'));
+  document.getElementById('cancel-rate').addEventListener('click', () => document.getElementById('rate-modal').classList.remove('active'));
+
+  document.getElementById('submit-rate-btn').addEventListener('click', async () => {
+    if (!selectedRating) { document.getElementById('rate-alert').textContent='Please select a rating.'; document.getElementById('rate-alert').className='alert alert-error'; document.getElementById('rate-alert').classList.remove('hidden'); return; }
+    const review = document.getElementById('rate-review').value.trim();
+    const btn = document.getElementById('submit-rate-btn');
+    btn.classList.add('loading'); btn.disabled = true;
+    try {
+      if (hasRated) await learnerRatingsAPI.updateRating(tradeId, { rating: selectedRating, review });
+      else await learnerRatingsAPI.rateTrade(tradeId, { rating: selectedRating, review });
+      hasRated = true;
+      document.getElementById('rate-modal').classList.remove('active');
+      Toast.show('Rating submitted!', 'success');
+    } catch (err) {
+      document.getElementById('rate-alert').textContent = err.message||'Failed to submit rating.';
+      document.getElementById('rate-alert').className='alert alert-error';
+      document.getElementById('rate-alert').classList.remove('hidden');
+    } finally { btn.classList.remove('loading'); btn.disabled = false; }
+  });
+
+  // Flag
+  document.getElementById('close-flag-modal').addEventListener('click', () => document.getElementById('flag-modal').classList.remove('active'));
+  document.getElementById('cancel-flag').addEventListener('click', () => document.getElementById('flag-modal').classList.remove('active'));
+
+  document.getElementById('submit-flag-btn').addEventListener('click', async () => {
+    const reason = document.getElementById('flag-reason').value;
+    if (!reason) { document.getElementById('flag-alert').textContent='Please select a reason.'; document.getElementById('flag-alert').className='alert alert-error'; document.getElementById('flag-alert').classList.remove('hidden'); return; }
+    const btn = document.getElementById('submit-flag-btn');
+    btn.classList.add('loading'); btn.disabled = true;
+    try {
+      await learnerFlagsAPI.flagTrade(tradeId, { reason });
+      document.getElementById('flag-modal').classList.remove('active');
+      Toast.show('Report submitted. Thank you for keeping TradeWise safe!', 'success');
+    } catch (err) {
+      if (err.status === 409) { document.getElementById('flag-alert').textContent='You have already reported this trade.'; }
+      else { document.getElementById('flag-alert').textContent = err.message||'Failed to report trade.'; }
+      document.getElementById('flag-alert').className='alert alert-error';
+      document.getElementById('flag-alert').classList.remove('hidden');
+    } finally { btn.classList.remove('loading'); btn.disabled = false; }
+  });
+
+  loadTrade();
+</script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — My Subscriptions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/globals.css" />
+  <link rel="stylesheet" href="../../css/components.css" />
+  <link rel="stylesheet" href="../../css/pages.css" />
+  <link rel="stylesheet" href="../css/learner.css" />
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar-logo"><span>Trade<span style="color:var(--color-primary)">Wise</span></span></a>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a href="feed.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Trade Feed</a>
+      <a href="my-history.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>My History</a>
+      <a href="my-subscriptions.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Subscriptions</a>
+      <a href="notifications.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
+      <a href="profile-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        <h1 class="topbar-title">Subscriptions</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="credit-pill credits-green" id="credit-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span id="credit-pill-count">—</span> Credits</div>
+        <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="page-header">
+        <h2 class="page-title">My Subscriptions</h2>
+        <p class="page-subtitle">Manage your pro-trader subscriptions and discover new ones</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid" style="margin-bottom:var(--space-6);">
+        <div class="stat-item"><div class="stat-value" id="s-active">—</div><div class="stat-label">Active Subs</div></div>
+        <div class="stat-item"><div class="stat-value" id="s-total-spent">—</div><div class="stat-label">Total Spent</div></div>
+        <div class="stat-item"><div class="stat-value" id="s-expired">—</div><div class="stat-label">Expired</div></div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <button class="tab-btn active" data-st="active">Active</button>
+        <button class="tab-btn" data-st="expired">Expired</button>
+        <button class="tab-btn" data-st="discover">Discover Traders</button>
+        <button class="tab-btn" data-st="payments">Payment History</button>
+      </div>
+
+      <!-- Active subs -->
+      <div class="tab-panel active" id="st-active">
+        <div id="active-subs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:var(--space-5);">
+          <div class="spinner spinner-lg" style="margin:var(--space-8) auto;"></div>
+        </div>
+      </div>
+
+      <!-- Expired subs -->
+      <div class="tab-panel hidden" id="st-expired">
+        <div id="expired-subs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:var(--space-5);">
+          <div class="spinner spinner-lg" style="margin:var(--space-8) auto;"></div>
+        </div>
+      </div>
+
+      <!-- Discover Traders -->
+      <div class="tab-panel hidden" id="st-discover">
+        <div class="search-wrapper" style="max-width:320px;margin-bottom:var(--space-5);">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="trader-search" class="input search-input" placeholder="Search traders…" />
+        </div>
+        <div id="traders-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-5);">
+          <div class="spinner spinner-lg" style="margin:var(--space-8) auto;"></div>
+        </div>
+      </div>
+
+      <!-- Payment History -->
+      <div class="tab-panel hidden" id="st-payments">
+        <div id="payment-list">
+          <div class="spinner spinner-lg" style="margin:var(--space-8) auto;"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Subscribe confirm modal -->
+<div class="modal-overlay" id="subscribe-modal" role="dialog">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Subscribe to Pro Trader</h2>
+      <button class="modal-close" id="close-sub-modal">×</button>
+    </div>
+    <div class="payment-modal-body">
+      <div class="payment-summary">
+        <div class="payment-summary-row"><span class="payment-summary-label">Trader</span><span class="payment-summary-value" id="sub-trader-name">—</span></div>
+        <div class="payment-summary-row"><span class="payment-summary-label">Plan</span><span class="payment-summary-value">Monthly</span></div>
+        <div class="payment-summary-row"><span class="payment-summary-label">Amount</span><span class="payment-summary-value payment-amount" id="sub-amount">₹—</span></div>
+      </div>
+      <div id="sub-alert" class="alert hidden"></div>
+      <button class="cashfree-btn" id="confirm-payment-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Pay with Cashfree (Test Mode)
+      </button>
+      <p class="payment-note">Secured by Cashfree • Test mode active</p>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script type="module">
+  import Auth from '../js/auth.js';
+  import { learnerSubscriptionsAPI, paymentsAPI, proTradersAPI, learnerCreditsAPI } from '../js/api.js';
+  import { formatDate, formatCurrency, getInitials } from '../js/utils.js';
+
+  if (!Auth.requireAuth()) throw new Error('Not authenticated');
+
+  window.Toast = {
+    show(msg,type='info'){const c=document.getElementById('toast-container'),t=document.createElement('div');t.className=`toast toast-${type}`;t.innerHTML=`<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;c.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));const d=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);};t.querySelector('.toast-dismiss').addEventListener('click',d);setTimeout(d,5000);}
+  };
+
+  const hamburger=document.getElementById('hamburger'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
+  hamburger.addEventListener('click',()=>{sidebar.classList.toggle('open');overlay.classList.toggle('active');});
+  overlay.addEventListener('click',()=>{sidebar.classList.remove('open');overlay.classList.remove('active');});
+  document.getElementById('logout-btn').addEventListener('click',()=>Auth.logout());
+
+  // Tabs
+  let tabsLoaded = {};
+  document.querySelectorAll('[data-st]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-st]').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>{p.classList.remove('active');p.classList.add('hidden');});
+      btn.classList.add('active');
+      const key = btn.dataset.st;
+      document.getElementById(`st-${key}`).classList.remove('hidden');
+      document.getElementById(`st-${key}`).classList.add('active');
+      if (key==='discover' && !tabsLoaded.discover) loadTraders();
+      if (key==='payments' && !tabsLoaded.payments) loadPayments();
+      if (key==='expired' && !tabsLoaded.expired) loadSubs();
+    });
+  });
+
+  let pendingTraderId = null, pendingTraderName = '', pendingAmount = 0;
+
+  async function loadSubs() {
+    tabsLoaded.expired = true;
+    try {
+      const data = await learnerSubscriptionsAPI.getAll();
+      const subs = data.data || [];
+      document.getElementById('s-active').textContent = data.active_count || subs.filter(s=>s.status==='active').length;
+      document.getElementById('s-total-spent').textContent = formatCurrency(data.total_spent||0);
+      document.getElementById('s-expired').textContent = subs.filter(s=>s.status!=='active').length;
+
+      const activeSubs = subs.filter(s=>s.status==='active');
+      const expiredSubs = subs.filter(s=>s.status!=='active');
+
+      function subCard(s, isActive) {
+        const ends = new Date(s.ends_at);
+        const now = new Date();
+        const daysLeft = Math.max(0, Math.ceil((ends - now) / 86400000));
+        const timerClass = daysLeft <= 3 ? 'sub-timer expires-soon' : isActive ? 'sub-timer' : 'sub-timer expired';
+        return `<div class="sub-card ${isActive?'sub-card-active':'sub-card-expired'}">
+          <div class="sub-card-header">
+            <div class="sub-card-trader">
+              <div class="avatar-placeholder">${getInitials(s.pro_trader_name||'T')}</div>
+              <div>
+                <div style="font-weight:700;">${s.pro_trader_name||s.pro_trader?.display_name||'Trader'}</div>
+                <div style="font-size:.75rem;color:var(--color-success);">${s.pro_trader?.accuracy_score||0}% accuracy</div>
+              </div>
+            </div>
+            <span class="${timerClass}">${isActive ? (daysLeft<=0?'Expired':daysLeft+' days left') : 'Expired'}</span>
+          </div>
+          <div class="sub-card-meta">
+            <div class="sub-meta-item"><div class="sub-meta-label">Started</div><div class="sub-meta-value">${formatDate(s.started_at)}</div></div>
+            <div class="sub-meta-item"><div class="sub-meta-label">Expires</div><div class="sub-meta-value">${formatDate(s.ends_at)}</div></div>
+            <div class="sub-meta-item"><div class="sub-meta-label">Amount</div><div class="sub-meta-value">${formatCurrency(s.amount||0)}</div></div>
+          </div>
+          <div class="sub-card-actions">
+            <label class="auto-renew-toggle">
+              <label class="toggle-switch">
+                <input type="checkbox" class="auto-renew-check" data-sid="${s.id}" ${s.auto_renew?'checked':''} ${!isActive?'disabled':''} />
+                <span class="toggle-slider"></span>
+              </label>
+              Auto-renew
+            </label>
+            ${isActive ? `<button class="btn btn-danger btn-sm unsubscribe-btn" data-sid="${s.id}">Unsubscribe</button>` : `<button class="btn btn-primary btn-sm renew-btn" data-tid="${s.pro_trader_id}" data-name="${s.pro_trader_name||'Trader'}" data-price="${s.amount||499}">Renew</button>`}
+          </div>
+        </div>`;
+      }
+
+      const activeWrap = document.getElementById('active-subs');
+      activeWrap.innerHTML = activeSubs.length ? activeSubs.map(s=>subCard(s,true)).join('') : '<div class="empty-state"><h3 class="empty-state-title">No active subscriptions</h3><p class="empty-state-text">Subscribe to a pro-trader to get unlimited access to their trade ideas.</p></div>';
+
+      const expiredWrap = document.getElementById('expired-subs');
+      expiredWrap.innerHTML = expiredSubs.length ? expiredSubs.map(s=>subCard(s,false)).join('') : '<div class="empty-state"><h3 class="empty-state-title">No expired subscriptions</h3></div>';
+
+      attachSubActions();
+    } catch (err) {
+      document.getElementById('active-subs').innerHTML = `<p style="color:var(--color-danger);">${err.message||'Failed to load.'}</p>`;
+    }
+  }
+
+  function attachSubActions() {
+    // Auto-renew
+    document.querySelectorAll('.auto-renew-check').forEach(chk => {
+      chk.addEventListener('change', async () => {
+        try {
+          await learnerSubscriptionsAPI.toggleAutoRenew(chk.dataset.sid, { auto_renew: chk.checked });
+          Toast.show('Auto-renew ' + (chk.checked ? 'enabled' : 'disabled'), 'success');
+        } catch (err) { Toast.show(err.message||'Failed to update.', 'error'); chk.checked = !chk.checked; }
+      });
+    });
+    // Unsubscribe
+    document.querySelectorAll('.unsubscribe-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Cancel this subscription? You will lose access when it expires.')) return;
+        try { await learnerSubscriptionsAPI.unsubscribe(btn.dataset.sid); Toast.show('Subscription cancelled.', 'success'); loadSubs(); } catch (err) { Toast.show(err.message||'Failed.', 'error'); }
+      });
+    });
+    // Renew
+    document.querySelectorAll('.renew-btn').forEach(btn => {
+      btn.addEventListener('click', () => openPayModal(btn.dataset.tid, btn.dataset.name, parseFloat(btn.dataset.price)));
+    });
+  }
+
+  async function loadTraders() {
+    tabsLoaded.discover = true;
+    const grid = document.getElementById('traders-grid');
+    try {
+      const data = await proTradersAPI.getAll('?page=1&limit=20');
+      const traders = data.data || data.traders || [];
+      if (!traders.length) { grid.innerHTML='<div class="empty-state"><h3 class="empty-state-title">No traders found.</h3></div>'; return; }
+      grid.innerHTML = traders.map(t => {
+        const acc = t.accuracy_score||0;
+        const accClass = acc>=70?'accuracy-high':acc>=50?'accuracy-medium':'accuracy-low';
+        return `<div class="trader-card">
+          <div class="trader-card-header">
+            <div style="display:flex;align-items:center;gap:var(--space-3);">
+              <div class="trader-avatar">${getInitials(t.display_name||t.name||'T')}</div>
+              <div class="trader-info">
+                <div class="trader-name">${t.display_name||t.name||'Trader'}</div>
+                <span class="trader-accuracy-badge ${accClass}">${acc}% accuracy</span>
+              </div>
+            </div>
+          </div>
+          <div class="trader-stats-row">
+            <div class="trader-stat"><div class="trader-stat-value">${t.total_trades||0}</div><div class="trader-stat-label">Trades</div></div>
+            <div class="trader-stat"><div class="trader-stat-value">${t.win_rate||0}%</div><div class="trader-stat-label">Win Rate</div></div>
+            <div class="trader-stat"><div class="trader-stat-value">${t.subscribers_count||0}</div><div class="trader-stat-label">Subscribers</div></div>
+          </div>
+          <div class="trader-card-actions">
+            <button class="btn btn-primary btn-full subscribe-trader-btn" data-tid="${t.id}" data-name="${t.display_name||t.name||'Trader'}" data-price="${t.subscription_price||499}">
+              Subscribe — ₹${t.subscription_price||499}/mo
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+
+      document.querySelectorAll('.subscribe-trader-btn').forEach(btn => {
+        btn.addEventListener('click', () => openPayModal(btn.dataset.tid, btn.dataset.name, parseFloat(btn.dataset.price)));
+      });
+
+      // Search filter
+      document.getElementById('trader-search').addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase();
+        document.querySelectorAll('.trader-card').forEach(card => {
+          card.style.display = card.querySelector('.trader-name')?.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+      });
+    } catch (err) { grid.innerHTML=`<p style="color:var(--color-danger);">${err.message||'Failed to load traders.'}</p>`; }
+  }
+
+  async function loadPayments() {
+    tabsLoaded.payments = true;
+    const list = document.getElementById('payment-list');
+    try {
+      const data = await paymentsAPI.getHistory();
+      const payments = data.data || data.payments || [];
+      if (!payments.length) { list.innerHTML='<div class="empty-state"><h3 class="empty-state-title">No payment history</h3></div>'; return; }
+      list.innerHTML = `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:.875rem;">
+        <thead><tr style="border-bottom:1px solid var(--border-subtle);">
+          <th style="padding:10px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Trader</th>
+          <th style="padding:10px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Amount</th>
+          <th style="padding:10px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Status</th>
+          <th style="padding:10px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Date</th>
+          <th style="padding:10px 12px;text-align:left;color:var(--text-muted);font-weight:600;">Order ID</th>
+        </tr></thead>
+        <tbody>${payments.map(p=>`<tr style="border-bottom:1px solid var(--border-subtle);">
+          <td style="padding:10px 12px;">${p.pro_trader_name||'—'}</td>
+          <td style="padding:10px 12px;color:var(--color-success);">${formatCurrency(p.amount||0)}</td>
+          <td style="padding:10px 12px;"><span class="trade-status status-${p.status==='success'||p.status==='paid'?'target_hit':'active'}">${p.status||'—'}</span></td>
+          <td style="padding:10px 12px;color:var(--text-muted);">${formatDate(p.created_at)}</td>
+          <td style="padding:10px 12px;font-family:var(--font-mono);font-size:.75rem;color:var(--text-muted);">${p.cashfree_order_id||p.order_id||'—'}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+    } catch (err) { list.innerHTML=`<p style="color:var(--color-danger);">${err.message||'Failed to load.'}</p>`; }
+  }
+
+  function openPayModal(traderId, traderName, price) {
+    pendingTraderId = traderId; pendingTraderName = traderName; pendingAmount = price;
+    document.getElementById('sub-trader-name').textContent = traderName;
+    document.getElementById('sub-amount').textContent = formatCurrency(price);
+    document.getElementById('subscribe-modal').classList.add('active');
+  }
+
+  document.getElementById('close-sub-modal').addEventListener('click', () => document.getElementById('subscribe-modal').classList.remove('active'));
+
+  document.getElementById('confirm-payment-btn').addEventListener('click', async () => {
+    if (!pendingTraderId) return;
+    const btn = document.getElementById('confirm-payment-btn');
+    btn.textContent='Processing…'; btn.disabled=true;
+    try {
+      const user = Auth.getCurrentUser();
+      const order = await paymentsAPI.createOrder({ learner_id: user?.id, pro_trader_id: pendingTraderId, amount: pendingAmount, subscription_type: 'monthly' });
+      if (order.payment_url) window.location.href = order.payment_url;
+      else Toast.show('Order created. Payment in progress.', 'success');
+    } catch (err) {
+      document.getElementById('sub-alert').textContent = err.message||'Payment failed.';
+      document.getElementById('sub-alert').className='alert alert-error';
+      document.getElementById('sub-alert').classList.remove('hidden');
+      btn.textContent='Pay with Cashfree (Test Mode)'; btn.disabled=false;
+    }
+  });
+
+  // Load credits
+  async function loadCredits() {
+    try { const d=await learnerCreditsAPI.getCredits(); const n=parseInt(d.credits)||0; const cls=n>=4?'credits-green':n>=1?'credits-yellow':'credits-red'; document.getElementById('credit-pill-count').textContent=n; document.getElementById('credit-pill').className=`credit-pill ${cls}`; } catch { /* silent */ }
+  }
+
+  loadSubs();
+  loadCredits();
+</script>
+</body>
+</html>

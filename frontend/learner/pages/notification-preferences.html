@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Notification Preferences</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/globals.css" />
+  <link rel="stylesheet" href="../../css/components.css" />
+  <link rel="stylesheet" href="../../css/pages.css" />
+  <link rel="stylesheet" href="../css/learner.css" />
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar-logo"><span>Trade<span style="color:var(--color-primary)">Wise</span></span></a>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a href="feed.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Trade Feed</a>
+      <a href="my-history.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>My History</a>
+      <a href="my-subscriptions.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Subscriptions</a>
+      <a href="notifications.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
+      <a href="profile-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        <h1 class="topbar-title">Notification Preferences</h1>
+      </div>
+      <div class="topbar-right">
+        <a href="notifications.html" class="btn btn-secondary btn-sm">← Notifications</a>
+        <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="page-content" style="max-width:680px;">
+      <div class="page-header">
+        <h2 class="page-title">Notification Preferences</h2>
+        <p class="page-subtitle">Control which notifications you receive and how</p>
+      </div>
+
+      <div id="pref-alert" class="alert hidden" style="margin-bottom:1rem;"></div>
+
+      <!-- Trade Notifications -->
+      <div class="pref-section">
+        <div class="pref-section-title">📈 Trade Notifications</div>
+        <div class="pref-row">
+          <div>
+            <div class="pref-label">New trade posted</div>
+            <div class="pref-hint">Notify when a subscribed trader posts a new trade idea</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-new-trade" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="pref-row">
+          <div>
+            <div class="pref-label">Trade status update</div>
+            <div class="pref-hint">When a trade you unlocked reaches target or stop loss</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-trade-update" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="pref-row">
+          <div>
+            <div class="pref-label">Trade closed</div>
+            <div class="pref-hint">When a trader closes an active trade with a summary</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-trade-closed" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Subscription Notifications -->
+      <div class="pref-section">
+        <div class="pref-section-title">💳 Subscription Notifications</div>
+        <div class="pref-row">
+          <div>
+            <div class="pref-label">Subscription expiring</div>
+            <div class="pref-hint">Remind me 3 days before a subscription expires</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-sub-expire" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="pref-row">
+          <div>
+            <div class="pref-label">Payment confirmation</div>
+            <div class="pref-hint">Confirm successful subscription payments</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-payment" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="pref-row">
+          <div>
+            <div class="pref-label">Auto-renew reminder</div>
+            <div class="pref-hint">Notify before an auto-renew charge</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-autorenew" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Community Notifications -->
+      <div class="pref-section">
+        <div class="pref-section-title">💬 Community Notifications</div>
+        <div class="pref-row">
+          <div>
+            <div class="pref-label">Comment reply</div>
+            <div class="pref-hint">When someone replies to your comment</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-comment" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="pref-row">
+          <div>
+            <div class="pref-label">Flag status update</div>
+            <div class="pref-hint">When a trade you reported is reviewed</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-flag" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- System Notifications -->
+      <div class="pref-section">
+        <div class="pref-section-title">🔔 System Notifications</div>
+        <div class="pref-row">
+          <div>
+            <div class="pref-label">Security alerts</div>
+            <div class="pref-hint">Login from new device or suspicious activity</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-security" checked disabled />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="pref-row">
+          <div>
+            <div class="pref-label">Platform updates</div>
+            <div class="pref-hint">New features and important announcements</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-updates" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="pref-row">
+          <div>
+            <div class="pref-label">Weekly learning digest</div>
+            <div class="pref-hint">Email summary of your weekly learning activity</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-digest" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Delivery Methods -->
+      <div class="pref-section">
+        <div class="pref-section-title">📬 Delivery Methods</div>
+        <div class="pref-row">
+          <div>
+            <div class="pref-label">In-app notifications</div>
+            <div class="pref-hint">Always shown in your notification centre</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-inapp" checked disabled />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="pref-row">
+          <div>
+            <div class="pref-label">Email notifications</div>
+            <div class="pref-hint">Receive notifications via email</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-email" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-lg" id="save-prefs-btn">
+        <span class="btn-text">Save Preferences</span>
+        <div class="btn-spinner spinner" aria-hidden="true"></div>
+      </button>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script type="module">
+  import Auth from '../js/auth.js';
+  import { learnerNotificationsAPI } from '../js/api.js';
+
+  if (!Auth.requireAuth()) throw new Error('Not authenticated');
+
+  window.Toast = {
+    show(msg,type='info'){const c=document.getElementById('toast-container'),t=document.createElement('div');t.className=`toast toast-${type}`;t.innerHTML=`<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;c.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));const d=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);};t.querySelector('.toast-dismiss').addEventListener('click',d);setTimeout(d,5000);}
+  };
+
+  const hamburger=document.getElementById('hamburger'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
+  hamburger.addEventListener('click',()=>{sidebar.classList.toggle('open');overlay.classList.toggle('active');});
+  overlay.addEventListener('click',()=>{sidebar.classList.remove('open');overlay.classList.remove('active');});
+  document.getElementById('logout-btn').addEventListener('click',()=>Auth.logout());
+
+  const PREF_FIELDS = {
+    new_trade:      'pref-new-trade',
+    trade_update:   'pref-trade-update',
+    trade_closed:   'pref-trade-closed',
+    sub_expiring:   'pref-sub-expire',
+    payment:        'pref-payment',
+    auto_renew:     'pref-autorenew',
+    comment_reply:  'pref-comment',
+    flag_update:    'pref-flag',
+    platform_updates: 'pref-updates',
+    weekly_digest:  'pref-digest',
+    email_notifications: 'pref-email',
+  };
+
+  async function loadPrefs() {
+    try {
+      const prefs = await learnerNotificationsAPI.getPreferences();
+      Object.entries(PREF_FIELDS).forEach(([key, id]) => {
+        const el = document.getElementById(id);
+        if (el && prefs[key] !== undefined) el.checked = prefs[key];
+      });
+    } catch { /* use defaults */ }
+  }
+
+  document.getElementById('save-prefs-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('save-prefs-btn');
+    btn.classList.add('loading'); btn.disabled = true;
+    const prefAlert = document.getElementById('pref-alert');
+    prefAlert.classList.add('hidden');
+
+    const payload = {};
+    Object.entries(PREF_FIELDS).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      if (el) payload[key] = el.checked;
+    });
+
+    try {
+      await learnerNotificationsAPI.updatePreferences(payload);
+      prefAlert.textContent = '✓ Preferences saved!';
+      prefAlert.className = 'alert alert-success';
+      prefAlert.classList.remove('hidden');
+      Toast.show('Notification preferences saved!', 'success');
+    } catch (err) {
+      prefAlert.textContent = err.message || 'Failed to save preferences.';
+      prefAlert.className = 'alert alert-error';
+      prefAlert.classList.remove('hidden');
+    } finally { btn.classList.remove('loading'); btn.disabled = false; }
+  });
+
+  loadPrefs();
+</script>
+</body>
+</html>
