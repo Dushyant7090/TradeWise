@@ -2,8 +2,16 @@
 
 This document describes all tables in the TradeWise Supabase PostgreSQL database, including columns, constraints, relationships, and usage notes.
 
-The full SQL schema is available in [`supabase/schema.sql`](../supabase/schema.sql).
-Row Level Security policies are in [`supabase/rls-policies.sql`](../supabase/rls-policies.sql).
+> **Production initialization:** Use [`supabase/init.sql`](../supabase/init.sql) to initialize a brand-new database.
+> This single atomic script creates all 20 tables, 17 ENUM types, all indexes, and all RLS policies.
+> Run it with:
+> ```bash
+> psql "$DATABASE_URL" -f supabase/init.sql
+> ```
+> or paste it into the Supabase SQL editor.
+
+The legacy Supabase-native schema is still available in [`supabase/schema.sql`](../supabase/schema.sql) and
+[`supabase/rls-policies.sql`](../supabase/rls-policies.sql) for reference.
 
 ---
 
