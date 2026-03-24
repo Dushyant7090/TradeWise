@@ -23,6 +23,15 @@ logger = logging.getLogger(__name__)
 learner_subscriptions_bp = Blueprint("learner_subscriptions", __name__)
 
 
+def _utc(dt):
+    """Return dt as a UTC-aware datetime; treats naive datetimes as UTC."""
+    if dt is None:
+        return dt
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
 @learner_subscriptions_bp.route("/subscriptions", methods=["GET"])
 @require_auth
 def get_subscriptions():
@@ -37,7 +46,7 @@ def get_subscriptions():
     result = []
     for sub in subscriptions:
         # Auto-expire if past ends_at
-        if sub.status == "active" and sub.ends_at < now:
+        if sub.status == "active" and _utc(sub.ends_at) < now:
             if sub.auto_renew:
                 sub.ends_at = sub.ends_at + timedelta(days=30)
             else:
@@ -72,7 +81,7 @@ def get_subscription_status(trader_id):
     if not sub:
         return jsonify({"subscribed": False, "subscription": None}), 200
 
-    is_active = sub.status == "active" and sub.ends_at > now
+    is_active = sub.status == "active" and _utc(sub.ends_at) > now
     return jsonify({
         "subscribed": is_active,
         "subscription": sub.to_dict(),
