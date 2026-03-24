@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Profile Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/globals.css" />
+  <link rel="stylesheet" href="../../css/components.css" />
+  <link rel="stylesheet" href="../../css/pages.css" />
+  <link rel="stylesheet" href="../css/learner.css" />
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar-logo"><span>Trade<span style="color:var(--color-primary)">Wise</span></span></a>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a href="feed.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Trade Feed</a>
+      <a href="my-history.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>My History</a>
+      <a href="my-subscriptions.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Subscriptions</a>
+      <a href="notifications.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
+      <a href="profile-settings.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        <h1 class="topbar-title">Profile Settings</h1>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="page-content" style="max-width:680px;">
+      <div class="page-header">
+        <h2 class="page-title">Profile Settings</h2>
+        <p class="page-subtitle">Manage your learning profile, interests and goals</p>
+      </div>
+
+      <!-- Avatar -->
+      <div class="card" style="margin-bottom:var(--space-5);">
+        <div class="card-header"><h3 class="card-title">Profile Picture</h3></div>
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <div class="avatar-upload-wrap">
+            <div class="avatar-placeholder avatar-lg" id="profile-avatar">L</div>
+            <label for="avatar-input" class="avatar-upload-btn" title="Change photo">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </label>
+            <input type="file" id="avatar-input" accept="image/*" class="hidden" />
+          </div>
+          <div>
+            <p style="font-size:.875rem;color:var(--text-secondary);">Upload a photo to personalise your profile.</p>
+            <p style="font-size:.75rem;color:var(--text-muted);">JPG, PNG or GIF · Max 5MB</p>
+            <div id="avatar-status" class="hidden" style="margin-top:.5rem;font-size:.75rem;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="profile-alert" class="alert hidden"></div>
+
+      <!-- Profile form -->
+      <div class="card" style="margin-bottom:var(--space-5);">
+        <div class="card-header"><h3 class="card-title">Basic Info</h3></div>
+        <form id="profile-form">
+          <div class="form-group">
+            <label class="form-label" for="bio">Bio (optional)</label>
+            <textarea id="bio" class="input" rows="3" placeholder="Tell the community a little about yourself…" maxlength="280"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="experience-level">Experience Level</label>
+            <select id="experience-level" class="input">
+              <option value="beginner">Beginner (< 1 year)</option>
+              <option value="intermediate">Intermediate (1–3 years)</option>
+              <option value="advanced">Advanced (3+ years)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="learning-goal">Learning Goal</label>
+            <select id="learning-goal" class="input">
+              <option value="learn_basics">Learn the Basics</option>
+              <option value="improve_consistency">Improve Consistency</option>
+              <option value="build_system">Build My Own System</option>
+              <option value="diversify">Diversify Knowledge</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary" id="profile-save-btn">
+            <span class="btn-text">Save Profile</span>
+            <div class="btn-spinner spinner" aria-hidden="true"></div>
+          </button>
+        </form>
+      </div>
+
+      <!-- Interests -->
+      <div class="card" style="margin-bottom:var(--space-5);">
+        <div class="card-header"><h3 class="card-title">Market Interests</h3></div>
+        <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:var(--space-4);">Select markets you're interested in learning about:</p>
+        <div class="interests-grid" id="interests-grid">
+          <!-- populated by JS -->
+        </div>
+        <button class="btn btn-primary" style="margin-top:var(--space-4);" id="interests-save-btn">
+          <span class="btn-text">Save Interests</span>
+          <div class="btn-spinner spinner" aria-hidden="true"></div>
+        </button>
+      </div>
+
+      <!-- Favourite Traders -->
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">Favourite Pro Traders</h3></div>
+        <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:var(--space-4);">These traders will be highlighted in your feed.</p>
+        <div id="fav-traders-list" style="display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-4);">
+          <!-- populated by JS -->
+        </div>
+        <a href="my-subscriptions.html?tab=discover" class="btn btn-secondary btn-sm">+ Add from Discover Traders</a>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script type="module">
+  import Auth from '../js/auth.js';
+  import { learnerProfileAPI } from '../js/api.js';
+  import { validateFileSize, validateFileType, getInitials, MARKETS } from '../js/utils.js';
+
+  if (!Auth.requireAuth()) throw new Error('Not authenticated');
+
+  window.Toast = {
+    show(msg,type='info'){const c=document.getElementById('toast-container'),t=document.createElement('div');t.className=`toast toast-${type}`;t.innerHTML=`<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;c.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));const d=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);};t.querySelector('.toast-dismiss').addEventListener('click',d);setTimeout(d,5000);}
+  };
+
+  const hamburger=document.getElementById('hamburger'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
+  hamburger.addEventListener('click',()=>{sidebar.classList.toggle('open');overlay.classList.toggle('active');});
+  overlay.addEventListener('click',()=>{sidebar.classList.remove('open');overlay.classList.remove('active');});
+  document.getElementById('logout-btn').addEventListener('click',()=>Auth.logout());
+
+  const INTERESTS = MARKETS;
+  let selectedInterests = [];
+  let profile = null;
+
+  // Build interests grid
+  const igrid = document.getElementById('interests-grid');
+  INTERESTS.forEach(interest => {
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'interest-tag'; btn.textContent = interest; btn.dataset.value = interest;
+    btn.addEventListener('click', () => {
+      const idx = selectedInterests.indexOf(interest);
+      if (idx >= 0) { selectedInterests.splice(idx, 1); btn.classList.remove('selected'); }
+      else { selectedInterests.push(interest); btn.classList.add('selected'); }
+    });
+    igrid.appendChild(btn);
+  });
+
+  async function loadProfile() {
+    try {
+      profile = await learnerProfileAPI.getProfile();
+      const p = profile;
+
+      // Set fields
+      document.getElementById('bio').value = p.bio || '';
+      document.getElementById('experience-level').value = p.experience_level || 'beginner';
+      document.getElementById('learning-goal').value = p.learning_goal || 'learn_basics';
+
+      // Avatar
+      const name = p.display_name || Auth.getCurrentUser()?.email?.split('@')[0] || 'L';
+      document.getElementById('profile-avatar').textContent = getInitials(name);
+      if (p.avatar_url) {
+        document.getElementById('profile-avatar').innerHTML = `<img src="${p.avatar_url}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+      }
+
+      // Interests
+      selectedInterests = Array.isArray(p.interests) ? [...p.interests] : [];
+      igrid.querySelectorAll('.interest-tag').forEach(btn => {
+        btn.classList.toggle('selected', selectedInterests.includes(btn.dataset.value));
+      });
+
+      // Favourite traders
+      renderFavTraders(p.favorite_traders || []);
+    } catch (err) {
+      const alert = document.getElementById('profile-alert');
+      alert.textContent = err.message || 'Failed to load profile.';
+      alert.className = 'alert alert-error';
+      alert.classList.remove('hidden');
+    }
+  }
+
+  function renderFavTraders(traders) {
+    const list = document.getElementById('fav-traders-list');
+    if (!traders.length) { list.innerHTML = '<p style="font-size:.875rem;color:var(--text-muted);">No favourite traders yet.</p>'; return; }
+    list.innerHTML = traders.map(tid => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-4);background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);">
+        <div style="font-size:.875rem;font-weight:600;">${tid}</div>
+        <button class="btn btn-ghost btn-sm remove-fav" data-tid="${tid}" style="color:var(--color-danger);">Remove</button>
+      </div>`).join('');
+    list.querySelectorAll('.remove-fav').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!profile) return;
+        const newFavs = (profile.favorite_traders || []).filter(t => t !== btn.dataset.tid);
+        try { await learnerProfileAPI.updateProfile({ favorite_traders: newFavs }); profile.favorite_traders = newFavs; renderFavTraders(newFavs); Toast.show('Removed from favourites.', 'success'); } catch (err) { Toast.show(err.message||'Failed.', 'error'); }
+      });
+    });
+  }
+
+  // Avatar upload
+  document.getElementById('avatar-input').addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const sizeErr = validateFileSize(file, 5);
+    const typeErr = validateFileType(file, ['image/jpeg','image/png','image/gif','image/webp']);
+    if (sizeErr || typeErr) { Toast.show(sizeErr || typeErr, 'error'); return; }
+    const status = document.getElementById('avatar-status');
+    status.textContent = 'Uploading…'; status.className = ''; status.classList.remove('hidden');
+    const fd = new FormData(); fd.append('image', file);
+    try {
+      const res = await learnerProfileAPI.uploadPicture(fd);
+      if (res.avatar_url) document.getElementById('profile-avatar').innerHTML = `<img src="${res.avatar_url}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+      status.textContent = '✓ Photo updated!';
+      status.style.color = 'var(--color-success)';
+      Toast.show('Profile picture updated!', 'success');
+    } catch (err) { status.textContent = err.message||'Upload failed.'; status.style.color='var(--color-danger)'; Toast.show(err.message||'Upload failed.', 'error'); }
+  });
+
+  // Save profile
+  document.getElementById('profile-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('profile-save-btn');
+    btn.classList.add('loading'); btn.disabled = true;
+    try {
+      await learnerProfileAPI.updateProfile({
+        bio: document.getElementById('bio').value.trim(),
+        experience_level: document.getElementById('experience-level').value,
+        learning_goal: document.getElementById('learning-goal').value,
+      });
+      Toast.show('Profile saved!', 'success');
+    } catch (err) { Toast.show(err.message||'Failed to save.', 'error'); }
+    finally { btn.classList.remove('loading'); btn.disabled = false; }
+  });
+
+  // Save interests
+  document.getElementById('interests-save-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('interests-save-btn');
+    if (!selectedInterests.length) { Toast.show('Select at least one interest.', 'warning'); return; }
+    btn.classList.add('loading'); btn.disabled = true;
+    try {
+      await learnerProfileAPI.updateProfile({ interests: selectedInterests });
+      Toast.show('Interests saved!', 'success');
+    } catch (err) { Toast.show(err.message||'Failed.', 'error'); }
+    finally { btn.classList.remove('loading'); btn.disabled = false; }
+  });
+
+  loadProfile();
+</script>
+</body>
+</html>

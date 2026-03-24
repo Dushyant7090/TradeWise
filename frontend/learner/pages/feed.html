@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Trade Feed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/globals.css" />
+  <link rel="stylesheet" href="../../css/components.css" />
+  <link rel="stylesheet" href="../../css/pages.css" />
+  <link rel="stylesheet" href="../css/learner.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <a href="dashboard.html" class="sidebar-logo"><span>Trade<span style="color:var(--color-primary)">Wise</span></span></a>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a href="feed.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Trade Feed</a>
+      <a href="my-history.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>My History</a>
+      <a href="my-subscriptions.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Subscriptions</a>
+      <a href="notifications.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
+      <a href="profile-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+        <h1 class="topbar-title">Trade Feed</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="credit-pill credits-green" id="credit-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+          <span id="credit-pill-count">7</span> Credits
+        </div>
+        <a href="notifications.html" class="btn btn-icon btn-ghost notif-bell">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="notif-badge hidden" id="notif-badge">0</span>
+        </a>
+        <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="page-header">
+        <h2 class="page-title">Trade Ideas Marketplace</h2>
+        <p class="page-subtitle">Browse active trade ideas from verified pro-traders</p>
+      </div>
+
+      <!-- Filters -->
+      <div class="feed-filters">
+        <div class="filter-group">
+          <label for="filter-market">Market</label>
+          <select id="filter-market" class="filter-select">
+            <option value="">All Markets</option>
+            <option>Nifty 50</option>
+            <option>Bank Nifty</option>
+            <option>Sensex</option>
+            <option>Midcap</option>
+            <option>Crypto</option>
+            <option>Forex</option>
+            <option>Commodities</option>
+            <option>US Stocks</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filter-trader">Pro Trader</label>
+          <input type="text" id="filter-trader" class="input filter-select" placeholder="Trader name..." style="width:160px;" />
+        </div>
+        <div class="filter-group">
+          <label>Accuracy Range</label>
+          <div class="filter-range">
+            <input type="number" id="accuracy-min" placeholder="0" min="0" max="100" style="width:70px;" />
+            <span class="filter-range-sep">—</span>
+            <input type="number" id="accuracy-max" placeholder="100" min="0" max="100" style="width:70px;" />
+          </div>
+        </div>
+        <div class="filter-group">
+          <label for="filter-sort">Sort By</label>
+          <select id="filter-sort" class="filter-select">
+            <option value="newest">Newest First</option>
+            <option value="accuracy">Highest Accuracy</option>
+            <option value="views">Most Views</option>
+            <option value="subscribers">Most Subscribers</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button class="btn btn-primary btn-sm" id="apply-filters">Apply</button>
+          <button class="btn btn-secondary btn-sm" id="reset-filters">Reset</button>
+        </div>
+      </div>
+
+      <!-- Results info -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-4);">
+        <span id="results-info" style="font-size:.875rem;color:var(--text-muted);"></span>
+        <div id="new-trades-banner" class="hidden">
+          <button class="btn btn-primary btn-sm" id="load-new-btn">↑ New trades available</button>
+        </div>
+      </div>
+
+      <!-- Feed grid -->
+      <div class="feed-grid" id="feed-grid">
+        <div class="empty-state" style="grid-column:1/-1;">
+          <div class="spinner spinner-lg" style="margin:0 auto;"></div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" id="pagination"></div>
+    </main>
+  </div>
+</div>
+
+<!-- Subscribe Modal (payment) -->
+<div class="modal-overlay" id="subscribe-modal" role="dialog">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Subscribe to Pro Trader</h2>
+      <button class="modal-close" id="close-subscribe-modal">×</button>
+    </div>
+    <div class="payment-modal-body">
+      <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:var(--space-4);">
+        Get unlimited access to all trade ideas from this pro-trader.
+      </p>
+      <div class="payment-summary">
+        <div class="payment-summary-row">
+          <span class="payment-summary-label">Pro Trader</span>
+          <span class="payment-summary-value" id="pay-trader-name">—</span>
+        </div>
+        <div class="payment-summary-row">
+          <span class="payment-summary-label">Plan</span>
+          <span class="payment-summary-value">Monthly Subscription</span>
+        </div>
+        <div class="payment-summary-row">
+          <span class="payment-summary-label">Amount</span>
+          <span class="payment-summary-value payment-amount" id="pay-amount">₹—</span>
+        </div>
+      </div>
+      <div id="pay-alert" class="alert hidden"></div>
+      <button class="cashfree-btn" id="proceed-payment-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Pay with Cashfree (Test Mode)
+      </button>
+      <p class="payment-note">Secured by Cashfree • 256-bit SSL encryption • Test mode active</p>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script type="module">
+  import Auth from '../js/auth.js';
+  import { learnerFeedAPI, learnerCreditsAPI, learnerSubscriptionsAPI, paymentsAPI } from '../js/api.js';
+  import { timeAgo, getInitials, debounce } from '../js/utils.js';
+  import Realtime from '../js/realtime.js';
+
+  if (!Auth.requireAuth()) throw new Error('Not authenticated');
+
+  window.Toast = {
+    show(msg, type='info') {
+      const c=document.getElementById('toast-container'),t=document.createElement('div');
+      t.className=`toast toast-${type}`;
+      t.innerHTML=`<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;
+      c.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));
+      const d=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);};
+      t.querySelector('.toast-dismiss').addEventListener('click',d);setTimeout(d,5000);
+    }
+  };
+
+  const hamburger=document.getElementById('hamburger'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
+  hamburger.addEventListener('click',()=>{sidebar.classList.toggle('open');overlay.classList.toggle('active');});
+  overlay.addEventListener('click',()=>{sidebar.classList.remove('open');overlay.classList.remove('active');});
+  document.getElementById('logout-btn').addEventListener('click',()=>Auth.logout());
+
+  let currentPage = 1;
+  let totalPages = 1;
+  let pendingTrader = null;
+  let pendingTraderPrice = 0;
+
+  function getParams() {
+    const market = document.getElementById('filter-market').value;
+    const trader = document.getElementById('filter-trader').value.trim();
+    const accMin = document.getElementById('accuracy-min').value;
+    const accMax = document.getElementById('accuracy-max').value;
+    const sort = document.getElementById('filter-sort').value;
+    let q = `?page=${currentPage}&limit=20&sort=${sort}`;
+    if (market) q += `&market=${encodeURIComponent(market)}`;
+    if (trader) q += `&trader_name=${encodeURIComponent(trader)}`;
+    if (accMin) q += `&accuracy_min=${accMin}`;
+    if (accMax) q += `&accuracy_max=${accMax}`;
+    return q;
+  }
+
+  function renderCredits(n) {
+    n = parseInt(n)||0;
+    const cls = n>=4?'credits-green':n>=1?'credits-yellow':'credits-red';
+    document.getElementById('credit-pill-count').textContent = n;
+    document.getElementById('credit-pill').className = `credit-pill ${cls}`;
+  }
+
+  async function loadCredits() {
+    try { const d = await learnerCreditsAPI.getCredits(); renderCredits(d.credits); } catch { /* silent */ }
+  }
+
+  async function loadFeed() {
+    const grid = document.getElementById('feed-grid');
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="spinner spinner-lg" style="margin:0 auto;"></div></div>';
+    try {
+      const data = await learnerFeedAPI.getFeed(getParams());
+      const trades = data.data || data.trades || [];
+      totalPages = data.total_pages || Math.ceil((data.total||0)/20) || 1;
+      document.getElementById('results-info').textContent = `Showing ${trades.length} of ${data.total||trades.length} trades`;
+      if (!trades.length) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><h3 class="empty-state-title">No trades found</h3><p class="empty-state-text">Try adjusting your filters.</p></div>`;
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
+      grid.innerHTML = trades.map(t => tradeCard(t)).join('');
+      renderPagination();
+      attachUnlockHandlers();
+    } catch (err) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><p style="color:var(--color-danger);">${err.message||'Failed to load feed.'}</p><button class="btn btn-secondary btn-sm" onclick="loadFeed()" style="margin-top:1rem;">Retry</button></div>`;
+    }
+  }
+
+  function tradeCard(t) {
+    const locked = !t.is_unlocked;
+    const accuracy = t.pro_trader?.accuracy_score ?? t.accuracy_score ?? 0;
+    const accClass = accuracy >= 70 ? 'accuracy-high' : accuracy >= 50 ? 'accuracy-medium' : 'accuracy-low';
+    const initials = getInitials(t.pro_trader?.display_name || 'T');
+    return `
+    <div class="trade-card ${locked?'locked':''}" data-id="${t.id}" data-trader-id="${t.pro_trader_id||t.pro_trader?.id||''}" data-trader-name="${t.pro_trader?.display_name||''}" data-trader-price="${t.pro_trader?.subscription_price||499}">
+      <div class="trade-card-header">
+        <div class="trader-mini">
+          <div class="trader-mini-avatar">${initials}</div>
+          <div>
+            <div class="trader-mini-name">${t.pro_trader?.display_name||'Pro Trader'}</div>
+            <div class="trader-mini-accuracy">Accuracy: <span class="accuracy-value">${accuracy}%</span></div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-2);">
+          <span class="trade-status status-${t.status||'active'}">${(t.status||'active').replace('_',' ')}</span>
+          ${locked ? '<span class="badge-locked">🔒 Locked</span>' : '<span class="badge-unlocked">✓ Unlocked</span>'}
+        </div>
+      </div>
+      <div class="trade-card-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3);">
+          <span class="trade-symbol">${t.symbol||'—'}</span>
+          <div style="display:flex;gap:var(--space-2);">
+            ${t.market ? `<span class="trade-market">${t.market}</span>` : ''}
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-4);margin-bottom:var(--space-3);">
+          <span class="trade-rrr">RRR: <span>${t.rrr || t.risk_reward_ratio || '—'}</span></span>
+          ${locked ? '' : `<span class="${t.direction==='buy'?'trade-direction-badge direction-buy':'trade-direction-badge direction-sell'}">${(t.direction||'').toUpperCase()}</span>`}
+        </div>
+        ${locked ? `
+        <div style="position:relative;min-height:80px;">
+          <div class="blur-content" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;padding:.75rem;background:var(--bg-surface);border-radius:var(--radius-md);">
+            <div><div style="font-size:.7rem;color:var(--text-muted);">ENTRY</div><div style="font-weight:700;font-family:var(--font-mono);">XXXX</div></div>
+            <div><div style="font-size:.7rem;color:var(--color-danger);">STOP LOSS</div><div style="font-weight:700;font-family:var(--font-mono);">XXXX</div></div>
+            <div><div style="font-size:.7rem;color:var(--color-success);">TARGET</div><div style="font-weight:700;font-family:var(--font-mono);">XXXX</div></div>
+          </div>
+          <div class="unlock-overlay">
+            <div class="unlock-overlay-content">
+              <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <p>Use 1 credit or subscribe to view</p>
+            </div>
+          </div>
+        </div>` : `
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;padding:.75rem;background:var(--bg-surface);border-radius:var(--radius-md);">
+          <div><div style="font-size:.7rem;color:var(--text-muted);">ENTRY</div><div style="font-weight:700;font-family:var(--font-mono);color:var(--color-info);">${t.entry_price||'—'}</div></div>
+          <div><div style="font-size:.7rem;color:var(--color-danger);">STOP LOSS</div><div style="font-weight:700;font-family:var(--font-mono);color:var(--color-danger);">${t.stop_loss||'—'}</div></div>
+          <div><div style="font-size:.7rem;color:var(--color-success);">TARGET</div><div style="font-weight:700;font-family:var(--font-mono);color:var(--color-success);">${t.target_price||'—'}</div></div>
+        </div>`}
+      </div>
+      <div class="trade-card-footer">
+        <span style="font-size:.75rem;color:var(--text-muted);">${timeAgo(t.created_at)}</span>
+        ${locked
+          ? `<button class="btn btn-primary btn-sm unlock-btn" data-id="${t.id}">Unlock (1 credit)</button>`
+          : `<a href="trade-detail.html?id=${t.id}" class="btn btn-secondary btn-sm">View Details</a>`}
+      </div>
+    </div>`;
+  }
+
+  function renderPagination() {
+    const wrap = document.getElementById('pagination');
+    if (totalPages <= 1) { wrap.innerHTML=''; return; }
+    let html = `<button class="page-btn" id="prev-page" ${currentPage===1?'disabled':''}>← Prev</button>`;
+    for (let i = Math.max(1, currentPage-2); i <= Math.min(totalPages, currentPage+2); i++) {
+      html += `<button class="page-btn ${i===currentPage?'active':''}" data-page="${i}">${i}</button>`;
+    }
+    html += `<button class="page-btn" id="next-page" ${currentPage===totalPages?'disabled':''}>Next →</button>`;
+    wrap.innerHTML = html;
+    wrap.querySelectorAll('[data-page]').forEach(b => b.addEventListener('click', () => { currentPage=parseInt(b.dataset.page); loadFeed(); window.scrollTo(0,0); }));
+    document.getElementById('prev-page')?.addEventListener('click', () => { if(currentPage>1){currentPage--;loadFeed();window.scrollTo(0,0);} });
+    document.getElementById('next-page')?.addEventListener('click', () => { if(currentPage<totalPages){currentPage++;loadFeed();window.scrollTo(0,0);} });
+  }
+
+  function attachUnlockHandlers() {
+    document.querySelectorAll('.unlock-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const tradeId = btn.dataset.id;
+        const card = btn.closest('.trade-card');
+        btn.textContent = 'Unlocking…'; btn.disabled = true;
+        try {
+          await learnerFeedAPI.unlockTrade(tradeId);
+          Toast.show('Trade unlocked! 1 credit used.', 'success');
+          loadFeed();
+          loadCredits();
+        } catch (err) {
+          if (err.status === 402) {
+            // No credits — open subscribe modal
+            const traderId = card?.dataset.traderId;
+            const traderName = card?.dataset.traderName || 'Pro Trader';
+            const price = parseFloat(card?.dataset.traderPrice) || 499;
+            openSubscribeModal(traderId, traderName, price);
+          } else {
+            Toast.show(err.message || 'Failed to unlock trade.', 'error');
+          }
+          btn.textContent = 'Unlock (1 credit)'; btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  function openSubscribeModal(traderId, traderName, price) {
+    pendingTrader = traderId;
+    pendingTraderPrice = price;
+    document.getElementById('pay-trader-name').textContent = traderName;
+    document.getElementById('pay-amount').textContent = `₹${price}`;
+    document.getElementById('subscribe-modal').classList.add('active');
+  }
+
+  document.getElementById('close-subscribe-modal').addEventListener('click', () => document.getElementById('subscribe-modal').classList.remove('active'));
+
+  document.getElementById('proceed-payment-btn').addEventListener('click', async () => {
+    if (!pendingTrader) return;
+    const btn = document.getElementById('proceed-payment-btn');
+    btn.textContent = 'Processing…'; btn.disabled = true;
+    try {
+      const user = Auth.getCurrentUser();
+      const order = await paymentsAPI.createOrder({ learner_id: user?.id, pro_trader_id: pendingTrader, amount: pendingTraderPrice, subscription_type: 'monthly' });
+      if (order.payment_url) {
+        window.location.href = order.payment_url;
+      } else {
+        Toast.show('Payment order created. Redirecting…', 'success');
+      }
+    } catch (err) {
+      document.getElementById('pay-alert').textContent = err.message || 'Payment failed.';
+      document.getElementById('pay-alert').className = 'alert alert-error';
+      document.getElementById('pay-alert').classList.remove('hidden');
+      btn.textContent = 'Pay with Cashfree (Test Mode)'; btn.disabled = false;
+    }
+  });
+
+  document.getElementById('apply-filters').addEventListener('click', () => { currentPage=1; loadFeed(); });
+  document.getElementById('reset-filters').addEventListener('click', () => {
+    document.getElementById('filter-market').value='';
+    document.getElementById('filter-trader').value='';
+    document.getElementById('accuracy-min').value='';
+    document.getElementById('accuracy-max').value='';
+    document.getElementById('filter-sort').value='newest';
+    currentPage=1; loadFeed();
+  });
+
+  // Realtime new trades
+  const sbUrl = window.TW_SUPABASE_URL||'';
+  const sbKey = window.TW_SUPABASE_ANON_KEY||'';
+  Realtime.init(sbUrl, sbKey);
+  Realtime.subscribeToNewTrades({ onInsert() { document.getElementById('new-trades-banner').classList.remove('hidden'); } });
+  document.getElementById('load-new-btn')?.addEventListener('click', () => { document.getElementById('new-trades-banner').classList.add('hidden'); currentPage=1; loadFeed(); });
+
+  loadFeed();
+  loadCredits();
+</script>
+</body>
+</html>
