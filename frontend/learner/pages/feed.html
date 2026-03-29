@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="../../css/pages.css" />
   <link rel="stylesheet" href="../css/learner.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
 </head>
 <body>
 <div class="app-layout">
@@ -348,9 +349,10 @@
     btn.textContent = 'Processing…'; btn.disabled = true;
     try {
       const user = Auth.getCurrentUser();
-      const order = await paymentsAPI.createOrder({ learner_id: user?.id, pro_trader_id: pendingTrader, amount: pendingTraderPrice, subscription_type: 'monthly' });
-      if (order.payment_url) {
-        window.location.href = order.payment_url;
+      const order = await paymentsAPI.createOrder({ trader_id: pendingTrader, amount: pendingTraderPrice, subscription_type: 'monthly' });
+      if (order.payment_session_id) {
+        const cashfree = window.Cashfree({ mode: 'sandbox' });
+        cashfree.checkout({ paymentSessionId: order.payment_session_id, redirectTarget: '_self' });
       } else {
         Toast.show('Payment order created. Redirecting…', 'success');
       }

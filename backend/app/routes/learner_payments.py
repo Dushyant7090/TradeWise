@@ -68,12 +68,15 @@ def create_payment_order():
     db.session.commit()
 
     try:
+        frontend_url = current_app.config.get("FRONTEND_URL", "http://localhost:3000").rstrip("/")
+        return_url = f"{frontend_url}/frontend/learner/pages/payment-callback.html?order_id={cf_order_id}"
         cf_response = cashfree_service.create_order(
             order_id=cf_order_id,
             amount=amount,
             customer_id=user_id,
             customer_email=user.email,
             customer_phone=data.get("phone", "9999999999"),
+            return_url=return_url,
         )
         return jsonify({
             "order_id": cf_order_id,

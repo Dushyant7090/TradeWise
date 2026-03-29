@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../../css/components.css" />
   <link rel="stylesheet" href="../../css/pages.css" />
   <link rel="stylesheet" href="../css/learner.css" />
+  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
 </head>
 <body>
 <div class="app-layout">
@@ -323,10 +324,13 @@
     const btn = document.getElementById('confirm-payment-btn');
     btn.textContent='Processing…'; btn.disabled=true;
     try {
-      const user = Auth.getCurrentUser();
-      const order = await paymentsAPI.createOrder({ learner_id: user?.id, pro_trader_id: pendingTraderId, amount: pendingAmount, subscription_type: 'monthly' });
-      if (order.payment_url) window.location.href = order.payment_url;
-      else Toast.show('Order created. Payment in progress.', 'success');
+      const order = await paymentsAPI.createOrder({ trader_id: pendingTraderId, amount: pendingAmount, subscription_type: 'monthly' });
+      if (order.payment_session_id) {
+        const cashfree = window.Cashfree({ mode: 'sandbox' });
+        cashfree.checkout({ paymentSessionId: order.payment_session_id, redirectTarget: '_self' });
+      } else {
+        Toast.show('Order created. Payment in progress.', 'success');
+      }
     } catch (err) {
       document.getElementById('sub-alert').textContent = err.message||'Payment failed.';
       document.getElementById('sub-alert').className='alert alert-error';
