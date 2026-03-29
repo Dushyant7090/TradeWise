@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+  <!-- Mobile overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="admin-layout">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="dashboard.html" class="sidebar-logo">
+          <span class="logo-icon">⚡</span>
+          <span>TradeWise Admin</span>
+        </a>
+        <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-label">Overview</div>
+          <a href="#" class="nav-link active" data-section="overview">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Dashboard
+          </a>
+          <a href="#" class="nav-link" data-section="analytics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Analytics
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-label">Management</div>
+          <a href="#" class="nav-link" data-section="users">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            Users
+            <span class="nav-badge" id="usersCount"></span>
+          </a>
+          <a href="#" class="nav-link" data-section="trades">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>
+            Trades
+          </a>
+          <a href="#" class="nav-link" data-section="payouts">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            Payouts
+            <span class="nav-badge nav-badge-warning" id="payoutsCount"></span>
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-label">Moderation</div>
+          <a href="#" class="nav-link" data-section="reports">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Reports &amp; Flags
+            <span class="nav-badge nav-badge-danger" id="reportsCount"></span>
+          </a>
+          <a href="#" class="nav-link" data-section="comments">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Comments
+          </a>
+          <a href="#" class="nav-link" data-section="kyc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            KYC Verification
+            <span class="nav-badge nav-badge-warning" id="kycCount"></span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile" id="adminProfile">
+          <div class="admin-avatar" id="adminAvatar">A</div>
+          <div class="admin-info">
+            <div class="admin-name" id="adminName">Admin</div>
+            <div class="admin-role">Super Admin</div>
+          </div>
+        </div>
+        <button class="btn-logout" id="logoutBtn" title="Sign out">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+      <!-- Top bar -->
+      <header class="topbar">
+        <button class="topbar-menu-btn" id="sidebarToggleBtn" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h1 class="topbar-title" id="pageTitle">Dashboard</h1>
+        <div class="topbar-actions">
+          <button class="topbar-btn" id="refreshBtn" title="Refresh data">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+          </button>
+          <div class="notification-btn-wrapper">
+            <button class="topbar-btn" id="notifBtn" title="Notifications">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <span class="notif-dot" id="notifDot" style="display:none;"></span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Notification Panel -->
+      <div class="notif-panel" id="notifPanel" style="display:none;">
+        <div class="notif-panel-header">
+          <h3>Notifications</h3>
+          <button class="btn-close" id="notifClose">&times;</button>
+        </div>
+        <div class="notif-panel-body" id="notifList">
+          <p class="notif-empty">No new notifications</p>
+        </div>
+      </div>
+
+      <!-- ==================== SECTIONS ==================== -->
+
+      <!-- OVERVIEW SECTION -->
+      <section id="section-overview" class="section active">
+        <div class="section-header">
+          <h2>Dashboard Overview</h2>
+          <span class="section-subtitle" id="overviewDate"></span>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card loading">
+            <div class="stat-icon stat-icon-blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Active Users (30d)</div>
+              <div class="stat-value" id="stat-active-users">—</div>
+            </div>
+          </div>
+          <div class="stat-card loading">
+            <div class="stat-icon stat-icon-green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Pro Traders</div>
+              <div class="stat-value" id="stat-pro-traders">—</div>
+            </div>
+          </div>
+          <div class="stat-card loading">
+            <div class="stat-icon stat-icon-purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Learners</div>
+              <div class="stat-value" id="stat-learners">—</div>
+            </div>
+          </div>
+          <div class="stat-card loading">
+            <div class="stat-icon stat-icon-green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Revenue (This Month)</div>
+              <div class="stat-value" id="stat-revenue">—</div>
+            </div>
+          </div>
+          <div class="stat-card loading">
+            <div class="stat-icon stat-icon-yellow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Pending Payouts</div>
+              <div class="stat-value" id="stat-pending-payouts">—</div>
+            </div>
+          </div>
+          <div class="stat-card loading">
+            <div class="stat-icon stat-icon-red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Flagged Trades (Month)</div>
+              <div class="stat-value" id="stat-flagged-trades">—</div>
+            </div>
+          </div>
+          <div class="stat-card loading">
+            <div class="stat-icon stat-icon-orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Pending KYC</div>
+              <div class="stat-value" id="stat-pending-kyc">—</div>
+            </div>
+          </div>
+          <div class="stat-card loading">
+            <div class="stat-icon stat-icon-red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Open Reports</div>
+              <div class="stat-value" id="stat-open-reports">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Action Cards -->
+        <div class="quick-actions">
+          <h3 class="section-subtitle-label">Quick Actions</h3>
+          <div class="quick-actions-grid">
+            <button class="quick-action-card" onclick="switchSection('kyc')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <span>Review KYC</span>
+            </button>
+            <button class="quick-action-card" onclick="switchSection('reports')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+              <span>Review Reports</span>
+            </button>
+            <button class="quick-action-card" onclick="switchSection('payouts')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+              <span>Manage Payouts</span>
+            </button>
+            <button class="quick-action-card" onclick="switchSection('users')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              <span>Manage Users</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ANALYTICS SECTION -->
+      <section id="section-analytics" class="section">
+        <div class="section-header">
+          <h2>Analytics &amp; Reporting</h2>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <h3>Monthly Revenue</h3>
+              <button class="btn btn-sm btn-outline" onclick="exportCSV('revenue')">Export CSV</button>
+            </div>
+            <canvas id="revenueChart"></canvas>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <h3>User Registrations (Weekly)</h3>
+            </div>
+            <canvas id="usersChart"></canvas>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <h3>Reports &amp; Flags Trend (Weekly)</h3>
+            </div>
+            <canvas id="flagsChart"></canvas>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <h3>Payouts History (Monthly)</h3>
+              <button class="btn btn-sm btn-outline" onclick="exportCSV('payouts-chart')">Export CSV</button>
+            </div>
+            <canvas id="payoutsChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- USERS SECTION -->
+      <section id="section-users" class="section">
+        <div class="section-header">
+          <h2>User Management</h2>
+          <button class="btn btn-outline btn-sm" onclick="adminExport('users')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+        </div>
+        <div class="table-filters">
+          <input type="search" class="filter-input" id="userSearch" placeholder="Search by name or email…" />
+          <select class="filter-select" id="userRoleFilter">
+            <option value="">All Roles</option>
+            <option value="pro_trader">Pro Trader</option>
+            <option value="public_trader">Learner</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="usersTable">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Trades</th>
+                <th>KYC</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr><td colspan="7" class="table-loading">Loading users…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="usersPagination"></div>
+      </section>
+
+      <!-- TRADES SECTION -->
+      <section id="section-trades" class="section">
+        <div class="section-header">
+          <h2>Trade Monitoring</h2>
+          <button class="btn btn-outline btn-sm" onclick="adminExport('trades')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+        </div>
+        <div class="table-filters">
+          <input type="search" class="filter-input" id="tradeSearch" placeholder="Search by symbol…" />
+          <select class="filter-select" id="tradeStatusFilter">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="target_hit">Target Hit</option>
+            <option value="sl_hit">SL Hit</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <label class="checkbox-label">
+            <input type="checkbox" id="tradeFlaggedOnly" />
+            Flagged Only
+          </label>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="tradesTable">
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Trader</th>
+                <th>Direction</th>
+                <th>Entry</th>
+                <th>Status</th>
+                <th>Flags</th>
+                <th>Unlocks</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tradesTableBody">
+              <tr><td colspan="9" class="table-loading">Loading trades…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="tradesPagination"></div>
+      </section>
+
+      <!-- PAYOUTS SECTION -->
+      <section id="section-payouts" class="section">
+        <div class="section-header">
+          <h2>Pro-Trader Payouts</h2>
+          <button class="btn btn-outline btn-sm" onclick="adminExport('payouts')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+        </div>
+        <div class="table-filters">
+          <input type="search" class="filter-input" id="payoutSearch" placeholder="Search trader name…" />
+          <select class="filter-select" id="payoutStatusFilter">
+            <option value="">All Status</option>
+            <option value="initiated">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="success">Paid</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="payoutsTable">
+            <thead>
+              <tr>
+                <th>Trader</th>
+                <th>Email</th>
+                <th>Amount</th>
+                <th>Bank (last 4)</th>
+                <th>Status</th>
+                <th>Initiated</th>
+                <th>Completed</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="payoutsTableBody">
+              <tr><td colspan="8" class="table-loading">Loading payouts…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="payoutsPagination"></div>
+      </section>
+
+      <!-- REPORTS SECTION -->
+      <section id="section-reports" class="section">
+        <div class="section-header">
+          <h2>Reports &amp; Flags</h2>
+          <button class="btn btn-outline btn-sm" onclick="adminExport('reports')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+        </div>
+        <div class="table-filters">
+          <select class="filter-select" id="reportStatusFilter">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="investigating">Investigating</option>
+            <option value="resolved">Resolved</option>
+          </select>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="reportsTable">
+            <thead>
+              <tr>
+                <th>Reporter</th>
+                <th>Trade</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Reported</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="reportsTableBody">
+              <tr><td colspan="6" class="table-loading">Loading reports…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="reportsPagination"></div>
+      </section>
+
+      <!-- COMMENTS SECTION -->
+      <section id="section-comments" class="section">
+        <div class="section-header">
+          <h2>Comment Moderation</h2>
+        </div>
+        <div class="table-filters">
+          <input type="search" class="filter-input" id="commentSearch" placeholder="Filter by trade ID…" />
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="commentsTable">
+            <thead>
+              <tr>
+                <th>Author</th>
+                <th>Trade</th>
+                <th>Content</th>
+                <th>Posted</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="commentsTableBody">
+              <tr><td colspan="5" class="table-loading">Loading comments…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="commentsPagination"></div>
+      </section>
+
+      <!-- KYC SECTION -->
+      <section id="section-kyc" class="section">
+        <div class="section-header">
+          <h2>KYC Verification</h2>
+        </div>
+        <div class="table-filters">
+          <select class="filter-select" id="kycStatusFilter">
+            <option value="pending">Pending</option>
+            <option value="verified">Verified</option>
+            <option value="rejected">Rejected</option>
+            <option value="">All</option>
+          </select>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="kycTable">
+            <thead>
+              <tr>
+                <th>Pro Trader</th>
+                <th>Email</th>
+                <th>Documents</th>
+                <th>KYC Status</th>
+                <th>Submitted</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="kycTableBody">
+              <tr><td colspan="6" class="table-loading">Loading KYC requests…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="kycPagination"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ===== MODALS ===== -->
+
+  <!-- Report Resolve Modal -->
+  <div class="modal-overlay" id="resolveModal" style="display:none;" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="resolveModalTitle">Resolve Report</h3>
+        <button class="btn-close" onclick="closeModal('resolveModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Admin Verdict / Note</label>
+        <textarea id="resolveVerdict" class="form-input form-textarea" rows="3" placeholder="Enter your decision or notes…"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('resolveModal')">Cancel</button>
+        <button class="btn btn-primary" id="resolveConfirmBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comment Reply Modal -->
+  <div class="modal-overlay" id="replyModal" style="display:none;" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Reply to Comment</h3>
+        <button class="btn-close" onclick="closeModal('replyModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="comment-preview" id="replyPreview"></div>
+        <label class="form-label">Your Reply</label>
+        <textarea id="replyContent" class="form-input form-textarea" rows="3" placeholder="Type your admin reply…"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('replyModal')">Cancel</button>
+        <button class="btn btn-primary" id="replyConfirmBtn">Post Reply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Ban Modal -->
+  <div class="modal-overlay" id="banModal" style="display:none;" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Permanently Ban User</h3>
+        <button class="btn-close" onclick="closeModal('banModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-warning">
+          ⚠️ This action is <strong>irreversible</strong>. The user will be permanently banned and unable to access TradeWise.
+        </p>
+        <p>Are you sure you want to ban <strong id="banUserName"></strong>?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('banModal')">Cancel</button>
+        <button class="btn btn-danger" id="banConfirmBtn">Ban Permanently</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast" style="display:none;"></div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
