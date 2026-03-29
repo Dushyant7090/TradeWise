@@ -71,7 +71,7 @@
         </form>
 
         <p class="auth-footer">
-          Already have an account? <a href="login.html">Sign in</a>
+          Already have an account? <a href="../../pages/auth.html">Sign in</a>
         </p>
       </div>
     </div>
@@ -167,7 +167,7 @@
       try {
         await Auth.register(email, password);
         showAlert('Account created! Please check your email for verification, then sign in.', 'success');
-        setTimeout(() => window.location.href = 'login.html', 3000);
+        setTimeout(() => window.location.href = '../../pages/auth.html', 3000);
       } catch (err) {
         showAlert(err.message || 'Registration failed. Please try again.');
       } finally {

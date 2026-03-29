@@ -24,7 +24,7 @@ const Auth = {
   },
 
   redirectToLogin() {
-    window.location.href = '/frontend/pages/login.html';
+    window.location.href = '/pages/auth.html';
   },
 
   redirectToDashboard() {
@@ -57,7 +57,7 @@ const Auth = {
       // Ignore logout API errors
     } finally {
       Storage.clearAll();
-      window.location.href = '/frontend/pages/login.html';
+      window.location.href = '/pages/auth.html';
     }
   },
 
