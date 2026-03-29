@@ -1,11 +1,9 @@
 // ===== TRADEWISE AUTH LOGIC =====
 // Handles: Google OAuth, Email/Password Sign Up, Login, Forgot Password
-// Connected to Supabase Auth + Resend (SMTP)
+// Connected to Flask backend API
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-// Initialize Supabase client (config values from config.js loaded before this module)
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ===== API BASE URL =====
+const API_BASE = window.TW_API_BASE_URL || 'http://localhost:5000/api';
 
 // ===== DOM ELEMENTS =====
 const views = document.querySelectorAll('.auth-view');
@@ -33,12 +31,28 @@ const passwordToggles = document.querySelectorAll('.password-toggle');
 const signupSubmit = document.getElementById('signup-submit');
 const loginSubmit = document.getElementById('login-submit');
 
+// ===== ROLE-BASED REDIRECT =====
+// Routes authenticated users to the dashboard matching their role.
+// Falls back to the learner dashboard when profile is missing (safe default
+// since the learner dashboard handles its own auth guard).
+function routeByRole(profile) {
+    if (profile && profile.role === 'pro_trader') {
+        window.location.href = '/frontend/pages/dashboard.html';
+    } else {
+        window.location.href = '/frontend/learner/pages/dashboard.html';
+    }
+}
+
 // ===== CHECK IF ALREADY LOGGED IN =====
-(async function checkSession() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-        // User is already logged in, route them appropriately
-        await routeUser(session.user.id);
+(function checkSession() {
+    const token = localStorage.getItem('tw_jwt_token');
+    if (token) {
+        try {
+            const profile = JSON.parse(localStorage.getItem('tw_profile') || 'null');
+            routeByRole(profile);
+        } catch {
+            routeByRole(null);
+        }
     }
 })();
 
@@ -259,19 +273,9 @@ document.getElementById('login-email').addEventListener('input', trackLoginReady
 document.getElementById('login-password').addEventListener('input', trackLoginReady);
 
 // ===== GOOGLE OAUTH =====
-async function signInWithGoogle() {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            redirectTo: window.location.origin + '/pages/role-select.html'
-        }
-    });
-
-    if (error) {
-        showMessage(loginMessage, error.message, 'error');
-        showMessage(signupMessage, error.message, 'error');
-    }
-    // If successful, browser will redirect to Google
+function signInWithGoogle() {
+    showMessage(loginMessage, 'Google sign-in is not available at the moment. Please use email/password.', 'error');
+    showMessage(signupMessage, 'Google sign-up is not available at the moment. Please use email/password.', 'error');
 }
 
 googleSignupBtn.addEventListener('click', signInWithGoogle);
@@ -307,36 +311,30 @@ signupForm.addEventListener('submit', async (e) => {
 
     setLoading(signupSubmit, true);
 
-    const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-            data: {
-                full_name: fullName
-            },
-            emailRedirectTo: window.location.origin + '/pages/role-select.html'
+    try {
+        const response = await fetch(`${API_BASE}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            // Sign-up via this page creates public_trader accounts.
+            // Pro-trader registration uses a separate onboarding flow.
+            body: JSON.stringify({ email, password, display_name: fullName, role: 'public_trader' })
+        });
+
+        const data = await response.json();
+        setLoading(signupSubmit, false);
+
+        if (!response.ok) {
+            showMessage(signupMessage, data.error || 'Registration failed. Please try again.', 'error');
+            return;
         }
-    });
 
-    setLoading(signupSubmit, false);
-
-    if (error) {
-        showMessage(signupMessage, error.message, 'error');
-        return;
-    }
-
-    // Check if email confirmation is required
-    if (data.user && data.user.identities && data.user.identities.length === 0) {
-        showMessage(signupMessage, 'An account with this email already exists. Try logging in.', 'error');
-    } else if (data.session) {
-        // Auto-confirmed (if email confirmation is disabled)
-        await createProfile(data.user.id, fullName, email);
-        window.location.href = 'role-select.html';
-    } else {
-        // Email confirmation sent
-        showMessage(signupMessage, '✓ Check your email! We sent you a confirmation link.', 'success');
-        signupForm.reset();
-        signupSubmit.classList.remove('ready');
+        // Store tokens
+        _storeSession(data);
+        // New public_trader accounts go to profile setup
+        window.location.href = '/frontend/learner/pages/profile-setup.html';
+    } catch {
+        setLoading(signupSubmit, false);
+        showMessage(signupMessage, 'Network error. Please check your connection.', 'error');
     }
 });
 
@@ -364,20 +362,28 @@ loginForm.addEventListener('submit', async (e) => {
 
     setLoading(loginSubmit, true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-    });
+    try {
+        const response = await fetch(`${API_BASE}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
 
-    setLoading(loginSubmit, false);
+        const data = await response.json();
+        setLoading(loginSubmit, false);
 
-    if (error) {
-        showMessage(loginMessage, error.message, 'error');
-        return;
+        if (!response.ok) {
+            showMessage(loginMessage, data.error || 'Login failed. Please try again.', 'error');
+            return;
+        }
+
+        // Store tokens and route based on role
+        _storeSession(data);
+        routeByRole(data.profile);
+    } catch {
+        setLoading(loginSubmit, false);
+        showMessage(loginMessage, 'Network error. Please check your connection.', 'error');
     }
-
-    // Success — route user based on profile status
-    await routeUser(data.user.id);
 });
 
 // ===== FORGOT PASSWORD =====
@@ -388,58 +394,39 @@ forgotForm.addEventListener('submit', async (e) => {
     const email = document.getElementById('forgot-email').value.trim();
     const forgotSubmit = document.getElementById('forgot-submit');
 
-    setLoading(forgotSubmit, true);
-
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/pages/auth.html'
-    });
-
-    setLoading(forgotSubmit, false);
-
-    if (error) {
-        showMessage(forgotMessage, error.message, 'error');
+    if (!email || !EMAIL_REGEX.test(email)) {
+        showMessage(forgotMessage, 'Please enter a valid email address.', 'error');
         return;
     }
 
-    showMessage(forgotMessage, '✓ Password reset link sent! Check your email.', 'success');
-    forgotForm.reset();
+    setLoading(forgotSubmit, true);
+
+    try {
+        const response = await fetch(`${API_BASE}/auth/forgot-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        setLoading(forgotSubmit, false);
+
+        // Always show success to prevent email enumeration
+        showMessage(forgotMessage, '✓ If that email is registered, a password reset link has been sent.', 'success');
+        forgotForm.reset();
+    } catch {
+        setLoading(forgotSubmit, false);
+        showMessage(forgotMessage, '✓ If that email is registered, a password reset link has been sent.', 'success');
+        forgotForm.reset();
+    }
 });
 
-// ===== CREATE PROFILE IN DB =====
-async function createProfile(userId, fullName, email) {
-    const { error } = await supabase.from('profiles').upsert({
-        id: userId,
-        full_name: fullName,
-        role: 'public_trader',
-        credits: 7
-    });
-
-    if (error) {
-        console.error('Failed to create profile:', error);
-    }
+// ===== SESSION STORAGE HELPER =====
+function _storeSession(data) {
+    if (data.access_token) localStorage.setItem('tw_jwt_token', data.access_token);
+    if (data.refresh_token) localStorage.setItem('tw_refresh_token', data.refresh_token);
+    if (data.user) localStorage.setItem('tw_user_data', JSON.stringify(data.user));
+    if (data.profile) localStorage.setItem('tw_profile', JSON.stringify(data.profile));
 }
-
-// ===== AUTH STATE LISTENER =====
-supabase.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
-        // Check if profile exists, create if not
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('id', session.user.id)
-            .single();
-
-        if (!profile) {
-            const fullName = session.user.user_metadata?.full_name ||
-                session.user.user_metadata?.name ||
-                session.user.email?.split('@')[0] || 'Trader';
-            await createProfile(session.user.id, fullName, session.user.email);
-        }
-
-        // Route user based on profile status
-        await routeUser(session.user.id);
-    }
-});
 
 // ===== UTILITIES =====
 function showMessage(element, message, type) {
@@ -467,32 +454,5 @@ function setLoading(button, isLoading) {
         btnLoader.style.display = 'none';
         button.disabled = false;
         button.style.opacity = '1';
-    }
-}
-
-// ===== SMART ROUTING =====
-async function routeUser(userId) {
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('role, disclaimer_accepted')
-        .eq('id', userId)
-        .single();
-
-    if (!profile) {
-        // No profile at all — go to role select
-        window.location.href = 'role-select.html';
-    } else if (profile.role === 'pro_trader') {
-        // Pro-traders go to coming soon page (onboarding not built yet)
-        if (profile.disclaimer_accepted) {
-            window.location.href = 'dashboard.html';
-        } else {
-            window.location.href = 'pro-trader-coming-soon.html';
-        }
-    } else if (!profile.disclaimer_accepted) {
-        // Public trader — onboarding incomplete
-        window.location.href = 'role-select.html';
-    } else {
-        // Onboarding complete, go to dashboard
-        window.location.href = 'dashboard.html';
     }
 }
