@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Payment Status</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/globals.css" />
+  <link rel="stylesheet" href="../../css/components.css" />
+  <link rel="stylesheet" href="../../css/pages.css" />
+  <link rel="stylesheet" href="../css/learner.css" />
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <a href="dashboard.html" class="sidebar-logo"><span>Trade<span style="color:var(--color-primary)">Wise</span></span></a>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a href="feed.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Trade Feed</a>
+      <a href="my-history.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>My History</a>
+      <a href="my-subscriptions.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Subscriptions</a>
+      <a href="notifications.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
+      <a href="profile-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        <h1 class="topbar-title">Payment Status</h1>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div style="max-width:480px;margin:var(--space-10) auto;text-align:center;">
+
+        <!-- Loading state -->
+        <div id="state-loading">
+          <div class="spinner spinner-lg" style="margin:0 auto var(--space-5);"></div>
+          <p style="color:var(--text-muted);">Verifying your payment…</p>
+        </div>
+
+        <!-- Success state -->
+        <div id="state-success" style="display:none;">
+          <div style="width:72px;height:72px;border-radius:50%;background:var(--color-success);display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-5);">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:var(--space-3);">Payment Successful!</h2>
+          <p style="color:var(--text-muted);margin-bottom:var(--space-6);" id="success-message">Your subscription has been activated. You now have full access to all trade signals from your pro-trader.</p>
+          <div style="display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap;">
+            <a href="feed.html" class="btn btn-primary">Go to Trade Feed</a>
+            <a href="my-subscriptions.html" class="btn btn-secondary">My Subscriptions</a>
+          </div>
+        </div>
+
+        <!-- Failure state -->
+        <div id="state-failure" style="display:none;">
+          <div style="width:72px;height:72px;border-radius:50%;background:var(--color-danger);display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-5);">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </div>
+          <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:var(--space-3);">Payment Failed</h2>
+          <p style="color:var(--text-muted);margin-bottom:var(--space-6);" id="failure-message">Your payment could not be completed. No amount has been charged. Please try again.</p>
+          <div style="display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap;">
+            <a href="my-subscriptions.html" class="btn btn-primary">Try Again</a>
+            <a href="feed.html" class="btn btn-secondary">Back to Feed</a>
+          </div>
+        </div>
+
+        <!-- Missing order_id state -->
+        <div id="state-invalid" style="display:none;">
+          <div style="width:72px;height:72px;border-radius:50%;background:var(--color-warning,#f59e0b);display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-5);">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:var(--space-3);">Invalid Link</h2>
+          <p style="color:var(--text-muted);margin-bottom:var(--space-6);">No order information was found. If you completed a payment, check your subscriptions page.</p>
+          <a href="my-subscriptions.html" class="btn btn-primary">My Subscriptions</a>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import Auth from '../js/auth.js';
+  import { paymentsAPI } from '../js/api.js';
+
+  if (!Auth.requireAuth()) throw new Error('Not authenticated');
+
+  const hamburger = document.getElementById('hamburger');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  hamburger.addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); });
+  overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+
+  function show(stateId) {
+    ['state-loading', 'state-success', 'state-failure', 'state-invalid'].forEach(id => {
+      document.getElementById(id).style.display = id === stateId ? '' : 'none';
+    });
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('order_id');
+
+  if (!orderId) {
+    show('state-invalid');
+  } else {
+    paymentsAPI.verifyPayment(orderId)
+      .then(data => {
+        const status = data.status || data.cashfree_status || '';
+        if (status === 'success' || status === 'PAID') {
+          show('state-success');
+        } else {
+          show('state-failure');
+        }
+      })
+      .catch(() => {
+        show('state-failure');
+      });
+  }
+</script>
+</body>
+</html>
