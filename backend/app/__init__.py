@@ -68,6 +68,7 @@ def _register_blueprints(app):
     from app.routes.learner_notifications import learner_notifications_bp
     from app.routes.learner_comments import learner_comments_bp
     from app.routes.pro_traders_public import pro_traders_bp
+    from app.routes.admin import admin_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(profile_bp, url_prefix="/api/pro-trader")
@@ -91,6 +92,7 @@ def _register_blueprints(app):
     app.register_blueprint(learner_notifications_bp, url_prefix="/api/learner")
     app.register_blueprint(learner_comments_bp, url_prefix="/api/learner")
     app.register_blueprint(pro_traders_bp, url_prefix="/api/pro-traders")
+    app.register_blueprint(admin_bp, url_prefix="/api/admin")
 
 
 def _register_error_handlers(app):
