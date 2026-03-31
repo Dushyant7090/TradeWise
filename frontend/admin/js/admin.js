@@ -13,14 +13,19 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
 function getToken() { return localStorage.getItem('tw_admin_token'); }
 
 function requireAuth() {
-  if (!getToken()) { window.location.replace('../index.html'); }
+  var token = getToken();
+  var profile = null;
+  try { profile = JSON.parse(localStorage.getItem('tw_admin_profile')); } catch (e) {}
+  if (!token || !profile || profile.role !== 'admin') {
+    window.location.replace('../404.html');
+  }
 }
 
 function logout() {
   localStorage.removeItem('tw_admin_token');
   localStorage.removeItem('tw_admin_user');
   localStorage.removeItem('tw_admin_profile');
-  window.location.replace('../index.html');
+  window.location.replace('../404.html');
 }
 
 async function apiRequest(path, options = {}) {
