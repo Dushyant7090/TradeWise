@@ -8,6 +8,7 @@ Authentication routes
 - POST /api/auth/2fa-setup
 - POST /api/auth/2fa-verify
 - POST /api/auth/2fa-disable
+- PUT  /api/auth/role
 """
 import logging
 from datetime import datetime, timezone
@@ -35,6 +36,8 @@ from app.utils.validators import validate_email, validate_password
 logger = logging.getLogger(__name__)
 auth_bp = Blueprint("auth", __name__)
 
+# Starting credits awarded to every new Public Trader account
+DEFAULT_LEARNER_CREDITS = 7
 
 def _log_login(user_id: str, request_obj, status: str = "success"):
     """Record login activity."""
@@ -97,11 +100,11 @@ def register():
         pt_profile = ProTraderProfile(user_id=user.id)
         db.session.add(pt_profile)
 
-    # If public_trader, create learner profile with 7 starting credits
+    # If public_trader, create learner profile with starting credits
     if role == "public_trader":
         from app.models.learner_profile import LearnerProfile
         from app.models.learner_notification_preferences import LearnerNotificationPreferences
-        learner_profile = LearnerProfile(user_id=user.id, credits=7)
+        learner_profile = LearnerProfile(user_id=user.id, credits=DEFAULT_LEARNER_CREDITS)
         db.session.add(learner_profile)
         learner_prefs = LearnerNotificationPreferences(user_id=user.id)
         db.session.add(learner_prefs)
@@ -369,3 +372,44 @@ def change_password():
     db.session.commit()
 
     return jsonify({"message": "Password changed successfully"}), 200
+
+
+
+@auth_bp.route("/role", methods=["PUT"])
+@jwt_required()
+def update_role():
+    """Update the authenticated user's role (e.g. public_trader → pro_trader).
+
+    Request body: { "role": "pro_trader" | "public_trader" }
+
+    When switching to pro_trader a ProTraderProfile row is created (if missing).
+    The existing LearnerProfile is retained so that credits are not lost.
+    """
+    user_id = get_jwt_identity()
+    data = request.get_json() or {}
+    new_role = data.get("role", "").strip()
+
+    if new_role not in ("public_trader", "pro_trader"):
+        return jsonify({"error": "role must be 'public_trader' or 'pro_trader'"}), 400
+
+    profile = Profile.query.filter_by(user_id=user_id).first()
+    if not profile:
+        return jsonify({"error": "Profile not found"}), 404
+
+    if profile.role == new_role:
+        return jsonify({"profile": profile.to_dict()}), 200
+
+    profile.role = new_role
+
+    if new_role == "pro_trader":
+        from app.models.pro_trader_profile import ProTraderProfile
+        if not ProTraderProfile.query.filter_by(user_id=user_id).first():
+            db.session.add(ProTraderProfile(user_id=user_id))
+
+    if new_role == "public_trader":
+        from app.models.learner_profile import LearnerProfile
+        if not LearnerProfile.query.filter_by(user_id=user_id).first():
+            db.session.add(LearnerProfile(user_id=user_id, credits=DEFAULT_LEARNER_CREDITS))
+
+    db.session.commit()
+    return jsonify({"profile": profile.to_dict()}), 200
