@@ -346,19 +346,22 @@ Or inject via script tag (no build tool required):
 
 ## Database Initialization
 
-The full schema is in `supabase/schema.sql`. The key tables are:
+The full schema is in `supabase/schema.sql`. There are **12 tables** in the Supabase PostgreSQL database:
 
-| Table | Purpose |
-|-------|---------|
-| `profiles` | All users (roles: `pro_trader`, `public_trader`, `admin`) |
-| `trades` | Trade signals posted by pro-traders |
-| `unlocked_trades` | Tracks which learners have unlocked which trades |
-| `subscriptions` | Active/expired subscriptions between learners and pro-traders |
-| `payments` | Cashfree payment records |
-| `comments` | Trade discussion threads |
-| `flags` | Trade flagging for review |
-| `notifications` | In-app notification queue |
-| `mentor_stats` | Aggregated accuracy & performance per pro-trader |
+| # | Table | Purpose |
+|---|-------|---------|
+| 1 | `profiles` | All users (roles: `pro_trader`, `public_trader`, `admin`) |
+| 2 | `trades` | Trade signals posted by pro-traders |
+| 3 | `mentor_stats` | Aggregated accuracy & performance per pro-trader |
+| 4 | `unlocked_trades` | Tracks which learners have unlocked which trades (credit-based) |
+| 5 | `subscription_plans` | Pricing plans (1, 3, 6 months) set by each pro-trader |
+| 6 | `subscriptions` | Active/expired subscriptions between learners and pro-traders |
+| 7 | `reports` | User-submitted flags for misleading or manipulated trade signals |
+| 8 | `comments` | Trade discussion threads |
+| 9 | `notifications` | In-app notification queue |
+| 10 | `wallet` | Pro-trader earnings ledger (amounts in paise) |
+| 11 | `transactions` | Pro-trader earning and withdrawal history |
+| 12 | `platform_settings` | Admin-configurable key-value settings |
 
 See [`docs/DATABASE_SCHEMA.md`](docs/DATABASE_SCHEMA.md) for the complete schema reference.
 

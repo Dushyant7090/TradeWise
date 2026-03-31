@@ -5,6 +5,27 @@ This document describes all tables in the TradeWise Supabase PostgreSQL database
 The full SQL schema is available in [`supabase/schema.sql`](../supabase/schema.sql).
 Row Level Security policies are in [`supabase/rls-policies.sql`](../supabase/rls-policies.sql).
 
+## Quick Reference — Table Count
+
+**Total: 12 tables** (defined in `supabase/schema.sql`)
+
+| # | Table | Description |
+|---|-------|-------------|
+| 1 | `profiles` | All users — pro-traders, learners, admins |
+| 2 | `trades` | Trade signals posted by pro-traders |
+| 3 | `mentor_stats` | Aggregated performance stats per pro-trader |
+| 4 | `unlocked_trades` | Learner credit-based signal unlocks |
+| 5 | `subscription_plans` | 1/3/6-month pricing per pro-trader |
+| 6 | `subscriptions` | Paid subscriptions (learner → pro-trader) |
+| 7 | `reports` | User flags for misleading/manipulated signals |
+| 8 | `comments` | Discussion threads on trade signals |
+| 9 | `notifications` | In-app notification queue |
+| 10 | `wallet` | Pro-trader earnings ledger |
+| 11 | `transactions` | Earning & withdrawal history |
+| 12 | `platform_settings` | Admin-configurable key-value settings |
+
+> **Backend ORM models** (in `backend/app/models/`) define 20 SQLAlchemy model classes for the Python/Flask backend. Models such as `profiles`, `trades`, `subscriptions`, `reports`, `comments_threads`, and `notifications` map directly to the tables above. The remaining models (e.g., `users`, `learner_profiles`, `pro_trader_profiles`, `learner_flags`, `login_activities`, `payments`, `payouts`, `revenue_splits`) are additional backend abstractions that either extend the core schema or represent tables managed by the Python layer outside of the Supabase SQL schema.
+
 ---
 
 ## Table of Contents
