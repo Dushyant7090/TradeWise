@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="../../shared/css/auth.css">
+    <link rel="stylesheet" href="../shared/css/auth.css">
     <style>
         /* ===== ROLE SELECT OVERRIDES ===== */
         body {
@@ -173,14 +173,6 @@
             box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
         }
 
-        .role-continue-btn .btn-loader {
-            display: none;
-        }
-
-        .role-continue-btn .btn-loader svg {
-            animation: spin 1s linear infinite;
-        }
-
         .role-select-check {
             position: absolute;
             top: 12px;
@@ -220,13 +212,13 @@
 
     <div class="auth-wrapper">
         <!-- Logo -->
-        <a href="../../index.html" class="auth-logo">
-            <img src="../../shared/assets/logo.svg" alt="TradeWise" class="auth-logo-icon">
+        <a href="../landing-page.html" class="auth-logo">
+            <img src="../shared/assets/logo.svg" alt="TradeWise" class="auth-logo-icon">
         </a>
 
         <div class="role-heading">
             <h1>How will you use TradeWise?</h1>
-            <p>This helps us personalize your experience. You can't change this later.</p>
+            <p>Choose your path — you'll create your account in the next step.</p>
         </div>
 
         <div class="role-cards">
@@ -260,7 +252,7 @@
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12" />
                         </svg>
-                        <span>Unlock trade analysis & charts</span>
+                        <span>Unlock trade analysis &amp; charts</span>
                     </div>
                     <div class="role-feature">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -317,134 +309,31 @@
         </div>
 
         <button class="role-continue-btn" id="role-continue-btn" disabled>
-            <span class="btn-text">Continue</span>
-            <span class="btn-loader">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path
-                        d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-                </svg>
-            </span>
+            Continue
         </button>
-
-        <div class="auth-message" id="role-message"></div>
     </div>
 
     <script>
-        // ===== ROLE SELECT — Flask JWT auth =====
-        const API_BASE = window.TW_API_BASE_URL || 'http://localhost:5000/api';
+        (function () {
+            var selectedRole = null;
+            var roleCards = document.querySelectorAll('.role-card');
+            var continueBtn = document.getElementById('role-continue-btn');
 
-        // Auth guard: require JWT token
-        const token = localStorage.getItem('tw_jwt_token');
-        if (!token) {
-            window.location.href = 'auth.html';
-        }
-
-        // Retrieve stored profile (set after login / register)
-        let profile = null;
-        try {
-            profile = JSON.parse(localStorage.getItem('tw_profile') || 'null');
-        } catch { profile = null; }
-
-        // Helper: fetch with auth header
-        async function authFetch(url, opts = {}) {
-            return fetch(url, {
-                ...opts,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                    ...(opts.headers || {}),
-                },
+            roleCards.forEach(function (card) {
+                card.addEventListener('click', function () {
+                    roleCards.forEach(function (c) { c.classList.remove('selected'); });
+                    card.classList.add('selected');
+                    selectedRole = card.dataset.role;
+                    continueBtn.classList.add('ready');
+                    continueBtn.disabled = false;
+                });
             });
-        }
 
-        // Check if user is already onboarded (public_trader with interests set)
-        async function checkAlreadyOnboarded() {
-            if (!profile) return false;
-            if (profile.role === 'pro_trader') {
-                window.location.href = '../../pro-trader/pages/dashboard.html';
-                return true;
-            }
-            if (profile.role === 'public_trader') {
-                try {
-                    const res = await authFetch(`${API_BASE}/learner/profile`);
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (data.interests && data.interests.length > 0) {
-                            window.location.href = 'dashboard.html';
-                            return true;
-                        }
-                    }
-                } catch { /* network error — fall through to show UI */ }
-            }
-            return false;
-        }
-
-        // Run onboarding check on load
-        checkAlreadyOnboarded();
-
-        // ===== Role card selection =====
-        const roleCards = document.querySelectorAll('.role-card');
-        const continueBtn = document.getElementById('role-continue-btn');
-        const roleMessage = document.getElementById('role-message');
-        let selectedRole = null;
-
-        roleCards.forEach(card => {
-            card.addEventListener('click', () => {
-                roleCards.forEach(c => c.classList.remove('selected'));
-                card.classList.add('selected');
-                selectedRole = card.dataset.role;
-                continueBtn.classList.add('ready');
-                continueBtn.disabled = false;
+            continueBtn.addEventListener('click', function () {
+                if (!selectedRole) return;
+                window.location.href = '../learner/pages/auth.html';
             });
-        });
-
-        // ===== Continue button =====
-        continueBtn.addEventListener('click', async () => {
-            if (!selectedRole) return;
-
-            const btnText = continueBtn.querySelector('.btn-text');
-            const btnLoader = continueBtn.querySelector('.btn-loader');
-            btnText.style.display = 'none';
-            btnLoader.style.display = 'flex';
-            continueBtn.disabled = true;
-
-            if (selectedRole === 'pro_trader') {
-                // Update role to pro_trader if needed
-                if (!profile || profile.role !== 'pro_trader') {
-                    try {
-                        const res = await authFetch(`${API_BASE}/auth/role`, {
-                            method: 'PUT',
-                            body: JSON.stringify({ role: 'pro_trader' }),
-                        });
-                        if (res.ok) {
-                            const data = await res.json();
-                            if (data.profile) {
-                                localStorage.setItem('tw_profile', JSON.stringify(data.profile));
-                            }
-                        } else {
-                            const errData = await res.json().catch(() => ({}));
-                            roleMessage.textContent = errData.error || 'Failed to update role. Please try again.';
-                            roleMessage.className = 'auth-message error';
-                            btnText.style.display = 'inline';
-                            btnLoader.style.display = 'none';
-                            continueBtn.disabled = false;
-                            return;
-                        }
-                    } catch {
-                        roleMessage.textContent = 'Network error. Please check your connection.';
-                        roleMessage.className = 'auth-message error';
-                        btnText.style.display = 'inline';
-                        btnLoader.style.display = 'none';
-                        continueBtn.disabled = false;
-                        return;
-                    }
-                }
-                window.location.href = '../../pro-trader/pages/dashboard.html';
-            } else {
-                // public_trader — proceed to profile setup
-                window.location.href = 'profile-setup.html';
-            }
-        });
+        })();
     </script>
 </body>
 
