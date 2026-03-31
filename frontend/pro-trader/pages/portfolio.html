@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Pro Trader Portfolio</title>
+  <meta name="description" content="Manage your active and closed trades as a Pro Trader on TradeWise." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/globals.css" />
+  <link rel="stylesheet" href="../../css/components.css" />
+  <link rel="stylesheet" href="../../css/pages.css" />
+  <link rel="stylesheet" href="../../css/responsive.css" />
+  <link rel="stylesheet" href="../css/pro-trader.css" />
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Pro Trader navigation">
+    <a href="dashboard.html" class="sidebar-logo">
+      <span>Trade<span style="color:var(--color-primary);">Wise</span></span>
+      <span class="sidebar-logo-pro">Pro</span>
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Overview</div>
+        <a href="dashboard.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Trading</div>
+        <a href="portfolio.html" class="nav-link active" aria-current="page">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>
+          Portfolio
+        </a>
+        <a href="signals.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Signals
+        </a>
+        <a href="risk-management.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Risk Management
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar-placeholder" id="sidebar-avatar" aria-hidden="true">P</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="sidebar-username">Pro Trader</div>
+          <div class="sidebar-user-role">Pro Trader</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <header class="topbar" role="banner">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <h1 class="topbar-title">Portfolio</h1>
+      </div>
+      <div class="topbar-right">
+        <a href="signals.html" class="btn btn-primary btn-sm">+ New Signal</a>
+        <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="page-content" id="page-content">
+      <div class="page-header">
+        <h2 class="page-title">Portfolio</h2>
+        <p class="page-subtitle">Track all your active and closed trades</p>
+      </div>
+
+      <!-- Summary stats -->
+      <div class="stat-grid">
+        <div class="stat-item">
+          <div class="stat-value" id="stat-open">—</div>
+          <div class="stat-label">Open Positions</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-closed">—</div>
+          <div class="stat-label">Closed Trades</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-pnl">—</div>
+          <div class="stat-label">Realised P&amp;L</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-winrate">—</div>
+          <div class="stat-label">Win Rate</div>
+        </div>
+      </div>
+
+      <!-- Filter bar -->
+      <div style="margin-top:var(--space-6);margin-bottom:var(--space-4);display:flex;gap:var(--space-3);flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm filter-btn" data-filter="all">All</button>
+        <button class="btn btn-ghost btn-sm filter-btn" data-filter="active">Active</button>
+        <button class="btn btn-ghost btn-sm filter-btn" data-filter="closed">Closed</button>
+      </div>
+
+      <!-- Portfolio table -->
+      <div class="card">
+        <div style="overflow-x:auto;">
+          <table class="portfolio-table" id="portfolio-table" aria-label="Portfolio trades">
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Direction</th>
+                <th>Entry</th>
+                <th>Target</th>
+                <th>Stop Loss</th>
+                <th>Status</th>
+                <th>P&amp;L</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="portfolio-body">
+              <tr>
+                <td colspan="8" style="text-align:center;padding:var(--space-8);color:var(--text-muted);">
+                  <div class="spinner" style="margin:0 auto var(--space-3);"></div>
+                  Loading trades…
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container" role="status" aria-live="polite"></div>
+
+<script src="../js/pro-trader.js"></script>
+<script>
+  if (!ProTraderAuth.requireAuth()) throw new Error('Not authenticated');
+
+  const storedName = localStorage.getItem('tw_display_name') || 'Trader';
+  document.getElementById('sidebar-username').textContent = storedName;
+  document.getElementById('sidebar-avatar').textContent = storedName.charAt(0).toUpperCase();
+
+  let allTrades = [];
+
+  async function loadPortfolio() {
+    try {
+      const data = await proTraderFetch('/pro-trader/trades');
+      allTrades = Array.isArray(data) ? data : (data.trades || []);
+
+      const open   = allTrades.filter(t => t.status === 'active' || t.status === 'open');
+      const closed = allTrades.filter(t => t.status === 'closed' || t.status === 'won' || t.status === 'lost');
+      const won    = closed.filter(t => t.status === 'won' || t.pnl > 0);
+      const totalPnl = closed.reduce((sum, t) => sum + (parseFloat(t.pnl) || 0), 0);
+
+      document.getElementById('stat-open').textContent    = open.length;
+      document.getElementById('stat-closed').textContent  = closed.length;
+      document.getElementById('stat-pnl').textContent     = formatCurrency(totalPnl);
+      document.getElementById('stat-winrate').textContent = closed.length ? Math.round((won.length / closed.length) * 100) + '%' : '—';
+
+      renderTable(allTrades);
+    } catch (err) {
+      Toast.show('Could not load portfolio: ' + err.message, 'error');
+      renderTable([]);
+    }
+  }
+
+  function renderTable(trades) {
+    const tbody = document.getElementById('portfolio-body');
+    if (!trades.length) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:var(--space-8);color:var(--text-muted);">No trades found. <a href="signals.html">Post a signal →</a></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = trades.map(t => {
+      const pnl = parseFloat(t.pnl) || 0;
+      const pnlColor = pnl > 0 ? 'var(--color-success)' : pnl < 0 ? 'var(--color-danger)' : 'var(--text-muted)';
+      return `<tr>
+        <td style="font-weight:700;font-family:var(--font-mono);">${t.symbol || '—'}</td>
+        <td><span class="signal-direction ${(t.direction||t.trade_type||'buy').toLowerCase()}">${(t.direction||t.trade_type||'BUY').toUpperCase()}</span></td>
+        <td style="font-family:var(--font-mono);">${t.entry_price ?? '—'}</td>
+        <td style="font-family:var(--font-mono);">${t.target_price ?? '—'}</td>
+        <td style="font-family:var(--font-mono);">${t.stop_loss ?? '—'}</td>
+        <td><span class="trade-status status-${t.status||'active'}">${(t.status||'active').replace('_',' ')}</span></td>
+        <td style="font-family:var(--font-mono);color:${pnlColor};">${pnl !== 0 ? formatCurrency(pnl) : '—'}</td>
+        <td style="color:var(--text-muted);font-size:var(--text-xs);">${timeAgo(t.created_at)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.replace('btn-primary', 'btn-ghost'));
+      btn.classList.replace('btn-ghost', 'btn-primary');
+      const f = btn.dataset.filter;
+      if (f === 'all') { renderTable(allTrades); return; }
+      const statusMap = { active: ['active', 'open'], closed: ['closed', 'won', 'lost'] };
+      renderTable(allTrades.filter(t => (statusMap[f] || [f]).includes(t.status)));
+    });
+  });
+
+  loadPortfolio();
+</script>
+</body>
+</html>

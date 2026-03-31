@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Pro Trader Dashboard</title>
+  <meta name="description" content="Pro Trader performance dashboard — overview of trades, earnings, and accuracy." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/globals.css" />
+  <link rel="stylesheet" href="../../css/components.css" />
+  <link rel="stylesheet" href="../../css/pages.css" />
+  <link rel="stylesheet" href="../../css/responsive.css" />
+  <link rel="stylesheet" href="../css/pro-trader.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Pro Trader navigation">
+    <a href="dashboard.html" class="sidebar-logo">
+      <span>Trade<span style="color:var(--color-primary);">Wise</span></span>
+      <span class="sidebar-logo-pro">Pro</span>
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Overview</div>
+        <a href="dashboard.html" class="nav-link active" aria-current="page">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Trading</div>
+        <a href="portfolio.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>
+          Portfolio
+        </a>
+        <a href="signals.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Signals
+        </a>
+        <a href="risk-management.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Risk Management
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user">
+        <div class="avatar-placeholder" id="sidebar-avatar" aria-hidden="true">P</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="sidebar-username">Pro Trader</div>
+          <div class="sidebar-user-role">Pro Trader</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <header class="topbar" role="banner">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <h1 class="topbar-title">Dashboard</h1>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="page-content" id="page-content">
+      <div class="page-header">
+        <h2 class="page-title">Welcome back, <span id="username-display">Trader</span> 👋</h2>
+        <p class="page-subtitle">Your performance overview for today</p>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="stat-grid" id="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value" id="stat-accuracy">—</div>
+          <div class="stat-label">Accuracy</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-active-trades">—</div>
+          <div class="stat-label">Active Trades</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-subscribers">—</div>
+          <div class="stat-label">Subscribers</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-earnings">—</div>
+          <div class="stat-label">Total Earnings</div>
+        </div>
+      </div>
+
+      <!-- Earnings chart -->
+      <div class="card" style="margin-top:var(--space-6);">
+        <div class="card-header">
+          <h3 class="card-title">Monthly Earnings</h3>
+        </div>
+        <div style="height:240px;position:relative;">
+          <canvas id="earnings-chart" aria-label="Monthly earnings chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent trades + quick links -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-5);margin-top:var(--space-5);">
+        <!-- Recent trades -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Recent Trades</h3>
+            <a href="portfolio.html" style="font-size:.875rem;">View All →</a>
+          </div>
+          <div id="recent-trades">
+            <div class="spinner" style="margin:var(--space-4) auto;"></div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Quick Actions</h3>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+            <a href="signals.html" class="btn btn-primary" style="justify-content:center;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              Post New Signal
+            </a>
+            <a href="portfolio.html" class="btn btn-secondary" style="justify-content:center;">View Portfolio</a>
+            <a href="risk-management.html" class="btn btn-ghost" style="justify-content:center;">Risk Report</a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container" role="status" aria-live="polite"></div>
+
+<script src="../js/pro-trader.js"></script>
+<script>
+  // Auth guard
+  if (!ProTraderAuth.requireAuth()) throw new Error('Not authenticated');
+
+  // Populate user display
+  const storedName = localStorage.getItem('tw_display_name') || 'Trader';
+  document.getElementById('username-display').textContent = storedName;
+  document.getElementById('sidebar-username').textContent = storedName;
+  document.getElementById('sidebar-avatar').textContent = storedName.charAt(0).toUpperCase();
+
+  // Load dashboard data
+  async function loadDashboard() {
+    try {
+      const data = await proTraderFetch('/pro-trader/dashboard');
+      document.getElementById('stat-accuracy').textContent     = (data.accuracy_score ?? '—') + (data.accuracy_score != null ? '%' : '');
+      document.getElementById('stat-active-trades').textContent = data.active_trades ?? '—';
+      document.getElementById('stat-subscribers').textContent  = data.subscriber_count ?? '—';
+      document.getElementById('stat-earnings').textContent     = data.total_earnings != null ? formatCurrency(data.total_earnings) : '—';
+
+      renderRecentTrades(data.recent_trades || []);
+      renderEarningsChart(data.monthly_earnings || []);
+    } catch (err) {
+      Toast.show('Could not load dashboard: ' + err.message, 'error');
+      renderRecentTrades([]);
+    }
+  }
+
+  function renderRecentTrades(trades) {
+    const wrap = document.getElementById('recent-trades');
+    if (!trades.length) {
+      wrap.innerHTML = '<div class="empty-state"><p class="empty-state-text">No recent trades. <a href="signals.html">Post a signal →</a></p></div>';
+      return;
+    }
+    wrap.innerHTML = '<div style="display:flex;flex-direction:column;gap:var(--space-2);">' +
+      trades.slice(0, 5).map(t => `
+        <a href="portfolio.html" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-2) var(--space-3);background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);text-decoration:none;color:inherit;">
+          <span style="font-weight:700;font-family:var(--font-mono);">${t.symbol || '—'}</span>
+          <span class="trade-status status-${t.status || 'active'}">${(t.status || 'active').replace('_', ' ')}</span>
+        </a>`).join('') + '</div>';
+  }
+
+  function renderEarningsChart(monthly) {
+    const ctx = document.getElementById('earnings-chart');
+    if (!ctx || !monthly.length) return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: monthly.map(m => m.label || m.month),
+        datasets: [{
+          label: 'Earnings (₹)',
+          data: monthly.map(m => m.amount ?? m.value ?? 0),
+          backgroundColor: 'rgba(16,185,129,0.5)',
+          borderColor: '#10B981',
+          borderWidth: 1,
+          borderRadius: 4,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#737373' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { ticks: { color: '#737373' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        },
+      },
+    });
+  }
+
+  loadDashboard();
+</script>
+</body>
+</html>

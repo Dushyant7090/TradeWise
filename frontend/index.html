@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Pro Trader</title>
-  <meta name="description" content="TradeWise Pro Trader Dashboard" />
+  <title>TradeWise — Choose Your Role</title>
+  <meta name="description" content="TradeWise — a professional trading signal platform for admins, learners, and pro traders." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -12,17 +12,21 @@
   <style>
     body {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
       background: #000;
       color: #fff;
       font-family: 'Inter', sans-serif;
+      padding: 2rem 1rem;
+      box-sizing: border-box;
     }
-    .splash {
+    .landing-header {
       text-align: center;
+      margin-bottom: 3rem;
     }
-    .splash h1 {
+    .landing-header h1 {
       font-size: 2.5rem;
       font-weight: 800;
       letter-spacing: -0.04em;
@@ -30,41 +34,124 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin-bottom: 1rem;
+      margin: 0 0 0.75rem;
     }
-    .splash p {
+    .landing-header p {
       color: #737373;
-      margin-bottom: 2rem;
+      font-size: 1rem;
+      margin: 0;
     }
-    .splash a {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 28px;
-      background: #10B981;
-      color: #000;
-      border-radius: 10px;
-      font-weight: 700;
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 860px;
+    }
+    .role-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 2rem 1.5rem;
+      text-align: center;
       text-decoration: none;
-      font-size: 0.95rem;
-      transition: background 0.2s;
+      color: inherit;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
     }
-    .splash a:hover { background: #059669; }
+    .role-card:hover {
+      border-color: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.06);
+      transform: translateY(-2px);
+    }
+    .role-card:focus-visible {
+      outline: 2px solid #10B981;
+      outline-offset: 3px;
+    }
+    .role-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .role-icon.admin    { background: rgba(239,68,68,0.15);   }
+    .role-icon.learner  { background: rgba(59,130,246,0.15);  }
+    .role-icon.pro      { background: rgba(16,185,129,0.15);  }
+    .role-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    .role-desc {
+      font-size: 0.85rem;
+      color: #737373;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .role-cta {
+      margin-top: auto;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #10B981;
+    }
+    .landing-footer {
+      margin-top: 3rem;
+      font-size: 0.8rem;
+      color: #4a4a4a;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <div class="splash">
-    <h1>TradeWise Pro</h1>
-    <p>The professional trading dashboard for verified traders.</p>
-    <a href="/pages/auth.html">
-      Get Started →
+  <header class="landing-header">
+    <h1>TradeWise</h1>
+    <p>Professional trading signals — choose your role to get started</p>
+  </header>
+
+  <nav class="role-grid" aria-label="Role selection">
+    <!-- Admin -->
+    <a href="admin/login.html" class="role-card" aria-label="Go to Admin portal">
+      <div class="role-icon admin" aria-hidden="true">⚡</div>
+      <p class="role-title">Admin</p>
+      <p class="role-desc">Manage users, review trades, monitor platform activity, and control system settings.</p>
+      <span class="role-cta">Admin Portal →</span>
     </a>
-  </div>
+
+    <!-- Learner -->
+    <a href="learner/pages/register.html" class="role-card" aria-label="Go to Learner portal">
+      <div class="role-icon learner" aria-hidden="true">📚</div>
+      <p class="role-title">Learner</p>
+      <p class="role-desc">Follow top traders, unlock trade analyses, and build your skills with credits.</p>
+      <span class="role-cta">Learner Portal →</span>
+    </a>
+
+    <!-- Pro Trader -->
+    <a href="pro-trader/pages/dashboard.html" class="role-card" aria-label="Go to Pro Trader portal">
+      <div class="role-icon pro" aria-hidden="true">📈</div>
+      <p class="role-title">Pro Trader</p>
+      <p class="role-desc">Publish trade signals, manage your portfolio, track earnings, and grow subscribers.</p>
+      <span class="role-cta">Pro Trader Portal →</span>
+    </a>
+  </nav>
+
+  <footer class="landing-footer">
+    TradeWise © 2025. All rights reserved.
+  </footer>
+
   <script>
-    // Auto-redirect if already authenticated
+    // If a role session is active, redirect to the appropriate dashboard
     const token = localStorage.getItem('tw_jwt_token');
     if (token) {
-      window.location.href = 'pages/dashboard.html';
+      const role = localStorage.getItem('tw_user_role');
+      if (role === 'admin')       window.location.href = 'admin/dashboard.html';
+      else if (role === 'learner') window.location.href = 'learner/pages/dashboard.html';
+      else if (role === 'pro_trader' || role === 'pro-trader') window.location.href = 'pro-trader/pages/dashboard.html';
     }
   </script>
 </body>

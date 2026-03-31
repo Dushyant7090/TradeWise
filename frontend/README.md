@@ -1,18 +1,18 @@
-# TradeWise Pro-Trader Dashboard — Frontend
+# TradeWise Frontend
 
-A professional trading dashboard frontend built with HTML5, CSS3, and vanilla JavaScript (ES6+), designed to integrate seamlessly with the TradeWise Pro-Trader Backend.
+A role-based trading signal platform frontend built with HTML5, CSS3, and vanilla JavaScript (ES6+).
 
 ## 📁 Project Structure
 
 ```
 frontend/
-├── index.html                 # Entry point — redirects to login or dashboard
-├── css/
+├── index.html                 # Landing page — role selector (Admin / Learner / Pro Trader)
+├── css/                       # Shared styles
 │   ├── globals.css            # CSS variables, reset, base styles
-│   ├── components.css         # Reusable UI components (buttons, modals, etc.)
+│   ├── components.css         # Reusable UI components (buttons, modals, toasts, etc.)
 │   ├── pages.css              # Layout & page-specific styles
 │   └── responsive.css         # Media queries (768px tablet, 480px mobile)
-├── js/
+├── js/                        # Shared JavaScript utilities
 │   ├── main.js                # App initialization, toast system, sidebar
 │   ├── auth.js                # JWT authentication, login/logout
 │   ├── api.js                 # Fetch wrapper, all API endpoints
@@ -20,174 +20,153 @@ frontend/
 │   ├── realtime.js            # Supabase Realtime subscriptions
 │   ├── utils.js               # Helpers, formatters, validators
 │   └── charts.js              # Chart.js initialization (4 chart types)
-├── pages/
-│   ├── login.html             # Login page with forgot password modal
-│   ├── register.html          # Registration with password strength
-│   ├── dashboard.html         # Main dashboard with metrics & charts
-│   ├── post-trade.html        # Post new trade form with RRR calculator
-│   ├── active-trades.html     # Trade list with close modal & comments
-│   ├── analytics.html         # Performance analytics with 4 charts
-│   ├── earnings.html          # Earnings, payouts, withdrawal
-│   ├── subscribers.html       # Subscriber list
-│   ├── kyc-setup.html         # KYC documents & bank details
-│   ├── profile-settings.html  # Profile editing
-│   ├── account-settings.html  # Password, 2FA, login activity
-│   ├── notifications.html     # Notification center
-│   └── settings.html          # Notification preferences
-├── assets/
-│   ├── images/
-│   ├── icons/
-│   └── logos/
-├── .env.example               # Environment variable template
-└── README.md
+│
+├── admin/                     # Admin role
+│   ├── login.html             # Admin login
+│   ├── dashboard.html         # Admin dashboard (users, trades, analytics)
+│   ├── admin.css              # Admin-specific styles
+│   ├── admin.js               # Admin-specific JavaScript
+│   ├── pages/                 # (reserved for future admin sub-pages)
+│   ├── css/                   # (reserved for additional admin stylesheets)
+│   ├── js/                    # (reserved for additional admin scripts)
+│   └── assets/                # Admin-specific assets
+│
+├── learner/                   # Learner role
+│   ├── pages/
+│   │   ├── dashboard.html     # Learner dashboard — credits, feed, subscriptions
+│   │   ├── feed.html          # Trade feed — discover signals
+│   │   ├── trade-detail.html  # Unlock & view a trade analysis
+│   │   ├── my-subscriptions.html
+│   │   ├── my-history.html
+│   │   ├── notifications.html
+│   │   ├── notification-preferences.html
+│   │   ├── profile-settings.html
+│   │   ├── account-settings.html
+│   │   ├── profile-setup.html
+│   │   ├── role-selection.html
+│   │   ├── register.html
+│   │   └── payment-callback.html
+│   ├── css/
+│   │   └── learner.css        # Learner-specific styles
+│   ├── js/
+│   │   ├── auth.js
+│   │   ├── api.js
+│   │   ├── charts.js
+│   │   ├── realtime.js
+│   │   ├── storage.js
+│   │   └── utils.js
+│   └── assets/                # Learner-specific assets
+│
+├── pro-trader/                # Pro Trader role
+│   ├── pages/
+│   │   ├── dashboard.html     # Pro Trader dashboard — accuracy, earnings, recent trades
+│   │   ├── portfolio.html     # All trades — open & closed, P&L table
+│   │   ├── signals.html       # Post and manage trade signals
+│   │   └── risk-management.html  # Drawdown, RRR, position sizing calculator
+│   ├── css/
+│   │   └── pro-trader.css     # Pro Trader-specific styles
+│   ├── js/
+│   │   └── pro-trader.js      # Auth guard, fetch helper, Toast, formatters
+│   └── assets/                # Pro Trader-specific assets
+│
+└── pages/                     # Legacy Pro Trader pages (original location — kept for compatibility)
+    ├── dashboard.html
+    ├── post-trade.html
+    ├── active-trades.html
+    ├── analytics.html
+    ├── earnings.html
+    ├── subscribers.html
+    ├── kyc-setup.html
+    ├── notifications.html
+    ├── profile-settings.html
+    ├── account-settings.html
+    ├── settings.html
+    └── register.html
 ```
 
 ## 🚀 Quick Start
 
-### 1. Configure Environment
+### 1. Configure API URL
 
-Copy `.env.example` and update values:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env`:
-```env
-VITE_API_BASE_URL=http://localhost:5000/api
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-```
-
-### 2. Configure API URL
-
-The frontend reads API config from `window.TW_API_BASE_URL`. You can inject this in your HTML before the scripts, or set it via a build tool:
+Set `window.TW_API_BASE_URL` in any page before your scripts load (or via `.env` with a build tool):
 
 ```html
 <script>
-  window.TW_API_BASE_URL = 'http://localhost:5000/api';
-  window.TW_SUPABASE_URL = 'https://your-project.supabase.co';
+  window.TW_API_BASE_URL      = 'http://localhost:5000/api';
+  window.TW_SUPABASE_URL      = 'https://your-project.supabase.co';
   window.TW_SUPABASE_ANON_KEY = 'your-anon-key';
 </script>
 ```
 
-### 3. Serve the Frontend
+### 2. Serve the Frontend
 
-Use any static file server. For development:
+Use any static file server. For local development:
 
 ```bash
-# Using Python
+# Python (from the frontend/ directory)
 cd frontend
 python3 -m http.server 3000
 
-# Using Node.js serve
+# Node.js
 npx serve frontend -p 3000
 
-# Using VS Code Live Server
-# Open index.html and click "Go Live"
+# VS Code Live Server
+# Open frontend/index.html and click "Go Live"
 ```
 
 Open `http://localhost:3000` in your browser.
 
+### 3. Open Each Role Locally
+
+| Role | Entry Page | URL |
+|------|-----------|-----|
+| Landing | `frontend/index.html` | `http://localhost:3000/` |
+| Admin | `frontend/admin/login.html` | `http://localhost:3000/admin/login.html` |
+| Learner | `frontend/learner/pages/register.html` | `http://localhost:3000/learner/pages/register.html` |
+| Pro Trader | `frontend/pro-trader/pages/dashboard.html` | `http://localhost:3000/pro-trader/pages/dashboard.html` |
+
+> **Tip:** The landing page (`index.html`) auto-redirects authenticated users to their role dashboard based on `localStorage.tw_user_role`.
+
 ## 🔗 Backend Integration
 
-### API Base URL
-- Default: `http://localhost:5000/api`
-- Configurable via `window.TW_API_BASE_URL`
+- **API Base URL:** `http://localhost:5000/api` (configurable via `window.TW_API_BASE_URL`)
+- **Auth:** JWT stored in `localStorage` as `tw_jwt_token`; auto-refresh on 401
+- **Role key:** `localStorage.tw_user_role` — values: `admin`, `learner`, `pro_trader`
 
-### Authentication
-- JWT stored in `localStorage` as `tw_jwt_token`
-- Refresh token stored as `tw_refresh_token`
-- Auto-refresh on 401 response
-- Auto-logout if refresh fails
+### Pro Trader API Endpoints
 
-### API Endpoints Used
-
-| Module | Endpoints |
-|--------|-----------|
+| Feature | Endpoints |
+|---------|-----------|
 | Auth | `POST /auth/register`, `/auth/login`, `/auth/logout`, `/auth/refresh-token` |
-| Profile | `GET/PUT /pro-trader/profile`, `GET /pro-trader/dashboard` |
+| Dashboard | `GET /pro-trader/dashboard` |
 | Trades | `GET/POST /pro-trader/trades`, `PUT /pro-trader/trades/{id}/close` |
-| Comments | `GET/POST /pro-trader/trades/{id}/comments` |
-| Analytics | `GET /pro-trader/analytics/accuracy`, `/performance-chart`, `/win-loss`, `/rrr`, `/monthly-stats` |
+| Analytics | `GET /pro-trader/analytics/accuracy`, `/win-loss`, `/rrr`, `/performance-chart`, `/monthly-stats` |
 | Earnings | `GET /pro-trader/earnings`, `/balance`, `/payouts` |
-| Payouts | `POST /pro-trader/payouts/initiate` |
 | Subscribers | `GET /pro-trader/subscribers` |
 | KYC | `GET /pro-trader/kyc/status`, `POST /pro-trader/kyc/upload-documents` |
 | Notifications | `GET/PUT/DELETE /pro-trader/notifications/*` |
-| Preferences | `GET/PUT /pro-trader/notification-preferences` |
-
-## ⚡ Real-time Features (Supabase)
-
-Configure Supabase credentials to enable real-time:
-- **Trade updates** — live status changes
-- **Notifications** — instant bell updates + toast
-- **Payout status** — live payout tracking
-
-## 📊 Charts (Chart.js)
-
-Four Chart.js visualizations:
-1. **Accuracy Trend** — line chart, 12 months
-2. **Win/Loss Ratio** — doughnut chart
-3. **Monthly Earnings** — bar chart
-4. **RRR Distribution** — histogram
 
 ## 🎨 Design System
 
-### Colors
-- Primary: `#10B981` (Emerald)
-- Background: `#000000`
-- Cards: `rgba(255,255,255,0.03)`
-- Text: `#FFFFFF` / `#A3A3A3`
+- **Primary:** `#10B981` (Emerald)
+- **Background:** `#000000`
+- **Cards:** `rgba(255,255,255,0.03)`
+- **Font:** Inter (Google Fonts)
+- **Mono:** JetBrains Mono
 
-### Typography
-- Font: Inter (Google Fonts)
-- Mono: JetBrains Mono (for prices/code)
+## ⚡ Real-time (Supabase)
 
-### Breakpoints
-- Desktop: 1280px+
-- Tablet: ≤ 768px (sidebar becomes drawer)
-- Mobile: ≤ 480px (single column)
+Configure `TW_SUPABASE_URL` + `TW_SUPABASE_ANON_KEY` to enable:
+- Live trade status updates
+- Instant notification bell
+- Real-time payout tracking
 
-## ✅ Features
+## 🛠 Stack
 
-- [x] JWT authentication with auto-refresh
-- [x] Responsive sidebar navigation (mobile hamburger)
-- [x] Post trade with RRR auto-calculator
-- [x] Trade management (view, filter, close)
-- [x] Comments system with real-time updates
-- [x] Analytics with 4 Chart.js charts
-- [x] Earnings & payout management
-- [x] KYC document upload
-- [x] Notification center with real-time
-- [x] Notification preferences
-- [x] Profile & account settings
-- [x] 2FA setup
-- [x] Password strength meter
-- [x] Form validation (client-side + backend error display)
-- [x] Toast notifications
-- [x] Loading states & spinners
-- [x] localStorage caching (5 min TTL)
-- [x] WCAG accessibility (ARIA labels, keyboard navigation)
-- [x] Dark theme throughout
-
-## 🔒 Security
-
-- JWT tokens stored in localStorage
-- Bearer token sent with all API requests
-- Auto-logout on invalid token
-- Input validation on all forms
-- File upload type/size validation
-- No secrets in frontend code
-
-## 🛠 Technology Stack
-
-- **HTML5** — Semantic markup
-- **CSS3** — Custom properties, Flexbox, CSS Grid
-- **JavaScript (ES6+)** — Modules, async/await, destructuring
-- **Chart.js 4** — Data visualization
-- **Supabase Realtime** — WebSocket subscriptions
-- **No build tools required** — Pure static files
+- HTML5 · CSS3 · Vanilla JS (ES6+)
+- Chart.js 4
+- Supabase Realtime
+- No build tools required
 
 ## 📄 License
 

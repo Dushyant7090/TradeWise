@@ -1,0 +1,167 @@
+/* =====================================================
+   pro-trader.css — Pro Trader role-specific styles
+   Extends frontend/css/globals.css and components.css
+   ===================================================== */
+
+/* ---- Role badge in sidebar ---- */
+.sidebar-logo-pro {
+  font-size: 0.7rem;
+  color: var(--color-primary);
+  margin-left: 6px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* ---- Portfolio table ---- */
+.portfolio-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.portfolio-table th {
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  color: var(--text-muted);
+  font-weight: 500;
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.portfolio-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.portfolio-table tr:last-child td {
+  border-bottom: none;
+}
+
+.portfolio-table tr:hover td {
+  background: var(--bg-card-hover);
+}
+
+/* ---- Signal cards ---- */
+.signal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.signal-card:hover {
+  border-color: var(--border-medium);
+  background: var(--bg-card-hover);
+}
+
+.signal-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.signal-symbol {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.signal-direction {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.signal-direction.buy {
+  background: var(--color-buy-bg);
+  color: var(--color-buy);
+}
+
+.signal-direction.sell {
+  background: var(--color-sell-bg);
+  color: var(--color-sell);
+}
+
+.signal-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.signal-meta-item span {
+  color: var(--text-primary);
+  font-weight: 600;
+  display: block;
+}
+
+/* ---- Risk gauge ---- */
+.risk-gauge-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) 0;
+}
+
+.risk-gauge-label {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.risk-level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 16px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.risk-level-badge.low {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.risk-level-badge.medium {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.risk-level-badge.high {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+/* ---- Signals grid ---- */
+.signals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-5);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .signals-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-table th,
+  .portfolio-table td {
+    padding: var(--space-2) var(--space-3);
+  }
+}

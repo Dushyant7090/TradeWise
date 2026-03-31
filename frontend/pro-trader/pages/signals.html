@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Pro Trader Signals</title>
+  <meta name="description" content="Post and manage trade signals for your subscribers on TradeWise." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/globals.css" />
+  <link rel="stylesheet" href="../../css/components.css" />
+  <link rel="stylesheet" href="../../css/pages.css" />
+  <link rel="stylesheet" href="../../css/responsive.css" />
+  <link rel="stylesheet" href="../css/pro-trader.css" />
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Pro Trader navigation">
+    <a href="dashboard.html" class="sidebar-logo">
+      <span>Trade<span style="color:var(--color-primary);">Wise</span></span>
+      <span class="sidebar-logo-pro">Pro</span>
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Overview</div>
+        <a href="dashboard.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Trading</div>
+        <a href="portfolio.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>
+          Portfolio
+        </a>
+        <a href="signals.html" class="nav-link active" aria-current="page">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Signals
+        </a>
+        <a href="risk-management.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Risk Management
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar-placeholder" id="sidebar-avatar" aria-hidden="true">P</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="sidebar-username">Pro Trader</div>
+          <div class="sidebar-user-role">Pro Trader</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <header class="topbar" role="banner">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <h1 class="topbar-title">Signals</h1>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" id="open-post-modal">+ Post Signal</button>
+        <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="page-content" id="page-content">
+      <div class="page-header">
+        <h2 class="page-title">Trade Signals</h2>
+        <p class="page-subtitle">Publish signals — your subscribers get notified instantly</p>
+      </div>
+
+      <!-- Post signal form (inline card) -->
+      <div class="card" id="post-signal-card" style="display:none;margin-bottom:var(--space-6);">
+        <div class="card-header">
+          <h3 class="card-title">Post New Signal</h3>
+          <button class="btn btn-ghost btn-sm" id="close-post-modal" aria-label="Close form">✕</button>
+        </div>
+        <form id="post-signal-form" novalidate style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+          <div class="form-group">
+            <label class="form-label" for="sig-symbol">Symbol <span aria-hidden="true">*</span></label>
+            <input class="form-input" id="sig-symbol" type="text" placeholder="e.g. RELIANCE, NIFTY50" required autocomplete="off" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="sig-direction">Direction <span aria-hidden="true">*</span></label>
+            <select class="form-input" id="sig-direction" required>
+              <option value="">Select…</option>
+              <option value="BUY">BUY</option>
+              <option value="SELL">SELL</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="sig-entry">Entry Price <span aria-hidden="true">*</span></label>
+            <input class="form-input" id="sig-entry" type="number" step="0.01" min="0" placeholder="0.00" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="sig-target">Target Price <span aria-hidden="true">*</span></label>
+            <input class="form-input" id="sig-target" type="number" step="0.01" min="0" placeholder="0.00" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="sig-sl">Stop Loss <span aria-hidden="true">*</span></label>
+            <input class="form-input" id="sig-sl" type="number" step="0.01" min="0" placeholder="0.00" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="sig-notes">Notes</label>
+            <input class="form-input" id="sig-notes" type="text" placeholder="Optional analysis note" />
+          </div>
+          <div style="grid-column:1/-1;display:flex;gap:var(--space-3);justify-content:flex-end;">
+            <button type="button" class="btn btn-ghost" id="cancel-signal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="submit-signal">Publish Signal</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Signals list -->
+      <div class="signals-grid" id="signals-grid">
+        <div class="spinner" style="margin:var(--space-8) auto;grid-column:1/-1;"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container" role="status" aria-live="polite"></div>
+
+<script src="../js/pro-trader.js"></script>
+<script>
+  if (!ProTraderAuth.requireAuth()) throw new Error('Not authenticated');
+
+  const storedName = localStorage.getItem('tw_display_name') || 'Trader';
+  document.getElementById('sidebar-username').textContent = storedName;
+  document.getElementById('sidebar-avatar').textContent = storedName.charAt(0).toUpperCase();
+
+  // Post signal panel toggle
+  const postCard    = document.getElementById('post-signal-card');
+  const openBtn     = document.getElementById('open-post-modal');
+  const closeBtn    = document.getElementById('close-post-modal');
+  const cancelBtn   = document.getElementById('cancel-signal');
+
+  function showForm()  { postCard.style.display = 'block'; openBtn.style.display = 'none'; }
+  function hideForm()  { postCard.style.display = 'none';  openBtn.style.display = '';    }
+
+  openBtn.addEventListener('click', showForm);
+  closeBtn.addEventListener('click', hideForm);
+  cancelBtn.addEventListener('click', hideForm);
+
+  // Submit signal
+  document.getElementById('post-signal-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const symbol    = document.getElementById('sig-symbol').value.trim().toUpperCase();
+    const direction = document.getElementById('sig-direction').value;
+    const entry     = parseFloat(document.getElementById('sig-entry').value);
+    const target    = parseFloat(document.getElementById('sig-target').value);
+    const stopLoss  = parseFloat(document.getElementById('sig-sl').value);
+    const notes     = document.getElementById('sig-notes').value.trim();
+
+    if (!symbol || !direction || !entry || !target || !stopLoss) {
+      Toast.show('Please fill in all required fields.', 'warning');
+      return;
+    }
+
+    const btn = document.getElementById('submit-signal');
+    btn.disabled = true;
+    btn.textContent = 'Publishing…';
+    try {
+      await proTraderFetch('/pro-trader/trades', {
+        method: 'POST',
+        body: JSON.stringify({ symbol, trade_type: direction, entry_price: entry, target_price: target, stop_loss: stopLoss, notes }),
+      });
+      Toast.show('Signal published successfully!', 'success');
+      hideForm();
+      e.target.reset();
+      loadSignals();
+    } catch (err) {
+      Toast.show('Failed to publish: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Publish Signal';
+    }
+  });
+
+  // Load existing signals
+  async function loadSignals() {
+    const grid = document.getElementById('signals-grid');
+    try {
+      const data = await proTraderFetch('/pro-trader/trades');
+      const trades = Array.isArray(data) ? data : (data.trades || []);
+      if (!trades.length) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><p class="empty-state-text">No signals posted yet. Click <strong>+ Post Signal</strong> to get started.</p></div>';
+        return;
+      }
+      grid.innerHTML = trades.map(t => {
+        const dir = (t.trade_type || t.direction || 'BUY').toUpperCase();
+        return `
+        <article class="signal-card">
+          <div class="signal-card-header">
+            <span class="signal-symbol">${t.symbol || '—'}</span>
+            <span class="signal-direction ${dir.toLowerCase()}">${dir}</span>
+          </div>
+          <div class="signal-meta">
+            <div class="signal-meta-item">Entry<span>${t.entry_price ?? '—'}</span></div>
+            <div class="signal-meta-item">Target<span style="color:var(--color-success);">${t.target_price ?? '—'}</span></div>
+            <div class="signal-meta-item">Stop Loss<span style="color:var(--color-danger);">${t.stop_loss ?? '—'}</span></div>
+            <div class="signal-meta-item">Status<span><span class="trade-status status-${t.status||'active'}">${(t.status||'active').replace('_',' ')}</span></span></div>
+          </div>
+          ${t.notes ? `<p style="font-size:var(--text-xs);color:var(--text-muted);margin:0;">${t.notes}</p>` : ''}
+          <div style="font-size:var(--text-xs);color:var(--text-muted);">${timeAgo(t.created_at)}</div>
+        </article>`;
+      }).join('');
+    } catch (err) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><p class="empty-state-text">Could not load signals: ${err.message}</p></div>`;
+    }
+  }
+
+  loadSignals();
+</script>
+</body>
+</html>
