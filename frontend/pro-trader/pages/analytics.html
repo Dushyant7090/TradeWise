@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../shared/css/globals.css" />
+  <link rel="stylesheet" href="../../shared/css/components.css" />
+  <link rel="stylesheet" href="../../shared/css/pages.css" />
+  <link rel="stylesheet" href="../../shared/css/responsive.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <a href="dashboard.html" class="sidebar-logo"><span>TradeWise Pro</span></a>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+        </a>
+        <a href="post-trade.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Post Trade
+        </a>
+        <a href="active-trades.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>Active Trades
+        </a>
+        <a href="analytics.html" class="nav-link active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics
+        </a>
+        <a href="earnings.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Earnings
+        </a>
+        <a href="notifications.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications
+        </a>
+        <a href="profile-settings.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile
+        </a>
+      </nav>
+    </aside>
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <div class="main-content">
+      <header class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="hamburger" id="hamburger" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+          <h1 class="topbar-title">Analytics</h1>
+        </div>
+        <div class="topbar-right">
+          <button class="btn btn-icon btn-ghost" id="notif-bell" aria-label="Notifications">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="notif-badge hidden" id="notif-badge">0</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+        </div>
+      </header>
+
+      <main class="page-content">
+        <div class="page-header">
+          <h2 class="page-title">Performance Analytics</h2>
+          <p class="page-subtitle">Track your trading performance over time</p>
+        </div>
+
+        <!-- Hero Stats -->
+        <div class="analytics-hero" id="analytics-hero">
+          <!-- Accuracy Score -->
+          <div class="analytics-score-card">
+            <div class="score-circle high" id="score-circle" aria-label="Accuracy score">
+              <span id="accuracy-pct">—</span>
+            </div>
+            <div class="card-title">Accuracy Score</div>
+            <div class="metric-trend" id="accuracy-trend" aria-live="polite"></div>
+          </div>
+          <!-- Win / Loss -->
+          <div class="metric-card">
+            <div class="metric-label">Total Trades</div>
+            <div class="metric-value" id="total-trades">—</div>
+            <div style="display:flex; gap: 1.5rem; margin-top: 0.5rem;">
+              <div><div class="metric-label">Wins</div><div style="font-weight:700; color: var(--color-success);" id="wins">—</div></div>
+              <div><div class="metric-label">Losses</div><div style="font-weight:700; color: var(--color-danger);" id="losses">—</div></div>
+            </div>
+          </div>
+          <!-- RRR -->
+          <div class="metric-card">
+            <div class="metric-label">Avg RRR</div>
+            <div class="metric-value" id="avg-rrr">—</div>
+            <div style="display:flex; gap: 1.5rem; margin-top: 0.5rem;">
+              <div><div class="metric-label">Best</div><div style="font-weight:700; color: var(--color-success);" id="best-rrr">—</div></div>
+              <div><div class="metric-label">Worst</div><div style="font-weight:700; color: var(--color-danger);" id="worst-rrr">—</div></div>
+            </div>
+          </div>
+          <!-- Rank -->
+          <div class="metric-card">
+            <div class="metric-label">Leaderboard Rank</div>
+            <div class="metric-value" id="leaderboard-rank">—</div>
+            <div class="metric-trend" id="rank-trend" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Accuracy Trend</div><div class="card-subtitle">Last 12 months</div></div>
+            <div class="chart-container" style="height: 220px;">
+              <canvas id="accuracy-chart" aria-label="Accuracy trend line chart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Win / Loss Ratio</div></div>
+            <div class="chart-container" style="height: 220px;">
+              <canvas id="winloss-chart" aria-label="Win loss pie chart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Monthly Earnings</div><div class="card-subtitle">Last 12 months</div></div>
+            <div class="chart-container" style="height: 220px;">
+              <canvas id="earnings-chart" aria-label="Monthly earnings bar chart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">RRR Distribution</div></div>
+            <div class="chart-container" style="height: 220px;">
+              <canvas id="rrr-chart" aria-label="RRR distribution chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Table -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Monthly Performance</div></div>
+          <div class="table-container">
+            <table class="table" id="perf-table" aria-label="Monthly performance table">
+              <thead>
+                <tr>
+                  <th scope="col">Month</th>
+                  <th scope="col">Total Trades</th>
+                  <th scope="col">Wins</th>
+                  <th scope="col">Losses</th>
+                  <th scope="col">Accuracy</th>
+                  <th scope="col">Earnings</th>
+                </tr>
+              </thead>
+              <tbody id="perf-tbody">
+                <tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script type="module">
+    import Auth from '../js/auth.js';
+    import { analyticsAPI } from '../js/api.js';
+    import { formatPercent, formatCurrency } from '../js/utils.js';
+    import { createAccuracyChart, createWinLossChart, createEarningsChart, createRRRChart } from '../js/charts.js';
+    import App from '../js/main.js';
+
+    if (!Auth.requireAuth()) throw new Error('Not authenticated');
+
+    window.Toast = {
+      show(msg, type = 'info') {
+        const c = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        t.className = `toast toast-${type}`;
+        t.innerHTML = `<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;
+        c.appendChild(t);
+        requestAnimationFrame(() => t.classList.add('show'));
+        const d = () => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); };
+        t.querySelector('.toast-dismiss').addEventListener('click', d);
+        setTimeout(d, 4000);
+      }
+    };
+
+    App.init();
+
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    document.getElementById('hamburger').addEventListener('click', () => {
+      const open = sidebar.classList.toggle('open');
+      overlay.classList.toggle('active', open);
+    });
+    overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+    document.getElementById('logout-btn').addEventListener('click', () => Auth.logout());
+    document.getElementById('notif-bell').addEventListener('click', () => window.location.href = 'notifications.html');
+
+    async function loadAnalytics() {
+      try {
+        const [perfData, wlData, rrrData, monthlyData] = await Promise.allSettled([
+          analyticsAPI.getAccuracy(),
+          analyticsAPI.getWinLoss(),
+          analyticsAPI.getRRR(),
+          analyticsAPI.getMonthlyStats(),
+        ]);
+
+        // Accuracy
+        if (perfData.status === 'fulfilled') {
+          const d = perfData.value;
+          const score = d.accuracy_score ?? d.accuracy ?? 0;
+          document.getElementById('accuracy-pct').textContent = formatPercent(score);
+          const circle = document.getElementById('score-circle');
+          circle.className = 'score-circle ' + (score >= 70 ? 'high' : score >= 50 ? 'medium' : 'low');
+
+          // Accuracy trend chart data from performance-chart endpoint
+          const chartData = d.trend || d.chart_data;
+          if (chartData) {
+            createAccuracyChart('accuracy-chart', {
+              labels: chartData.map(c => c.month || c.label),
+              values: chartData.map(c => c.accuracy || c.value),
+            });
+          }
+        }
+
+        // Win / Loss
+        if (wlData.status === 'fulfilled') {
+          const d = wlData.value;
+          const total = d.total_trades ?? 0;
+          const wins = d.winning_trades ?? d.wins ?? 0;
+          const losses = d.losing_trades ?? d.losses ?? (total - wins);
+          document.getElementById('total-trades').textContent = total;
+          document.getElementById('wins').textContent = wins;
+          document.getElementById('losses').textContent = losses;
+          createWinLossChart('winloss-chart', wins, losses);
+        }
+
+        // RRR
+        if (rrrData.status === 'fulfilled') {
+          const d = rrrData.value;
+          document.getElementById('avg-rrr').textContent = d.average_rrr?.toFixed(2) ?? '—';
+          document.getElementById('best-rrr').textContent = d.best_rrr?.toFixed(2) ?? '—';
+          document.getElementById('worst-rrr').textContent = d.worst_rrr?.toFixed(2) ?? '—';
+          if (d.distribution) {
+            createRRRChart('rrr-chart', d.distribution);
+          }
+        }
+
+        // Monthly stats
+        if (monthlyData.status === 'fulfilled') {
+          const rows = monthlyData.value.data || monthlyData.value || [];
+          const labels = rows.map(r => r.month || r.label);
+          const earnings = rows.map(r => r.earnings || r.revenue || 0);
+          createEarningsChart('earnings-chart', { labels, earnings });
+
+          // Table
+          const tbody = document.getElementById('perf-tbody');
+          if (rows.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No data yet</td></tr>';
+          } else {
+            tbody.innerHTML = rows.map(r => {
+              const total = r.total_trades ?? 0;
+              const wins = r.wins ?? r.winning_trades ?? 0;
+              const losses = r.losses ?? r.losing_trades ?? (total - wins);
+              const acc = total > 0 ? ((wins / total) * 100).toFixed(1) : '0';
+              return `<tr>
+                <td>${r.month || r.label}</td>
+                <td>${total}</td>
+                <td style="color:var(--color-success)">${wins}</td>
+                <td style="color:var(--color-danger)">${losses}</td>
+                <td>${acc}%</td>
+                <td>${formatCurrency(r.earnings || r.revenue || 0)}</td>
+              </tr>`;
+            }).join('');
+          }
+        }
+      } catch (err) {
+        console.error('Analytics error:', err);
+      }
+    }
+
+    loadAnalytics();
+  </script>
+</body>
+</html>
