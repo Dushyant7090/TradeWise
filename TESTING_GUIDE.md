@@ -98,13 +98,14 @@ python3 -m http.server 8000 --directory frontend/learner
 
 ### 2.1 Pro-Trader Registration
 
-**URL:** `http://localhost:3000/pages/register.html`
+**URL:** `http://localhost:8080/pages/auth.html`
 
-1. Open the registration page
+1. Open the auth page and switch to the **Sign Up** tab
 2. Enter valid email, strong password (8+ chars, upper + lower + digit), display name
-3. Select role: **Pro-Trader**
-4. Click **Register**
-5. Verify redirect to dashboard or KYC setup page
+3. Click **Create account**
+4. Verify redirect to `pages/role-select.html`
+5. Select **"I am an Experienced Trader"** and click Continue
+6. Verify redirect to `frontend/pages/dashboard.html`
 
 **Expected API call:**
 ```http
@@ -130,15 +131,16 @@ Content-Type: application/json
 
 ### 2.2 Learner Registration
 
-**URL:** `http://localhost:8000/pages/register.html`
+**URL:** `http://localhost:8080/pages/auth.html`
 
-1. Open the learner registration page
+1. Open the auth page and switch to the **Sign Up** tab
 2. Enter email, password, display name
-3. Select role: **Learner** (or Public Trader)
-4. Click **Register**
-5. Verify redirect to profile setup page
-6. Complete profile setup: select interests, experience level, accept disclaimer
-7. Verify dashboard shows **7 credits**
+3. Click **Create account**
+4. Verify redirect to `pages/role-select.html`
+5. Select **"I am a Public Trader"** and click Continue
+6. Verify redirect to `pages/profile-setup.html`
+7. Complete profile setup: select interests, experience level, accept disclaimer
+8. Verify redirect to `frontend/learner/pages/dashboard.html` with **7 credits**
 
 ### 2.3 Login Tests
 
@@ -280,8 +282,8 @@ Note: Price is in **paise** (₹1 = 100 paise). `50000` = ₹500.
 
 ### 4.1 Register and Profile Setup
 
-1. Open `http://localhost:8000/pages/register.html`
-2. Register with email and password
+1. Open `http://localhost:8080/pages/auth.html`
+2. Sign up with email and password, then select **"I am a Public Trader"** on the role-select page
 3. On profile setup page, select:
    - **Interests:** Nifty 50, Crypto
    - **Experience Level:** Beginner
