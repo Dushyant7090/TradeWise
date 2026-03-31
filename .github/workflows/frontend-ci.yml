@@ -1,0 +1,65 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [main, "copilot/**"]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
+
+jobs:
+  lint:
+    name: HTML / Asset Reference Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for broken internal asset references
+        run: |
+          echo "=== Checking for stale ../css/ references in learner pages ==="
+          if grep -r 'href="\.\./\.\./css/' frontend/learner/pages/ 2>/dev/null; then
+            echo "ERROR: Stale ../../css/ reference found in learner pages" && exit 1
+          fi
+
+          echo "=== Checking for stale ../css/ references in pro-trader pages ==="
+          if grep -r 'href="\.\./css/' frontend/pro-trader/pages/ 2>/dev/null; then
+            echo "ERROR: Stale ../css/ reference found in pro-trader pages" && exit 1
+          fi
+
+          echo "=== Checking admin CSS/JS references ==="
+          if grep -r 'href="admin\.css"' frontend/admin/ 2>/dev/null; then
+            echo "ERROR: Stale admin.css reference found in admin" && exit 1
+          fi
+
+          echo "All reference checks passed."
+
+      - name: Verify key files exist
+        run: |
+          FILES=(
+            "frontend/shared/css/globals.css"
+            "frontend/shared/css/components.css"
+            "frontend/shared/css/pages.css"
+            "frontend/shared/css/responsive.css"
+            "frontend/shared/js/main.js"
+            "frontend/shared/assets/logo.svg"
+            "frontend/admin/index.html"
+            "frontend/admin/css/admin.css"
+            "frontend/admin/js/admin.js"
+            "frontend/pro-trader/css/pro-trader.css"
+            "frontend/pro-trader/js/pro-trader.js"
+          )
+          for f in "${FILES[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "ERROR: Expected file missing: $f" && exit 1
+            fi
+          done
+          echo "All expected files present."

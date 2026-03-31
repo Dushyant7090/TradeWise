@@ -10,7 +10,7 @@ from flask_jwt_extended import get_jwt_identity
 from app import db
 from app.middleware import require_auth
 from app.models.learner_flag import LearnerFlag
-from app.models.learner_unlocked_trade import LearnerUnlockedTrade
+from app.models.learner_trade_unlock import LearnerUnlockedTrade
 from app.models.trade import Trade
 
 logger = logging.getLogger(__name__)

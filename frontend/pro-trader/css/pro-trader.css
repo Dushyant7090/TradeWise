@@ -1,0 +1,134 @@
+/* =====================================================
+   pro-trader.css — Pro Trader Dashboard Styles
+   Extends: globals.css, components.css, pages.css
+   ===================================================== */
+
+/* ===== SIGNAL CARDS ===== */
+.signal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.signal-card:hover {
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08);
+}
+
+.signal-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.signal-symbol {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.signal-type {
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.signal-type.buy {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+}
+
+.signal-type.sell {
+  background: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+}
+
+/* ===== PORTFOLIO TABLE ===== */
+.portfolio-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.portfolio-table th {
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  color: var(--text-muted);
+  font-weight: 500;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.portfolio-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.portfolio-table tr:last-child td {
+  border-bottom: none;
+}
+
+.pnl-positive {
+  color: #10B981;
+  font-weight: 600;
+}
+
+.pnl-negative {
+  color: #EF4444;
+  font-weight: 600;
+}
+
+/* ===== RISK GAUGES ===== */
+.risk-gauge {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.risk-gauge-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.risk-gauge-bar {
+  height: 8px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.risk-gauge-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.4s ease;
+}
+
+.risk-gauge-fill.low    { background: #10B981; }
+.risk-gauge-fill.medium { background: #F59E0B; }
+.risk-gauge-fill.high   { background: #EF4444; }
+
+/* ===== EARNINGS CHART WRAPPER ===== */
+.earnings-chart-wrapper {
+  position: relative;
+  height: 260px;
+}
+
+/* ===== WIN-RATE BADGE ===== */
+.win-rate-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10B981;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}

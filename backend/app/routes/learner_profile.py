@@ -14,8 +14,8 @@ from app.middleware import require_auth
 from app.models.learner_profile import LearnerProfile
 from app.models.profile import Profile
 from app.models.subscription import Subscription
-from app.models.learner_unlocked_trade import LearnerUnlockedTrade
-from app.models.learner_credits_log import LearnerCreditsLog
+from app.models.learner_trade_unlock import LearnerUnlockedTrade
+from app.models.learner_credit_transaction import LearnerCreditsLog
 from app.models.trade import Trade
 from app.models.pro_trader_profile import ProTraderProfile
 from app.services.supabase_storage import supabase_storage

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Admin Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body class="auth-body">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-text">TradeWise</span>
+        </div>
+        <span class="auth-badge">Admin Portal</span>
+      </div>
+      <h1 class="auth-title">Admin Sign In</h1>
+      <p class="auth-subtitle">Secure access to TradeWise Admin Dashboard</p>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="email">Email address</label>
+          <input
+            id="email"
+            type="email"
+            class="form-input"
+            placeholder="admin@tradewise.com"
+            required
+            autocomplete="username"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <div class="input-wrapper">
+            <input
+              id="password"
+              type="password"
+              class="form-input"
+              placeholder="Enter your password"
+              required
+              autocomplete="current-password"
+            />
+            <button type="button" class="input-icon-btn" id="togglePassword" aria-label="Toggle password visibility">
+              <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="errorMsg" class="alert alert-danger" style="display:none;"></div>
+
+        <button type="submit" class="btn btn-primary btn-full" id="loginBtn">
+          <span id="loginBtnText">Sign In</span>
+          <span id="loginSpinner" class="spinner" style="display:none;"></span>
+        </button>
+      </form>
+
+      <p class="auth-footer">
+        &copy; 2025 TradeWise. Authorized personnel only.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.hostname === 'localhost'
+      ? 'http://localhost:5000/api'
+      : '/api';
+
+    // If already logged in as admin, go to dashboard
+    const token = localStorage.getItem('tw_admin_token');
+    if (token) window.location.replace('dashboard.html');
+
+    const form = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginBtnText = document.getElementById('loginBtnText');
+    const loginSpinner = document.getElementById('loginSpinner');
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', () => {
+      const isText = passwordInput.type === 'text';
+      passwordInput.type = isText ? 'password' : 'text';
+      document.getElementById('eyeIcon').innerHTML = isText
+        ? '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'
+        : '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        showError('Please enter email and password.');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showError(data.error || 'Login failed. Please check your credentials.');
+          return;
+        }
+
+        // Check admin role
+        if (!data.profile || data.profile.role !== 'admin') {
+          showError('Access denied. This portal is for administrators only.');
+          return;
+        }
+
+        localStorage.setItem('tw_admin_token', data.access_token);
+        localStorage.setItem('tw_admin_user', JSON.stringify(data.user));
+        localStorage.setItem('tw_admin_profile', JSON.stringify(data.profile));
+        window.location.replace('dashboard.html');
+      } catch (err) {
+        showError('Unable to connect to server. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.style.display = 'block';
+    }
+
+    function setLoading(loading) {
+      loginBtn.disabled = loading;
+      loginBtnText.style.display = loading ? 'none' : 'inline';
+      loginSpinner.style.display = loading ? 'inline-block' : 'none';
+    }
+  </script>
+</body>
+</html>

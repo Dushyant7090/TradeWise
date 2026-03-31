@@ -15,7 +15,7 @@ from app.middleware import require_auth
 from app.models.comment import Comment
 from app.models.trade import Trade
 from app.models.profile import Profile
-from app.models.learner_unlocked_trade import LearnerUnlockedTrade
+from app.models.learner_trade_unlock import LearnerUnlockedTrade
 from app.models.subscription import Subscription
 
 logger = logging.getLogger(__name__)

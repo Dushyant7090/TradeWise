@@ -12,8 +12,8 @@ from flask_jwt_extended import get_jwt_identity
 from app import db
 from app.middleware import require_auth
 from app.models.learner_profile import LearnerProfile
-from app.models.learner_unlocked_trade import LearnerUnlockedTrade
-from app.models.learner_credits_log import LearnerCreditsLog
+from app.models.learner_trade_unlock import LearnerUnlockedTrade
+from app.models.learner_credit_transaction import LearnerCreditsLog
 from app.models.trade import Trade
 from app.models.subscription import Subscription
 from app.models.profile import Profile

@@ -15,8 +15,9 @@ from app.models.notification import Notification
 from app.models.notification_preferences import NotificationPreferences
 from app.models.login_activity import LoginActivity
 from app.models.learner_profile import LearnerProfile
-from app.models.learner_unlocked_trade import LearnerUnlockedTrade
-from app.models.learner_credits_log import LearnerCreditsLog
+from app.models.learner_subscription import LearnerSubscription
+from app.models.learner_trade_unlock import LearnerUnlockedTrade
+from app.models.learner_credit_transaction import LearnerCreditsLog
 from app.models.learner_notification import LearnerNotification
 from app.models.learner_flag import LearnerFlag
 from app.models.learner_trade_rating import LearnerTradeRating
@@ -37,6 +38,7 @@ __all__ = [
     "NotificationPreferences",
     "LoginActivity",
     "LearnerProfile",
+    "LearnerSubscription",
     "LearnerUnlockedTrade",
     "LearnerCreditsLog",
     "LearnerNotification",

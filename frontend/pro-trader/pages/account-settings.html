@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeWise — Account Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../shared/css/globals.css" />
+  <link rel="stylesheet" href="../../shared/css/components.css" />
+  <link rel="stylesheet" href="../../shared/css/pages.css" />
+  <link rel="stylesheet" href="../../shared/css/responsive.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <a href="dashboard.html" class="sidebar-logo"><span>TradeWise Pro</span></a>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+        <a href="active-trades.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>Active Trades</a>
+        <a href="analytics.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics</a>
+        <a href="earnings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Earnings</a>
+        <a href="notifications.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
+        <a href="profile-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+        <a href="account-settings.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Settings</a>
+      </nav>
+    </aside>
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <div class="main-content">
+      <header class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="hamburger" id="hamburger" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+          <h1 class="topbar-title">Account Settings</h1>
+        </div>
+        <div class="topbar-right">
+          <button class="btn btn-icon btn-ghost" id="notif-bell" aria-label="Notifications">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="notif-badge hidden" id="notif-badge">0</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+        </div>
+      </header>
+
+      <main class="page-content">
+        <div class="page-header">
+          <h2 class="page-title">Account Settings</h2>
+          <p class="page-subtitle">Manage your security and account preferences</p>
+        </div>
+
+        <!-- Change Password -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">Change Password</h3>
+          <p class="settings-section-desc">Use a strong password to protect your account</p>
+          <div id="pw-alert" class="alert hidden" role="alert" aria-live="polite"></div>
+          <form id="pw-form" novalidate style="max-width: 480px;">
+            <div class="form-group">
+              <label class="form-label" for="current-pw">Current Password <span class="required">*</span></label>
+              <input type="password" id="current-pw" class="input" autocomplete="current-password" />
+              <span class="form-error" id="current-pw-error"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-pw">New Password <span class="required">*</span></label>
+              <input type="password" id="new-pw" class="input" autocomplete="new-password" placeholder="Min 8 characters" />
+              <div class="strength-meter">
+                <div class="strength-bar"><div class="strength-fill" id="pw-strength-fill"></div></div>
+                <span class="strength-hint" id="pw-strength-hint">Min 8 characters required</span>
+              </div>
+              <span class="form-error" id="new-pw-error"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="confirm-pw">Confirm New Password <span class="required">*</span></label>
+              <input type="password" id="confirm-pw" class="input" autocomplete="new-password" />
+              <span class="form-error" id="confirm-pw-error"></span>
+            </div>
+            <button type="submit" class="btn btn-primary" id="save-pw-btn">
+              <span class="btn-text">Change Password</span>
+              <div class="btn-spinner spinner" aria-hidden="true"></div>
+            </button>
+          </form>
+        </div>
+
+        <!-- Two-Factor Authentication -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">Two-Factor Authentication</h3>
+          <p class="settings-section-desc">Add an extra layer of security to your account</p>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">2FA Status</div>
+              <div class="settings-row-desc" id="2fa-desc">Loading...</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="toggle-2fa-btn">Loading...</button>
+          </div>
+        </div>
+
+        <!-- Login Activity -->
+        <div class="settings-section">
+          <div class="card-header" style="margin-bottom: 1.5rem;">
+            <div>
+              <h3 class="settings-section-title" style="margin: 0;">Login Activity</h3>
+              <p class="settings-section-desc" style="margin: 0.25rem 0 0;">Recent login sessions for your account</p>
+            </div>
+            <button class="btn btn-danger btn-sm" id="logout-all-btn">Logout Other Sessions</button>
+          </div>
+          <div class="table-container">
+            <table class="table" aria-label="Login activity table">
+              <thead>
+                <tr>
+                  <th scope="col">Date/Time</th>
+                  <th scope="col">Device</th>
+                  <th scope="col">IP Address</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody id="activity-tbody">
+                <tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 2FA Setup Modal -->
+  <div class="modal-overlay" id="twofa-modal" role="dialog" aria-modal="true" aria-labelledby="twofa-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="twofa-title">Enable Two-Factor Authentication</h2>
+        <button class="modal-close" id="close-2fa-modal" aria-label="Close">×</button>
+      </div>
+      <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        Scan this QR code with Google Authenticator, Authy, or Microsoft Authenticator.
+      </p>
+      <div id="qr-container" style="text-align:center; margin-bottom: 1.5rem;">
+        <div class="spinner" style="margin: 0 auto;" aria-label="Loading QR code"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="twofa-code">Enter 6-digit code to verify</label>
+        <input type="text" id="twofa-code" class="input" maxlength="6" placeholder="000000" inputmode="numeric" pattern="[0-9]*" />
+        <span class="form-error" id="twofa-error"></span>
+      </div>
+      <div id="twofa-alert" class="alert hidden" role="alert"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancel-2fa">Cancel</button>
+        <button class="btn btn-primary" id="verify-2fa">
+          <span class="btn-text">Verify & Enable</span>
+          <div class="btn-spinner spinner" aria-hidden="true"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script type="module">
+    import Auth from '../js/auth.js';
+    import { authAPI, accountAPI } from '../js/api.js';
+    import { validatePassword, timeAgo } from '../js/utils.js';
+    import App from '../js/main.js';
+
+    if (!Auth.requireAuth()) throw new Error('Not authenticated');
+    window.Toast = { show(m, t = 'info') { const c = document.getElementById('toast-container'); const el = document.createElement('div'); el.className = `toast toast-${t}`; el.innerHTML = `<div class="toast-content"><div class="toast-message">${m}</div></div><button class="toast-dismiss">×</button>`; c.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); const d = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }; el.querySelector('.toast-dismiss').addEventListener('click', d); setTimeout(d, 4000); } };
+    App.init();
+
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    document.getElementById('hamburger').addEventListener('click', () => { const o = sidebar.classList.toggle('open'); overlay.classList.toggle('active', o); });
+    overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+    document.getElementById('logout-btn').addEventListener('click', () => Auth.logout());
+    document.getElementById('notif-bell').addEventListener('click', () => window.location.href = 'notifications.html');
+
+    // Password strength
+    document.getElementById('new-pw').addEventListener('input', (e) => {
+      const pw = e.target.value;
+      const fill = document.getElementById('pw-strength-fill');
+      const hint = document.getElementById('pw-strength-hint');
+      let score = 0;
+      if (pw.length >= 8) score++;
+      if (/[A-Z]/.test(pw)) score++;
+      if (/[a-z]/.test(pw)) score++;
+      if (/[0-9]/.test(pw)) score++;
+      if (/[^A-Za-z0-9]/.test(pw)) score++;
+      const colors = ['#EF4444', '#EF4444', '#F59E0B', '#3B82F6', '#3B82F6', '#10B981'];
+      fill.style.width = (score / 5 * 100) + '%';
+      fill.style.background = colors[score];
+      hint.textContent = score < 5 ? ['Very Weak','Weak','Fair','Good','Strong'][score] + ' password' : '✓ Strong password';
+    });
+
+    // Change password
+    document.getElementById('pw-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const current = document.getElementById('current-pw').value;
+      const newPw = document.getElementById('new-pw').value;
+      const confirm = document.getElementById('confirm-pw').value;
+      const alertEl = document.getElementById('pw-alert');
+      alertEl.classList.add('hidden');
+
+      let valid = true;
+      const setErr = (id, msg) => { document.getElementById(id).textContent = msg; if (msg) valid = false; };
+      setErr('current-pw-error', current ? '' : 'Current password is required.');
+      const pwErr = validatePassword(newPw);
+      setErr('new-pw-error', pwErr);
+      setErr('confirm-pw-error', newPw !== confirm ? 'Passwords do not match.' : '');
+      if (!valid) return;
+
+      const btn = document.getElementById('save-pw-btn');
+      btn.classList.add('loading');
+      try {
+        await authAPI.changePassword({ current_password: current, new_password: newPw });
+        alertEl.textContent = 'Password changed successfully!';
+        alertEl.className = 'alert alert-success';
+        alertEl.classList.remove('hidden');
+        document.getElementById('pw-form').reset();
+      } catch (err) {
+        alertEl.textContent = err.message || 'Failed to change password.';
+        alertEl.className = 'alert alert-error';
+        alertEl.classList.remove('hidden');
+      } finally {
+        btn.classList.remove('loading');
+      }
+    });
+
+    // 2FA toggle
+    let twoFAEnabled = false;
+    document.getElementById('toggle-2fa-btn').addEventListener('click', async () => {
+      if (twoFAEnabled) {
+        if (!confirm('Disable 2FA? This will reduce your account security.')) return;
+        try {
+          await authAPI.disable2FA({});
+          twoFAEnabled = false;
+          update2FAUI();
+          window.Toast.show('2FA disabled.', 'info');
+        } catch (err) {
+          window.Toast.show(err.message || 'Failed to disable 2FA.', 'error');
+        }
+      } else {
+        document.getElementById('twofa-modal').classList.add('active');
+        // Load QR from backend
+        try {
+          const data = await authAPI.setup2FA({});
+          const qrContainer = document.getElementById('qr-container');
+          if (data.qr_code) {
+            qrContainer.innerHTML = `<img src="${data.qr_code}" alt="2FA QR Code" style="width:160px;height:160px;margin:0 auto" />`;
+          } else {
+            qrContainer.innerHTML = `<p style="color:var(--text-muted)">Manual key: <code style="font-family:var(--font-mono)">${data.secret || 'N/A'}</code></p>`;
+          }
+        } catch (err) {
+          document.getElementById('twofa-alert').textContent = err.message || 'Failed to setup 2FA.';
+          document.getElementById('twofa-alert').className = 'alert alert-error';
+          document.getElementById('twofa-alert').classList.remove('hidden');
+        }
+      }
+    });
+
+    function update2FAUI() {
+      const desc = document.getElementById('2fa-desc');
+      const btn = document.getElementById('toggle-2fa-btn');
+      if (twoFAEnabled) {
+        desc.textContent = '✓ Two-Factor Authentication is enabled';
+        desc.style.color = 'var(--color-success)';
+        btn.textContent = 'Disable 2FA';
+        btn.className = 'btn btn-danger btn-sm';
+      } else {
+        desc.textContent = 'Two-Factor Authentication is disabled';
+        desc.style.color = 'var(--text-muted)';
+        btn.textContent = 'Enable 2FA';
+        btn.className = 'btn btn-secondary btn-sm';
+      }
+    }
+    update2FAUI();
+
+    // 2FA modal
+    document.getElementById('close-2fa-modal').addEventListener('click', () => document.getElementById('twofa-modal').classList.remove('active'));
+    document.getElementById('cancel-2fa').addEventListener('click', () => document.getElementById('twofa-modal').classList.remove('active'));
+
+    document.getElementById('verify-2fa').addEventListener('click', async () => {
+      const code = document.getElementById('twofa-code').value.trim();
+      if (code.length !== 6 || !/^\d+$/.test(code)) {
+        document.getElementById('twofa-error').textContent = 'Enter a valid 6-digit code.';
+        return;
+      }
+      const btn = document.getElementById('verify-2fa');
+      btn.classList.add('loading');
+      try {
+        await authAPI.verify2FA({ code });
+        document.getElementById('twofa-modal').classList.remove('active');
+        twoFAEnabled = true;
+        update2FAUI();
+        window.Toast.show('2FA enabled successfully!', 'success');
+      } catch (err) {
+        document.getElementById('twofa-error').textContent = err.message || 'Invalid code.';
+      } finally {
+        btn.classList.remove('loading');
+      }
+    });
+
+    // Logout other sessions
+    document.getElementById('logout-all-btn').addEventListener('click', async () => {
+      if (!confirm('Logout from all other sessions?')) return;
+      try {
+        await accountAPI.logoutOtherSessions();
+        window.Toast.show('Logged out from all other sessions.', 'success');
+      } catch (err) {
+        window.Toast.show(err.message || 'Failed.', 'error');
+      }
+    });
+
+    // Load login activity
+    async function loadActivity() {
+      try {
+        const data = await accountAPI.getLoginActivity();
+        const activities = data.activities || data || [];
+        const tbody = document.getElementById('activity-tbody');
+        if (activities.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">No activity records</td></tr>';
+          return;
+        }
+        tbody.innerHTML = activities.map((a, i) => `<tr>
+          <td>${timeAgo(a.created_at || a.login_at)}</td>
+          <td style="font-size:0.75rem">${a.user_agent ? a.user_agent.split(' ')[0] : 'Unknown'}</td>
+          <td style="font-family:var(--font-mono);font-size:0.75rem">${a.ip_address || '—'}</td>
+          <td><span class="badge badge-${a.status === 'success' ? 'success' : 'danger'}">${a.status || 'success'}${i === 0 ? ' (Current)' : ''}</span></td>
+        </tr>`).join('');
+      } catch {
+        // Silently handle
+      }
+    }
+
+    loadActivity();
+  </script>
+</body>
+</html>
