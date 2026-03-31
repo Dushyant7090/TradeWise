@@ -1,0 +1,3 @@
+-- TradeWise canonical schema baseline
+-- NOTE: I will paste the full SQL manually in this file.
+-- This replaces old schema files from another project.
