@@ -329,31 +329,60 @@
         <div class="auth-message" id="role-message"></div>
     </div>
 
-    <script src="../js/config.js"></script>
-    <script type="module">
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+    <script>
+        // ===== ROLE SELECT — Flask JWT auth =====
+        const API_BASE = window.TW_API_BASE_URL || 'http://localhost:5000/api';
 
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // Check if user is logged in
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
+        // Auth guard: require JWT token
+        const token = localStorage.getItem('tw_jwt_token');
+        if (!token) {
             window.location.href = 'auth.html';
         }
 
-        // Check if user already has a role set (not default)
-        const { data: existingProfile } = await supabase
-            .from('profiles')
-            .select('role, disclaimer_accepted')
-            .eq('id', session.user.id)
-            .single();
+        // Retrieve stored profile (set after login / register)
+        let profile = null;
+        try {
+            profile = JSON.parse(localStorage.getItem('tw_profile') || 'null');
+        } catch { profile = null; }
 
-        // If profile exists and disclaimer is accepted, they've completed onboarding
-        if (existingProfile && existingProfile.disclaimer_accepted) {
-            window.location.href = 'dashboard.html';
+        // Helper: fetch with auth header
+        async function authFetch(url, opts = {}) {
+            return fetch(url, {
+                ...opts,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    ...(opts.headers || {}),
+                },
+            });
         }
 
-        // Role card selection
+        // Check if user is already onboarded (public_trader with interests set)
+        async function checkAlreadyOnboarded() {
+            if (!profile) return false;
+            if (profile.role === 'pro_trader') {
+                window.location.href = '../frontend/pages/dashboard.html';
+                return true;
+            }
+            if (profile.role === 'public_trader') {
+                try {
+                    const res = await authFetch(`${API_BASE}/learner/profile`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.interests && data.interests.length > 0) {
+                            window.location.href = '../frontend/learner/pages/dashboard.html';
+                            return true;
+                        }
+                    }
+                } catch { /* network error — fall through to show UI */ }
+            }
+            return false;
+        }
+
+        // Run onboarding check on load
+        checkAlreadyOnboarded();
+
+        // ===== Role card selection =====
         const roleCards = document.querySelectorAll('.role-card');
         const continueBtn = document.getElementById('role-continue-btn');
         const roleMessage = document.getElementById('role-message');
@@ -369,7 +398,7 @@
             });
         });
 
-        // Continue button
+        // ===== Continue button =====
         continueBtn.addEventListener('click', async () => {
             if (!selectedRole) return;
 
@@ -379,52 +408,40 @@
             btnLoader.style.display = 'flex';
             continueBtn.disabled = true;
 
-            const fullName = session.user.user_metadata?.full_name || 
-                             session.user.user_metadata?.name || 
-                             session.user.email?.split('@')[0] || 'Trader';
-
-            // Upsert role in profiles (creates the profile if it doesn't exist yet via Google Auth)
-            const { error } = await supabase
-                .from('profiles')
-                .upsert({ 
-                    id: session.user.id, 
-                    full_name: fullName,
-                    role: selectedRole,
-                    credits: 7
-                });
-
-            if (error) {
-                roleMessage.textContent = 'Something went wrong. Please try again.';
-                roleMessage.className = 'auth-message error';
-                btnText.style.display = 'inline';
-                btnLoader.style.display = 'none';
-                continueBtn.disabled = false;
-                return;
-            }
-
-            // If pro_trader, also create mentor_stats and wallet
             if (selectedRole === 'pro_trader') {
-                await supabase.from('mentor_stats').upsert({
-                    mentor_id: session.user.id,
-                    total_trades: 0,
-                    winning_trades: 0,
-                    losing_trades: 0,
-                    accuracy_pct: 0,
-                    avg_risk_reward: 0
-                });
-
-                await supabase.from('wallet').upsert({
-                    mentor_id: session.user.id,
-                    total_earnings: 0,
-                    available_balance: 0,
-                    pending_balance: 0
-                });
-            }
-
-            // Route based on role
-            if (selectedRole === 'pro_trader') {
-                window.location.href = 'pro-trader-coming-soon.html';
+                // Update role to pro_trader if needed
+                if (!profile || profile.role !== 'pro_trader') {
+                    try {
+                        const res = await authFetch(`${API_BASE}/auth/role`, {
+                            method: 'PUT',
+                            body: JSON.stringify({ role: 'pro_trader' }),
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data.profile) {
+                                localStorage.setItem('tw_profile', JSON.stringify(data.profile));
+                            }
+                        } else {
+                            const errData = await res.json().catch(() => ({}));
+                            roleMessage.textContent = errData.error || 'Failed to update role. Please try again.';
+                            roleMessage.className = 'auth-message error';
+                            btnText.style.display = 'inline';
+                            btnLoader.style.display = 'none';
+                            continueBtn.disabled = false;
+                            return;
+                        }
+                    } catch {
+                        roleMessage.textContent = 'Network error. Please check your connection.';
+                        roleMessage.className = 'auth-message error';
+                        btnText.style.display = 'inline';
+                        btnLoader.style.display = 'none';
+                        continueBtn.disabled = false;
+                        return;
+                    }
+                }
+                window.location.href = '../frontend/pages/dashboard.html';
             } else {
+                // public_trader — proceed to profile setup
                 window.location.href = 'profile-setup.html';
             }
         });

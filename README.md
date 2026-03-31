@@ -7,16 +7,17 @@ TradeWise is a full-stack trading signal marketplace where **Pro-Traders** share
 ## Table of Contents
 
 1. [Platform Overview](#platform-overview)
-2. [Prerequisites](#prerequisites)
-3. [Repository Structure](#repository-structure)
-4. [Local Development Setup](#local-development-setup)
-5. [Environment Variables](#environment-variables)
-6. [Database Initialization](#database-initialization)
-7. [Running the Backend](#running-the-backend)
-8. [Running the Frontend](#running-the-frontend)
-9. [Running Tests](#running-tests)
-10. [Key Concepts](#key-concepts)
-11. [Documentation Index](#documentation-index)
+2. [Navigation & Routing Flow](#navigation--routing-flow)
+3. [Prerequisites](#prerequisites)
+4. [Repository Structure](#repository-structure)
+5. [Local Development Setup](#local-development-setup)
+6. [Environment Variables](#environment-variables)
+7. [Database Initialization](#database-initialization)
+8. [Running the Backend](#running-the-backend)
+9. [Running the Frontend](#running-the-frontend)
+10. [Running Tests](#running-tests)
+11. [Key Concepts](#key-concepts)
+12. [Documentation Index](#documentation-index)
 
 ---
 
@@ -46,6 +47,48 @@ TradeWise is a full-stack trading signal marketplace where **Pro-Traders** share
 - After credits run out, learner must **subscribe to a specific Pro-Trader** (e.g. ₹500/month)
 - Subscribed learners get unlimited trade access from that trader — no credit deduction
 - Revenue split: **90% to Pro-Trader, 10% to platform**
+
+---
+
+## Navigation & Routing Flow
+
+### Canonical Entry Pages
+
+| Page | Path | Description |
+|------|------|-------------|
+| Landing | `tradewise/index.html` | Public marketing page |
+| Auth | `tradewise/pages/auth.html` | Unified login / sign-up |
+| Role Select | `tradewise/pages/role-select.html` | Post-auth role chooser |
+| Profile Setup | `tradewise/pages/profile-setup.html` | Public-trader onboarding |
+| Learner Dashboard | `tradewise/frontend/learner/pages/dashboard.html` | Public-trader main view |
+| Pro-Trader Dashboard | `tradewise/frontend/pages/dashboard.html` | Experienced-trader main view |
+
+### User Flow
+
+```
+index.html
+  └─► pages/auth.html          (sign up / log in)
+        └─► pages/role-select.html   (choose role — skipped for returning users)
+              ├─► "I am a Public Trader"
+              │     └─► pages/profile-setup.html
+              │               └─► frontend/learner/pages/dashboard.html
+              └─► "I am an Experienced Trader"
+                        └─► frontend/pages/dashboard.html
+```
+
+**Returning users** (already have a role and completed profile setup) are fast-forwarded by `role-select.html` directly to the appropriate dashboard without seeing the role-selection UI.
+
+**Auth guard:** Every protected page checks for `tw_jwt_token` in `localStorage` and redirects to `pages/auth.html` if absent.
+
+### Removed / Deprecated Pages
+
+The following pages have been replaced by redirect stubs that forward to the canonical pages above:
+
+| Old Path | Redirects To |
+|----------|-------------|
+| `frontend/learner/pages/register.html` | `pages/auth.html` |
+| `frontend/learner/pages/role-selection.html` | `pages/role-select.html` |
+| `frontend/pages/register.html` | `pages/auth.html` |
 
 ---
 

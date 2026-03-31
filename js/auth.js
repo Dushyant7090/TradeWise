@@ -31,28 +31,13 @@ const passwordToggles = document.querySelectorAll('.password-toggle');
 const signupSubmit = document.getElementById('signup-submit');
 const loginSubmit = document.getElementById('login-submit');
 
-// ===== ROLE-BASED REDIRECT =====
-// Routes authenticated users to the dashboard matching their role.
-// Falls back to the learner dashboard when profile is missing (safe default
-// since the learner dashboard handles its own auth guard).
-function routeByRole(profile) {
-    if (profile && profile.role === 'pro_trader') {
-        window.location.href = '/frontend/pages/dashboard.html';
-    } else {
-        window.location.href = '/frontend/learner/pages/dashboard.html';
-    }
-}
-
 // ===== CHECK IF ALREADY LOGGED IN =====
+// If a session token already exists, forward to role-select which handles
+// already-onboarded users by routing them straight to the right dashboard.
 (function checkSession() {
     const token = localStorage.getItem('tw_jwt_token');
     if (token) {
-        try {
-            const profile = JSON.parse(localStorage.getItem('tw_profile') || 'null');
-            routeByRole(profile);
-        } catch {
-            routeByRole(null);
-        }
+        window.location.href = 'role-select.html';
     }
 })();
 
@@ -330,8 +315,8 @@ signupForm.addEventListener('submit', async (e) => {
 
         // Store tokens
         _storeSession(data);
-        // New public_trader accounts go to profile setup
-        window.location.href = '/frontend/learner/pages/profile-setup.html';
+        // Redirect to role selection — new users choose their role there
+        window.location.href = 'role-select.html';
     } catch {
         setLoading(signupSubmit, false);
         showMessage(signupMessage, 'Network error. Please check your connection.', 'error');
@@ -377,9 +362,9 @@ loginForm.addEventListener('submit', async (e) => {
             return;
         }
 
-        // Store tokens and route based on role
+        // Store tokens and route via role selection
         _storeSession(data);
-        routeByRole(data.profile);
+        window.location.href = 'role-select.html';
     } catch {
         setLoading(loginSubmit, false);
         showMessage(loginMessage, 'Network error. Please check your connection.', 'error');

@@ -392,40 +392,56 @@
         <div class="auth-message" id="setup-message"></div>
     </div>
 
-    <script src="../js/config.js"></script>
-    <script type="module">
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+    <script>
+        // ===== PROFILE SETUP — Flask JWT auth =====
+        const API_BASE = window.TW_API_BASE_URL || 'http://localhost:5000/api';
 
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // ===== AUTH CHECK =====
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
+        // Auth guard: require JWT token
+        const token = localStorage.getItem('tw_jwt_token');
+        if (!token) {
             window.location.href = 'auth.html';
         }
 
-        const userId = session.user.id;
-
-        // Get user's role
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role, disclaimer_accepted')
-            .eq('id', userId)
-            .single();
+        // Retrieve stored profile
+        let profile = null;
+        try {
+            profile = JSON.parse(localStorage.getItem('tw_profile') || 'null');
+        } catch { profile = null; }
 
         if (!profile) {
             window.location.href = 'role-select.html';
         }
 
-        // Pro-traders shouldn't be here
-        if (profile.role === 'pro_trader') {
-            window.location.href = 'pro-trader-coming-soon.html';
+        // Pro-traders should not be here
+        if (profile && profile.role === 'pro_trader') {
+            window.location.href = '../frontend/pages/dashboard.html';
         }
 
-        // Already completed onboarding
-        if (profile.disclaimer_accepted) {
-            window.location.href = 'dashboard.html';
+        // Helper: fetch with auth header
+        async function authFetch(url, opts = {}) {
+            return fetch(url, {
+                ...opts,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    ...(opts.headers || {}),
+                },
+            });
         }
+
+        // Check if profile setup is already complete (interests set)
+        (async function checkOnboarded() {
+            try {
+                const res = await authFetch(`${API_BASE}/learner/profile`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.interests && data.interests.length > 0) {
+                        window.location.href = '../frontend/learner/pages/dashboard.html';
+                        return;
+                    }
+                }
+            } catch { /* network error — show the form */ }
+        })();
 
         // ===== STATE =====
         let currentStep = 1;
@@ -506,28 +522,35 @@
             btnLoader.style.display = 'flex';
             step2Submit.disabled = true;
 
-            const updateData = {
-                interests: selectedInterests,
-                experience_level: experienceSelect.value,
-                disclaimer_accepted: true
-            };
+            try {
+                const res = await authFetch(`${API_BASE}/learner/profile`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        interests: selectedInterests,
+                        experience_level: experienceSelect.value,
+                    }),
+                });
 
-            const { error } = await supabase
-                .from('profiles')
-                .update(updateData)
-                .eq('id', userId);
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    setupMessage.textContent = errData.error || 'Something went wrong. Please try again.';
+                    setupMessage.className = 'auth-message error';
+                    btnText.style.display = 'inline';
+                    btnLoader.style.display = 'none';
+                    step2Submit.disabled = false;
+                    return;
+                }
 
-            if (error) {
-                setupMessage.textContent = 'Something went wrong: ' + error.message;
+                // Redirect to learner dashboard
+                window.location.href = '../frontend/learner/pages/dashboard.html';
+            } catch {
+                setupMessage.textContent = 'Network error. Please check your connection.';
                 setupMessage.className = 'auth-message error';
                 btnText.style.display = 'inline';
                 btnLoader.style.display = 'none';
                 step2Submit.disabled = false;
                 return;
             }
-
-            // Redirect to dashboard
-            window.location.href = 'dashboard.html';
         });
     </script>
 </body>
