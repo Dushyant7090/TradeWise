@@ -16,6 +16,8 @@ jobs:
   lint:
     name: HTML / Asset Reference Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository

@@ -1,11 +1,14 @@
 """
 Auth Middleware - JWT token verification and role-based access
 """
+import logging
 from functools import wraps
 from flask import jsonify
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
 from app.models.user import User
 from app.models.profile import Profile
+
+logger = logging.getLogger(__name__)
 
 
 def require_auth(f):
@@ -15,7 +18,8 @@ def require_auth(f):
         try:
             verify_jwt_in_request()
         except Exception as e:
-            return jsonify({"error": "Unauthorized", "message": str(e)}), 401
+            logger.debug("JWT verification failed: %s", e)
+            return jsonify({"error": "Unauthorized", "message": "Invalid or missing token"}), 401
         return f(*args, **kwargs)
     return decorated
 
@@ -27,7 +31,8 @@ def require_pro_trader(f):
         try:
             verify_jwt_in_request()
         except Exception as e:
-            return jsonify({"error": "Unauthorized", "message": str(e)}), 401
+            logger.debug("JWT verification failed: %s", e)
+            return jsonify({"error": "Unauthorized", "message": "Invalid or missing token"}), 401
 
         user_id = get_jwt_identity()
         profile = Profile.query.filter_by(user_id=user_id).first()
@@ -45,7 +50,8 @@ def require_admin(f):
         try:
             verify_jwt_in_request()
         except Exception as e:
-            return jsonify({"error": "Unauthorized", "message": str(e)}), 401
+            logger.debug("JWT verification failed: %s", e)
+            return jsonify({"error": "Unauthorized", "message": "Invalid or missing token"}), 401
 
         user_id = get_jwt_identity()
         profile = Profile.query.filter_by(user_id=user_id).first()
