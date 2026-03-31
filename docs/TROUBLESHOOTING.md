@@ -202,9 +202,9 @@ const data = await loginResponse.json();
 localStorage.setItem('tw_user_role', data.user.role);
 // Redirect based on role
 if (data.user.role === 'pro_trader') {
-  window.location.href = '/pages/dashboard.html';
+  window.location.href = '/frontend/pages/dashboard.html';
 } else {
-  window.location.href = '/learner/pages/dashboard.html';
+  window.location.href = '/frontend/learner/pages/dashboard.html';
 }
 ```
 

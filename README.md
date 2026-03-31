@@ -7,17 +7,18 @@ TradeWise is a full-stack trading signal marketplace where **Pro-Traders** share
 ## Table of Contents
 
 1. [Platform Overview](#platform-overview)
-2. [Navigation & Routing Flow](#navigation--routing-flow)
-3. [Prerequisites](#prerequisites)
-4. [Repository Structure](#repository-structure)
-5. [Local Development Setup](#local-development-setup)
-6. [Environment Variables](#environment-variables)
-7. [Database Initialization](#database-initialization)
-8. [Running the Backend](#running-the-backend)
-9. [Running the Frontend](#running-the-frontend)
-10. [Running Tests](#running-tests)
-11. [Key Concepts](#key-concepts)
-12. [Documentation Index](#documentation-index)
+2. [Manual QA Checklist](#manual-qa-checklist)
+3. [Navigation & Routing Flow](#navigation--routing-flow)
+4. [Prerequisites](#prerequisites)
+5. [Repository Structure](#repository-structure)
+6. [Local Development Setup](#local-development-setup)
+7. [Environment Variables](#environment-variables)
+8. [Database Initialization](#database-initialization)
+9. [Running the Backend](#running-the-backend)
+10. [Running the Frontend](#running-the-frontend)
+11. [Running Tests](#running-tests)
+12. [Key Concepts](#key-concepts)
+13. [Documentation Index](#documentation-index)
 
 ---
 
@@ -47,6 +48,60 @@ TradeWise is a full-stack trading signal marketplace where **Pro-Traders** share
 - After credits run out, learner must **subscribe to a specific Pro-Trader** (e.g. ₹500/month)
 - Subscribed learners get unlimited trade access from that trader — no credit deduction
 - Revenue split: **90% to Pro-Trader, 10% to platform**
+
+---
+
+## Manual QA Checklist
+
+Use this checklist to verify the canonical user flow works end-to-end after any significant change.
+
+### Pre-flight
+
+- [ ] Backend running on `http://localhost:5000`
+- [ ] Frontend served from project root (e.g. `python3 -m http.server 8080`)
+- [ ] No console errors on any page (open DevTools → Console)
+- [ ] No 404 errors in the Network tab for assets/scripts/styles
+
+### Landing → Auth
+
+- [ ] Open `index.html` — landing page loads correctly, no broken images
+- [ ] Click **Get Started** — navigates to `pages/auth.html`
+- [ ] Sign-up form: password strength meter appears, validation works
+- [ ] Login form: error shown for wrong credentials
+- [ ] Forgot password form: sends reset email or shows success message
+- [ ] Back-to-home arrow navigates back to `index.html`
+
+### Auth → Role Selection
+
+- [ ] Successful sign-up redirects to `pages/role-select.html`
+- [ ] Successful login redirects to `pages/role-select.html`
+- [ ] Visiting `pages/role-select.html` without JWT token redirects to `pages/auth.html`
+
+### Public Trader Path
+
+- [ ] Select **"I am a Public Trader"** and click Continue
+- [ ] Redirects to `pages/profile-setup.html`
+- [ ] Completing profile setup redirects to `frontend/learner/pages/dashboard.html`
+- [ ] Learner dashboard loads fully (sidebar, stats, trade feed)
+- [ ] Returning user (already has role + interests) is fast-forwarded from `role-select.html` directly to `frontend/learner/pages/dashboard.html`
+
+### Experienced Trader Path
+
+- [ ] Select **"I am an Experienced Trader"** and click Continue
+- [ ] Redirects to `frontend/pages/dashboard.html`
+- [ ] Pro-trader dashboard loads fully (sidebar, stats, trade list)
+- [ ] Returning user (already has pro_trader role) is fast-forwarded from `role-select.html` directly to `frontend/pages/dashboard.html`
+
+### Auth Guard
+
+- [ ] Visiting any protected page without JWT token redirects to `pages/auth.html`
+- [ ] Logging out clears `tw_jwt_token` from localStorage and redirects to `pages/auth.html`
+
+### No Obsolete References
+
+- [ ] No link to any deleted page (`register.html`, `role-selection.html`, `pro-trader-coming-soon.html`, etc.)
+- [ ] No 404 for `js/config.js` or `js/supabase.js`
+- [ ] No 404 for `frontend/index.html`
 
 ---
 
@@ -80,15 +135,21 @@ index.html
 
 **Auth guard:** Every protected page checks for `tw_jwt_token` in `localStorage` and redirects to `pages/auth.html` if absent.
 
-### Removed / Deprecated Pages
+### Removed Files
 
-The following pages have been replaced by redirect stubs that forward to the canonical pages above:
+The following files were hard-deleted during the repository restructure (they were duplicates, redirect stubs, or obsolete pages):
 
-| Old Path | Redirects To |
-|----------|-------------|
-| `frontend/learner/pages/register.html` | `pages/auth.html` |
-| `frontend/learner/pages/role-selection.html` | `pages/role-select.html` |
-| `frontend/pages/register.html` | `pages/auth.html` |
+| Removed Path | Reason |
+|-------------|--------|
+| `frontend/learner/pages/register.html` | Duplicate auth — redirected to `pages/auth.html` |
+| `frontend/learner/pages/role-selection.html` | Duplicate role select — redirected to `pages/role-select.html` |
+| `frontend/pages/register.html` | Duplicate auth — redirected to `pages/auth.html` |
+| `frontend/learner/pages/profile-setup.html` | Duplicate profile setup — replaced by `pages/profile-setup.html` |
+| `pages/dashboard.html` | Legacy standalone dashboard — replaced by role-specific dashboards |
+| `pages/pro-trader-coming-soon.html` | Obsolete placeholder page |
+| `frontend/index.html` | Legacy splash entry — replaced by root `index.html` |
+| `js/config.js` | Unused Supabase config module (placeholder credentials) |
+| `js/supabase.js` | Unused Supabase ESM export (auth now handled via Flask JWT) |
 
 ---
 
@@ -109,12 +170,57 @@ The following pages have been replaced by redirect stubs that forward to the can
 ```
 TradeWise/
 ├── README.md                          # This file
+├── ROUTE_MAP.md                       # Canonical navigation route map
 ├── TESTING_GUIDE.md                   # Complete testing guide
+├── index.html                         # ① Landing page (entry point)
+├── styles.css                         # Landing page styles
+├── script.js                          # Landing page scripts
+├── logo.svg                           # Brand logo
+├── css/
+│   └── pages/
+│       └── auth.css                   # Auth/role-select/profile-setup page styles
+├── pages/
+│   ├── auth.html                      # ② Unified sign-up / log-in page
+│   ├── role-select.html               # ③ Role chooser (post-auth)
+│   └── profile-setup.html            # ④ Public-trader onboarding
+├── js/
+│   └── auth.js                        # Auth page logic (JWT-based)
 ├── docs/
 │   ├── API_DOCUMENTATION.md           # Full API reference
 │   ├── DATABASE_SCHEMA.md             # Database tables & relationships
 │   ├── DEPLOYMENT_GUIDE.md            # Production deployment
 │   └── TROUBLESHOOTING.md             # Common issues & fixes
+├── frontend/
+│   ├── README.md                      # Frontend-specific docs
+│   ├── .env.example                   # Frontend environment template
+│   ├── css/                           # Pro-trader styles
+│   ├── js/                            # Pro-trader scripts
+│   ├── pages/                         # ⑤ Experienced-trader pages
+│   │   ├── dashboard.html             # Experienced-trader main view
+│   │   ├── analytics.html
+│   │   ├── active-trades.html
+│   │   ├── post-trade.html
+│   │   ├── earnings.html
+│   │   ├── subscribers.html
+│   │   ├── kyc-setup.html
+│   │   ├── notifications.html
+│   │   ├── profile-settings.html
+│   │   ├── settings.html
+│   │   └── account-settings.html
+│   └── learner/
+│       ├── css/                       # Learner styles
+│       ├── js/                        # Learner scripts
+│       └── pages/                     # ⑥ Public-trader pages
+│           ├── dashboard.html         # Public-trader main view
+│           ├── feed.html
+│           ├── my-history.html
+│           ├── my-subscriptions.html
+│           ├── trade-detail.html
+│           ├── notifications.html
+│           ├── notification-preferences.html
+│           ├── profile-settings.html
+│           ├── account-settings.html
+│           └── payment-callback.html
 ├── backend/
 │   ├── run.py                         # Flask entry point
 │   ├── requirements.txt               # Python dependencies
@@ -133,17 +239,6 @@ TradeWise/
 │       ├── test_trades.py             # Trade & profile tests
 │       ├── test_learner.py            # Learner flow tests
 │       └── test_utils.py              # Utility function tests
-├── frontend/
-│   ├── index.html                     # Pro-trader entry point
-│   ├── README.md                      # Frontend-specific docs
-│   ├── .env.example                   # Frontend environment template
-│   ├── css/                           # Pro-trader styles
-│   ├── js/                            # Pro-trader scripts
-│   ├── pages/                         # Pro-trader HTML pages
-│   └── learner/
-│       ├── css/                       # Learner styles
-│       ├── js/                        # Learner scripts
-│       └── pages/                     # Learner HTML pages
 └── supabase/
     ├── schema.sql                     # Full database schema
     └── rls-policies.sql               # Row Level Security policies
@@ -480,6 +575,7 @@ Minimum withdrawal: ₹500
 | Document | Description |
 |----------|-------------|
 | [`README.md`](README.md) | This file — platform overview and setup |
+| [`ROUTE_MAP.md`](ROUTE_MAP.md) | Canonical navigation route map |
 | [`TESTING_GUIDE.md`](TESTING_GUIDE.md) | Step-by-step testing guide for all workflows |
 | [`docs/API_DOCUMENTATION.md`](docs/API_DOCUMENTATION.md) | Complete API reference with examples |
 | [`docs/DATABASE_SCHEMA.md`](docs/DATABASE_SCHEMA.md) | Database tables, columns, and relationships |
