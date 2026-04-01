@@ -2,6 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <!--
+    This file is an internal target for the secure-access login flow.
+    Direct access (without a valid admin session) is redirected to 404.
+    Admins must enter through /frontend/secure-access/admin/index.html.
+  -->
+  <script>
+    // Hide page immediately to prevent content flash
+    document.documentElement.style.visibility = 'hidden';
+    (function () {
+      var token = localStorage.getItem('tw_admin_token');
+      var profile = null;
+      try { profile = JSON.parse(localStorage.getItem('tw_admin_profile')); } catch (e) {}
+      if (token && profile && profile.role === 'admin') {
+        // Already authenticated — go straight to dashboard
+        window.location.replace('dashboard.html');
+      } else {
+        // No valid admin session — silently redirect away
+        window.location.replace('../404.html');
+      }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TradeWise — Admin Login</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -71,8 +92,14 @@
       : '/api';
 
     // If already logged in as admin, go to dashboard
-    const token = localStorage.getItem('tw_admin_token');
-    if (token) window.location.replace('dashboard.html');
+    (function () {
+      var token = localStorage.getItem('tw_admin_token');
+      var profile = null;
+      try { profile = JSON.parse(localStorage.getItem('tw_admin_profile')); } catch (e) {}
+      if (token && profile && profile.role === 'admin') {
+        window.location.replace('dashboard.html');
+      }
+    })();
 
     const form = document.getElementById('loginForm');
     const errorMsg = document.getElementById('errorMsg');

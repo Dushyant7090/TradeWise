@@ -354,9 +354,9 @@ async function loadUsers(page = 1) {
         <td>${fmtDate(u.created_at)}</td>
         <td>
           <div class="table-actions">
-            ${!u.is_banned && u.is_active ? `<button class="btn btn-sm btn-warning" onclick="suspendUser('${u.id}','${esc(u.display_name || u.email)}')">Suspend</button>` : ''}
-            ${!u.is_banned && !u.is_active ? `<button class="btn btn-sm btn-outline" onclick="reactivateUser('${u.id}','${esc(u.display_name || u.email)}')">Reactivate</button>` : ''}
-            ${!u.is_banned ? `<button class="btn btn-sm btn-danger" onclick="confirmBan('${u.id}','${esc(u.display_name || u.email)}')">Ban</button>` : '<span class="badge badge-danger">Banned</span>'}
+            ${!u.is_banned && u.is_active ? `<button class="btn btn-sm btn-warning" onclick="suspendUser('${u.id}','${escJS(u.display_name || u.email)}')">Suspend</button>` : ''}
+            ${!u.is_banned && !u.is_active ? `<button class="btn btn-sm btn-outline" onclick="reactivateUser('${u.id}','${escJS(u.display_name || u.email)}')">Reactivate</button>` : ''}
+            ${!u.is_banned ? `<button class="btn btn-sm btn-danger" onclick="confirmBan('${u.id}','${escJS(u.display_name || u.email)}')">Ban</button>` : '<span class="badge badge-danger">Banned</span>'}
           </div>
         </td>
       </tr>
@@ -605,7 +605,7 @@ async function loadComments(page = 1) {
         <td>${fmtDate(c.created_at)}</td>
         <td>
           <div class="table-actions">
-            <button class="btn btn-sm btn-outline" onclick="openReplyModal('${c.id}', '${esc(c.content?.slice(0,60))}')">Reply</button>
+            <button class="btn btn-sm btn-outline" onclick="openReplyModal('${c.id}', '${escJS(c.content?.slice(0,60))}')">Reply</button>
             <button class="btn btn-sm btn-danger" onclick="deleteComment('${c.id}')">Delete</button>
           </div>
         </td>
@@ -682,8 +682,8 @@ async function loadKYC(page = 1) {
         <td>
           <div class="table-actions">
             ${k.kyc_status === 'pending' ? `
-              <button class="btn btn-sm btn-primary" onclick="approveKYC('${k.user_id}','${esc(k.display_name || '')}')">Approve</button>
-              <button class="btn btn-sm btn-danger" onclick="rejectKYC('${k.user_id}','${esc(k.display_name || '')}')">Reject</button>
+              <button class="btn btn-sm btn-primary" onclick="approveKYC('${k.user_id}','${escJS(k.display_name || '')}')">Approve</button>
+              <button class="btn btn-sm btn-danger" onclick="rejectKYC('${k.user_id}','${escJS(k.display_name || '')}')">Reject</button>
             ` : `<span class="badge badge-muted">Processed</span>`}
           </div>
         </td>
@@ -748,6 +748,26 @@ function exportCSV(type) {
 function esc(str) {
   if (str == null) return '';
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/**
+ * Escape a string for safe embedding inside a single-quoted JavaScript
+ * string literal that lives inside an HTML attribute (e.g. onclick="fn('…')").
+ *
+ * HTML-entity encoding is NOT safe here: the browser HTML-decodes attribute
+ * values before handing them to the JS engine, so &#39; becomes ' which
+ * breaks out of the JS string.  We use backslash-escaping instead.
+ */
+function escJS(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/\\/g, '\\\\')       // backslash must come first
+    .replace(/'/g, "\\'")          // single quote
+    .replace(/"/g, '\\"')          // double quote (belt-and-suspenders)
+    .replace(/\n/g, '\\n')         // newline
+    .replace(/\r/g, '\\r')         // carriage return
+    .replace(/\u2028/g, '\\u2028') // Unicode line separator
+    .replace(/\u2029/g, '\\u2029');// Unicode paragraph separator
 }
 
 /* ===== INIT ===== */
