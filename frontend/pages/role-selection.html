@@ -331,7 +331,11 @@
 
             continueBtn.addEventListener('click', function () {
                 if (!selectedRole) return;
-                window.location.href = '../learner/pages/auth.html';
+                if (selectedRole === 'pro_trader') {
+                    window.location.href = '../pro-trader/pages/register.html';
+                } else {
+                    window.location.href = '../learner/pages/auth.html';
+                }
             });
         })();
     </script>
