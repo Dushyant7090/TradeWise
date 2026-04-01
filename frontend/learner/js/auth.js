@@ -24,11 +24,11 @@ const Auth = {
   },
 
   redirectToLogin() {
-    window.location.href = '/pages/auth.html';
+    window.location.href = '/learner/pages/auth.html';
   },
 
   redirectToDashboard() {
-    window.location.href = '/frontend/learner/pages/dashboard.html';
+    window.location.href = '/learner/pages/dashboard.html';
   },
 
   // ===== LOGIN =====
@@ -64,7 +64,7 @@ const Auth = {
       // Ignore logout API errors
     } finally {
       Storage.clearAll();
-      window.location.href = '/pages/auth.html';
+      window.location.href = '/learner/pages/auth.html';
     }
   },
 

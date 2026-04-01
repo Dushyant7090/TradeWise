@@ -77,7 +77,7 @@ async function apiCall(method, endpoint, data = null, opts = {}) {
         return apiCall(method, endpoint, data, { ...opts, _retried: true });
       } else {
         Storage.clearAll();
-        window.location.href = '/pages/auth.html';
+        window.location.href = '/learner/pages/auth.html';
         return;
       }
     }
