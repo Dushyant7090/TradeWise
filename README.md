@@ -3,7 +3,7 @@
 > **Evidence-based trade ideas from verified mentors on Indian Equity Markets (NSE/BSE).**
 
 [![Backend Tests](https://img.shields.io/badge/tests-pytest-passing-blue)](#running-tests)
-[![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://python.org)
+[![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org)
 [![Flask](https://img.shields.io/badge/flask-3.0-lightgrey)](https://flask.palletsprojects.com)
 [![Supabase](https://img.shields.io/badge/database-supabase-green)](https://supabase.com)
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow)](#license)
