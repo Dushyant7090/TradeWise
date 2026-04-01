@@ -21,14 +21,14 @@ function getToken() {
 
 function requireAuth() {
   if (!getToken()) {
-    window.location.replace('../../learner/pages/auth.html');
+    window.location.replace('../../pro-trader/pages/register.html');
   }
 }
 
 function logout() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
-  window.location.replace('../../learner/pages/auth.html');
+  window.location.replace('../../pro-trader/pages/register.html');
 }
 
 /* ===== FETCH HELPER ===== */

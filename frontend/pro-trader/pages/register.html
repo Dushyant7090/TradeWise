@@ -1,12 +1,396 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0; url=../../learner/pages/auth.html" />
-  <title>Redirecting…</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeWise — Join as Pro Trader</title>
+    <meta name="description"
+        content="Apply as a Pro Trader on TradeWise — share your expertise, post verified trade ideas, and earn through subscriptions.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../shared/css/auth.css">
 </head>
+
 <body>
-  <p>Redirecting to the sign-up page… <a href="../../learner/pages/auth.html">Click here</a> if not redirected.</p>
-  <script>window.location.replace('../../learner/pages/auth.html');</script>
+    <!-- Background glow effects -->
+    <a href="../../landing-page.html" class="auth-home-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+        </svg>
+        Home
+    </a>
+
+    <div class="auth-bg">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        <div class="glow glow-3"></div>
+    </div>
+
+    <div class="auth-wrapper">
+        <!-- Logo -->
+        <a href="../../landing-page.html" class="auth-logo">
+            <img src="../../shared/assets/logo.svg" alt="TradeWise" class="auth-logo-icon">
+        </a>
+
+        <div class="auth-container">
+
+            <!-- ===== SIGN UP VIEW ===== -->
+            <div class="auth-view active" id="signup-view">
+                <h1 class="auth-title">Apply as a Pro Trader</h1>
+                <p class="auth-subtitle">Already have an account? <a href="#" class="auth-toggle-link"
+                        data-target="login-view">Log in</a>.</p>
+
+                <!-- Sign Up Form -->
+                <form class="auth-form" id="signup-form" novalidate>
+                    <div class="form-group">
+                        <label for="signup-fullname">Full Name</label>
+                        <input type="text" id="signup-fullname" placeholder="Your full name" required
+                            autocomplete="name">
+                        <span class="field-error" id="signup-fullname-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-email">Email</label>
+                        <input type="email" id="signup-email" placeholder="you@example.com" required
+                            autocomplete="email">
+                        <span class="field-error" id="signup-email-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="signup-password" placeholder="••••••••" required minlength="8"
+                                autocomplete="new-password">
+                            <button type="button" class="password-toggle" data-target="signup-password"
+                                aria-label="Toggle password visibility">
+                                <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                <svg class="eye-off-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" style="display:none;">
+                                    <path
+                                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                    <line x1="1" y1="1" x2="23" y2="23" />
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="field-error" id="signup-password-error"></span>
+                        <div class="password-strength" id="password-strength">
+                            <div class="strength-track">
+                                <div class="strength-fill" id="strength-fill"></div>
+                            </div>
+                            <span class="strength-hint" id="strength-hint"></span>
+                        </div>
+                    </div>
+                    <button type="submit" class="auth-submit-btn" id="signup-submit">
+                        <span class="btn-text">Create Pro Trader Account</span>
+                        <span class="btn-loader" style="display:none;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                            </svg>
+                        </span>
+                    </button>
+                </form>
+
+                <div class="auth-message" id="signup-message"></div>
+
+                <p class="auth-legal">By signing up, you agree to our <a href="#">Terms</a>, <a href="#">Risk
+                        Disclosures</a>, and <a href="#">Privacy Policy</a>.</p>
+            </div>
+
+            <!-- ===== LOGIN VIEW ===== -->
+            <div class="auth-view" id="login-view">
+                <h1 class="auth-title">Log in to TradeWise Pro</h1>
+                <p class="auth-subtitle">Don't have an account? <a href="#" class="auth-toggle-link"
+                        data-target="signup-view">Sign up</a>.</p>
+
+                <form class="auth-form" id="login-form" novalidate>
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" placeholder="you@example.com" required
+                            autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <div class="label-row">
+                            <label for="login-password">Password</label>
+                            <a href="#" class="forgot-link" id="forgot-password-link">Forgot your password?</a>
+                        </div>
+                        <div class="password-wrapper">
+                            <input type="password" id="login-password" placeholder="••••••••" required
+                                autocomplete="current-password">
+                            <button type="button" class="password-toggle" data-target="login-password"
+                                aria-label="Toggle password visibility">
+                                <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                <svg class="eye-off-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" style="display:none;">
+                                    <path
+                                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                    <line x1="1" y1="1" x2="23" y2="23" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="auth-submit-btn" id="login-submit">
+                        <span class="btn-text">Log In</span>
+                        <span class="btn-loader" style="display:none;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                            </svg>
+                        </span>
+                    </button>
+                </form>
+
+                <div class="auth-message" id="login-message"></div>
+
+                <p class="auth-legal">By signing in, you agree to our <a href="#">Terms</a> and <a href="#">Privacy
+                        Policy</a>.</p>
+            </div>
+
+            <!-- ===== FORGOT PASSWORD VIEW ===== -->
+            <div class="auth-view" id="forgot-view">
+                <h1 class="auth-title">Reset your password</h1>
+                <p class="auth-subtitle">Enter your email and we'll send you a reset link. <a href="#"
+                        class="auth-toggle-link" data-target="login-view">Back to login</a>.</p>
+
+                <form class="auth-form" id="forgot-form" novalidate>
+                    <div class="form-group">
+                        <label for="forgot-email">Email</label>
+                        <input type="email" id="forgot-email" placeholder="you@example.com" required
+                            autocomplete="email">
+                    </div>
+                    <button type="submit" class="auth-submit-btn" id="forgot-submit">
+                        <span class="btn-text">Send Reset Link</span>
+                        <span class="btn-loader" style="display:none;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                            </svg>
+                        </span>
+                    </button>
+                </form>
+
+                <div class="auth-message" id="forgot-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            var API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                ? 'http://localhost:5000/api'
+                : '/api';
+
+            var TOKEN_KEY = 'tw_jwt_token';
+            var USER_KEY = 'tw_user';
+
+            /* ---- helpers ---- */
+            function setView(id) {
+                document.querySelectorAll('.auth-view').forEach(function (v) {
+                    v.classList.remove('active');
+                });
+                document.getElementById(id).classList.add('active');
+            }
+
+            function showMsg(id, text, isError) {
+                var el = document.getElementById(id);
+                el.textContent = text;
+                el.className = 'auth-message ' + (isError ? 'error' : 'success');
+            }
+
+            function setLoading(btnId, loading) {
+                var btn = document.getElementById(btnId);
+                btn.querySelector('.btn-text').style.display = loading ? 'none' : '';
+                btn.querySelector('.btn-loader').style.display = loading ? 'inline-flex' : 'none';
+                btn.disabled = loading;
+            }
+
+            /* ---- toggle links ---- */
+            document.querySelectorAll('.auth-toggle-link').forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    setView(this.dataset.target);
+                });
+            });
+
+            document.getElementById('forgot-password-link').addEventListener('click', function (e) {
+                e.preventDefault();
+                setView('forgot-view');
+            });
+
+            /* ---- password visibility toggle ---- */
+            document.querySelectorAll('.password-toggle').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var target = document.getElementById(this.dataset.target);
+                    var isHidden = target.type === 'password';
+                    target.type = isHidden ? 'text' : 'password';
+                    this.querySelector('.eye-icon').style.display = isHidden ? 'none' : '';
+                    this.querySelector('.eye-off-icon').style.display = isHidden ? '' : 'none';
+                });
+            });
+
+            /* ---- password strength ---- */
+            var pwInput = document.getElementById('signup-password');
+            pwInput.addEventListener('input', function () {
+                var val = this.value;
+                var score = 0;
+                if (val.length >= 8) score++;
+                if (/[A-Z]/.test(val)) score++;
+                if (/[0-9]/.test(val)) score++;
+                if (/[^A-Za-z0-9]/.test(val)) score++;
+
+                var fill = document.getElementById('strength-fill');
+                var hint = document.getElementById('strength-hint');
+                var labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+                var colors = ['', '#EF4444', '#F59E0B', '#3B82F6', '#10B981'];
+                fill.style.width = (score * 25) + '%';
+                fill.style.background = colors[score] || '#EF4444';
+                hint.textContent = labels[score] || '';
+            });
+
+            /* ---- sign up ---- */
+            document.getElementById('signup-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+                var name = document.getElementById('signup-fullname').value.trim();
+                var email = document.getElementById('signup-email').value.trim();
+                var password = document.getElementById('signup-password').value;
+
+                document.getElementById('signup-fullname-error').textContent = '';
+                document.getElementById('signup-email-error').textContent = '';
+                document.getElementById('signup-password-error').textContent = '';
+
+                var valid = true;
+                if (!name) {
+                    document.getElementById('signup-fullname-error').textContent = 'Full name is required.';
+                    valid = false;
+                }
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    document.getElementById('signup-email-error').textContent = 'A valid email is required.';
+                    valid = false;
+                }
+                if (!password || password.length < 8) {
+                    document.getElementById('signup-password-error').textContent = 'Password must be at least 8 characters.';
+                    valid = false;
+                }
+                if (!valid) return;
+
+                setLoading('signup-submit', true);
+
+                fetch(API_BASE + '/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password, display_name: name, role: 'pro_trader' })
+                    // Note: the backend validates role — only 'public_trader' and 'pro_trader' are accepted
+                })
+                .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
+                .then(function (result) {
+                    setLoading('signup-submit', false);
+                    if (!result.ok) {
+                        showMsg('signup-message', result.data.error || 'Registration failed. Please try again.', true);
+                        return;
+                    }
+                    if (result.data.token || result.data.access_token) {
+                        localStorage.setItem(TOKEN_KEY, result.data.token || result.data.access_token);
+                    }
+                    if (result.data.user) {
+                        localStorage.setItem(USER_KEY, JSON.stringify(result.data.user));
+                    }
+                    showMsg('signup-message', 'Account created! Redirecting to KYC setup…', false);
+                    setTimeout(function () {
+                        window.location.href = '../pages/kyc-setup.html';
+                    }, 1200);
+                })
+                .catch(function () {
+                    setLoading('signup-submit', false);
+                    showMsg('signup-message', 'Network error. Please check your connection and try again.', true);
+                });
+            });
+
+            /* ---- login ---- */
+            document.getElementById('login-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+                var email = document.getElementById('login-email').value.trim();
+                var password = document.getElementById('login-password').value;
+
+                if (!email || !password) {
+                    showMsg('login-message', 'Email and password are required.', true);
+                    return;
+                }
+
+                setLoading('login-submit', true);
+
+                fetch(API_BASE + '/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password })
+                })
+                .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
+                .then(function (result) {
+                    setLoading('login-submit', false);
+                    if (!result.ok) {
+                        showMsg('login-message', result.data.error || 'Login failed. Check your credentials.', true);
+                        return;
+                    }
+                    if (result.data.token || result.data.access_token) {
+                        localStorage.setItem(TOKEN_KEY, result.data.token || result.data.access_token);
+                    }
+                    if (result.data.user) {
+                        localStorage.setItem(USER_KEY, JSON.stringify(result.data.user));
+                    }
+                    window.location.href = '../pages/dashboard.html';
+                })
+                .catch(function () {
+                    setLoading('login-submit', false);
+                    showMsg('login-message', 'Network error. Please check your connection and try again.', true);
+                });
+            });
+
+            /* ---- forgot password ---- */
+            document.getElementById('forgot-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+                var email = document.getElementById('forgot-email').value.trim();
+                if (!email) {
+                    showMsg('forgot-message', 'Email is required.', true);
+                    return;
+                }
+
+                setLoading('forgot-submit', true);
+
+                fetch(API_BASE + '/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                })
+                .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
+                .then(function (result) {
+                    setLoading('forgot-submit', false);
+                    showMsg('forgot-message', 'If an account exists for that email, a reset link has been sent.', false);
+                })
+                .catch(function () {
+                    setLoading('forgot-submit', false);
+                    showMsg('forgot-message', 'Network error. Please try again.', true);
+                });
+            });
+        })();
+    </script>
 </body>
+
 </html>
