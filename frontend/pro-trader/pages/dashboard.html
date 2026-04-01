@@ -234,22 +234,6 @@
 
     App.init();
 
-    // ===== SIDEBAR TOGGLE =====
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    document.getElementById('hamburger').addEventListener('click', () => {
-      const isOpen = sidebar.classList.toggle('open');
-      overlay.classList.toggle('active', isOpen);
-      document.getElementById('hamburger').setAttribute('aria-expanded', isOpen);
-    });
-    overlay.addEventListener('click', () => {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('active');
-    });
-
-    // ===== LOGOUT =====
-    document.getElementById('logout-btn').addEventListener('click', () => Auth.logout());
-
     // ===== LOAD DASHBOARD DATA =====
     async function loadDashboard() {
       try {

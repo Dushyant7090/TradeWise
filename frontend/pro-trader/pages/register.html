@@ -200,7 +200,7 @@
                 : '/api';
 
             var TOKEN_KEY = 'tw_jwt_token';
-            var USER_KEY = 'tw_user';
+            var USER_KEY  = 'tw_user_data';
 
             /* ---- helpers ---- */
             function setView(id) {
@@ -315,7 +315,7 @@
                     }
                     showMsg('signup-message', 'Account created! Redirecting to KYC setup…', false);
                     setTimeout(function () {
-                        window.location.href = '../pages/kyc-setup.html';
+                        window.location.href = 'kyc-setup.html';
                     }, 1200);
                 })
                 .catch(function () {
@@ -355,7 +355,7 @@
                     if (result.data.user) {
                         localStorage.setItem(USER_KEY, JSON.stringify(result.data.user));
                     }
-                    window.location.href = '../pages/dashboard.html';
+                    window.location.href = 'dashboard.html';
                 })
                 .catch(function () {
                     setLoading('login-submit', false);
