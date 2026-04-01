@@ -216,6 +216,10 @@ def get_user(user_id):
 @require_admin
 def suspend_user(user_id):
     """Suspend a user (reversible)."""
+    requesting_admin_id = get_jwt_identity()
+    if user_id == requesting_admin_id:
+        return jsonify({"error": "Admins cannot suspend their own account"}), 403
+
     user = User.query.get(user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
@@ -223,6 +227,9 @@ def suspend_user(user_id):
     profile = user.profile
     if not profile:
         return jsonify({"error": "Profile not found"}), 404
+
+    if profile.role == "admin":
+        return jsonify({"error": "Admin accounts cannot be suspended via this interface"}), 403
 
     if getattr(profile, "is_banned", False):
         return jsonify({"error": "User is permanently banned and cannot be suspended"}), 400
@@ -236,6 +243,10 @@ def suspend_user(user_id):
 @require_admin
 def reactivate_user(user_id):
     """Reactivate a suspended user."""
+    requesting_admin_id = get_jwt_identity()
+    if user_id == requesting_admin_id:
+        return jsonify({"error": "Admins cannot reactivate their own account via this interface"}), 403
+
     user = User.query.get(user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
@@ -253,6 +264,10 @@ def reactivate_user(user_id):
 @require_admin
 def ban_user(user_id):
     """Permanently ban a user (irreversible)."""
+    requesting_admin_id = get_jwt_identity()
+    if user_id == requesting_admin_id:
+        return jsonify({"error": "Admins cannot ban their own account"}), 403
+
     user = User.query.get(user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
@@ -260,6 +275,9 @@ def ban_user(user_id):
     profile = user.profile
     if not profile:
         return jsonify({"error": "Profile not found"}), 404
+
+    if profile.role == "admin":
+        return jsonify({"error": "Admin accounts cannot be banned via this interface"}), 403
 
     # Mark as permanently banned by deactivating and storing ban flag in profile
     user.is_active = False
