@@ -2,47 +2,119 @@
 TradeWise Backend - Flask Application Factory
 """
 import os
-from flask import Flask
+from pathlib import Path
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_mail import Mail
+from flask_compress import Compress
 from dotenv import load_dotenv
+from app.utils.perf import register_query_timing, register_request_timing
 
-load_dotenv()
+_BACKEND_ENV_PATH = Path(__file__).resolve().parents[1] / ".env"
+load_dotenv(dotenv_path=_BACKEND_ENV_PATH)
 
 db = SQLAlchemy()
 jwt = JWTManager()
 mail = Mail()
+compress = Compress()
+
+
+def _build_cors_origins(app):
+    """Return CORS origins with sensible localhost defaults for dev."""
+    raw_origins = app.config.get("FRONTEND_URL", "")
+
+    if raw_origins == "*":
+        return "*"
+
+    origins = []
+    if isinstance(raw_origins, str):
+        origins = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
+    elif isinstance(raw_origins, (list, tuple, set)):
+        origins = [str(origin).strip() for origin in raw_origins if str(origin).strip()]
+
+    # Keep local static frontend and SPA ports always usable in development.
+    if app.config.get("DEBUG"):
+        dev_defaults = [
+            "http://localhost:5500",
+            "http://127.0.0.1:5500",
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+        ]
+        for origin in dev_defaults:
+            if origin not in origins:
+                origins.append(origin)
+
+    return origins or ["http://localhost:5500", "http://127.0.0.1:5500"]
 
 
 def create_app(config_name=None):
     app = Flask(__name__)
 
     # Load configuration
-    from app.config import config_by_name
+    from app.config import apply_testing_config_overrides, config_by_name
     cfg_name = config_name or os.getenv("FLASK_ENV", "development")
     app.config.from_object(config_by_name.get(cfg_name, config_by_name["development"]))
+
+    if app.config.get("TESTING"):
+        apply_testing_config_overrides(app.config)
 
     # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
     mail.init_app(app)
+    compress.init_app(app)
+
+    with app.app_context():
+        register_query_timing(app, db)
+    register_request_timing(app)
 
     # CORS
+    cors_origins = _build_cors_origins(app)
+
     CORS(
         app,
-        origins=app.config.get("FRONTEND_URL", "*"),
+        resources={r"/api/*": {"origins": cors_origins}},
         supports_credentials=True,
+        allow_headers=["Content-Type", "Authorization"],
+        methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     )
+
+    @app.after_request
+    def _set_cache_headers(response):
+        if request.path.startswith("/api/auth"):
+            response.headers["Cache-Control"] = "no-store"
+            return response
+
+        if request.path.startswith("/api/"):
+            if request.method == "GET":
+                response.headers.setdefault(
+                    "Cache-Control",
+                    "private, max-age=15, stale-while-revalidate=30",
+                )
+            else:
+                response.headers["Cache-Control"] = "no-store"
+        return response
 
     # Register blueprints
     _register_blueprints(app)
+
+    # Register utility routes
+    _register_utility_routes(app)
 
     # Register error handlers
     _register_error_handlers(app)
 
     return app
+
+
+def _register_utility_routes(app):
+    from flask import jsonify
+
+    @app.get("/api/health")
+    def health_check():
+        return jsonify({"status": "ok", "service": "tradewise-backend"}), 200
 
 
 def _register_blueprints(app):
@@ -97,6 +169,14 @@ def _register_blueprints(app):
 
 def _register_error_handlers(app):
     from flask import jsonify
+    from sqlalchemy.exc import OperationalError
+
+    @app.errorhandler(OperationalError)
+    def database_error(e):
+        return jsonify({
+            "error": "Database unavailable",
+            "message": "Backend cannot connect to PostgreSQL. Check DATABASE_URL in backend/.env.",
+        }), 503
 
     @app.errorhandler(400)
     def bad_request(e):

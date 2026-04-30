@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <!--
@@ -9,170 +9,121 @@
   -->
   <script src="verify.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Sign In</title>
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+  <title>TradeWise - Admin Sign In</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../shared/css/auth.css" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: #0f1117;
-      color: #e2e8f0;
-      display: flex;
+    .admin-auth-badge {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-    }
-    .auth-card {
-      background: #1a1f2e;
-      border: 1px solid #2d3748;
-      border-radius: 1rem;
-      padding: 2.5rem;
-      width: 100%;
-      max-width: 420px;
-    }
-    .auth-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-    .logo { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 1.25rem; }
-    .logo-icon { font-size: 1.5rem; }
-    .badge {
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 0.2rem 0.6rem;
-      background: rgba(59,130,246,0.15);
-      color: #60a5fa;
-      border: 1px solid rgba(59,130,246,0.3);
-      border-radius: 9999px;
-      letter-spacing: 0.05em;
+      margin: 0 auto 18px;
+      padding: 6px 14px;
+      border: 1px solid rgba(16, 185, 129, 0.24);
+      border-radius: var(--radius-pill);
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
     }
-    h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
-    .subtitle { color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.75rem; }
-    .form-group { margin-bottom: 1rem; }
-    .form-label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.4rem; }
-    .input-wrap { position: relative; }
-    .form-input {
-      width: 100%;
-      padding: 0.65rem 1rem;
-      background: #0f1117;
-      border: 1px solid #2d3748;
-      border-radius: 0.5rem;
-      color: #e2e8f0;
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.2s;
+
+    .admin-auth-note {
+      margin-top: 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.75rem;
     }
-    .form-input:focus { border-color: #3b82f6; }
-    .toggle-btn {
-      position: absolute;
-      right: 0.75rem;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: #94a3b8;
-      cursor: pointer;
-      padding: 0.25rem;
-      display: flex;
+
+    .admin-auth-message {
+      display: none;
     }
-    .toggle-btn svg { width: 18px; height: 18px; }
-    .alert {
-      padding: 0.65rem 1rem;
-      border-radius: 0.5rem;
-      font-size: 0.875rem;
-      margin-bottom: 1rem;
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.3);
-      color: #f87171;
-    }
-    .btn {
-      width: 100%;
-      padding: 0.75rem;
-      background: #3b82f6;
-      color: #fff;
-      border: none;
-      border-radius: 0.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s, opacity 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-    .btn:hover:not(:disabled) { background: #2563eb; }
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .spinner {
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .footer { margin-top: 1.5rem; text-align: center; font-size: 0.8rem; color: #4a5568; }
   </style>
 </head>
 <body>
-  <div class="auth-card">
-    <div class="auth-header">
-      <div class="logo">
-        <span class="logo-icon">⚡</span>
-        <span>TradeWise</span>
-      </div>
-      <span class="badge">Admin Portal</span>
-    </div>
+  <div class="auth-bg">
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <div class="glow glow-3"></div>
+  </div>
 
-    <h1>Admin Sign In</h1>
-    <p class="subtitle">Secure access to the TradeWise Admin Dashboard</p>
+  <div class="auth-wrapper">
+    <a href="../../landing-page.html" class="auth-logo">
+      <img src="../../shared/assets/logo.svg" alt="TradeWise" class="auth-logo-icon">
+    </a>
 
-    <form id="loginForm" novalidate>
-      <div class="form-group">
-        <label class="form-label" for="email">Email address</label>
-        <input
-          id="email"
-          type="email"
-          class="form-input"
-          placeholder="admin@tradewise.com"
-          required
-          autocomplete="username"
-        />
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="password">Password</label>
-        <div class="input-wrap">
+    <div class="auth-container">
+      <div class="admin-auth-badge">Admin Portal</div>
+      <h1 class="auth-title">Log in to TradeWise</h1>
+      <p class="auth-subtitle">Secure access for authorized administrators.</p>
+
+      <form class="auth-form" id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="email">Email</label>
           <input
-            id="password"
-            type="password"
-            class="form-input"
-            placeholder="Enter your password"
+            id="email"
+            type="email"
+            placeholder="admin@tradewise.com"
             required
-            autocomplete="current-password"
-          />
-          <button type="button" class="toggle-btn" id="togglePassword" aria-label="Toggle password visibility">
-            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-          </button>
+            autocomplete="username"
+          >
         </div>
-      </div>
 
-      <div id="errorMsg" class="alert" style="display:none;"></div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="password-wrapper">
+            <input
+              id="password"
+              type="password"
+              placeholder="--------"
+              required
+              autocomplete="current-password"
+            >
+            <button type="button" class="password-toggle" id="togglePassword" aria-label="Toggle password visibility">
+              <svg id="eyeIcon" class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+        </div>
 
-      <button type="submit" class="btn" id="loginBtn">
-        <span id="loginBtnText">Sign In</span>
-        <span id="loginSpinner" class="spinner" style="display:none;"></span>
-      </button>
-    </form>
+        <div id="errorMsg" class="auth-message error admin-auth-message" role="alert" aria-live="polite"></div>
 
-    <p class="footer">&copy; 2025 TradeWise. Authorized personnel only.</p>
+        <button type="submit" class="auth-submit-btn ready" id="loginBtn">
+          <span id="loginBtnText">Log In</span>
+          <span id="loginSpinner" class="btn-loader" style="display:none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path
+                d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+            </svg>
+          </span>
+        </button>
+      </form>
+
+      <p class="admin-auth-note">Authorized personnel only.</p>
+    </div>
   </div>
 
   <script>
     'use strict';
+
+    var frontendAnchor = '/frontend/';
+    var pathname = window.location.pathname;
+    var anchorIndex = pathname.indexOf(frontendAnchor);
+    var FRONTEND_BASE = anchorIndex === -1
+      ? ''
+      : pathname.slice(0, anchorIndex + frontendAnchor.length - 1);
+
+    function frontendPath(pathFromFrontendRoot) {
+      return FRONTEND_BASE + pathFromFrontendRoot;
+    }
 
     var API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:5000/api'
@@ -184,7 +135,7 @@
       var profile = null;
       try { profile = JSON.parse(localStorage.getItem('tw_admin_profile')); } catch (e) {}
       if (token && profile && profile.role === 'admin') {
-        window.location.replace('/frontend/admin/dashboard.html');
+        window.location.replace(frontendPath('/admin/dashboard.html'));
       }
     })();
 
@@ -230,14 +181,14 @@
           }
           var data = result.data;
           if (!data.profile || data.profile.role !== 'admin') {
-            // Wrong role — redirect to 404, never back to login.
-            window.location.replace('/frontend/404.html');
+            // Wrong role: redirect to 404, never back to login.
+            window.location.replace(frontendPath('/404.html'));
             return;
           }
           localStorage.setItem('tw_admin_token', data.access_token);
           localStorage.setItem('tw_admin_user', JSON.stringify(data.user));
           localStorage.setItem('tw_admin_profile', JSON.stringify(data.profile));
-          window.location.replace('/frontend/admin/dashboard.html');
+          window.location.replace(frontendPath('/admin/dashboard.html'));
         })
         .catch(function () {
           showError('Unable to connect to the server. Please try again.');

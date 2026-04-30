@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Account Settings</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise - Account Settings</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -11,11 +14,15 @@
   <link rel="stylesheet" href="../../shared/css/components.css" />
   <link rel="stylesheet" href="../../shared/css/pages.css" />
   <link rel="stylesheet" href="../../shared/css/responsive.css" />
+  <link rel="stylesheet" href="../css/theme.css?v=theme-sync-4" />
 </head>
 <body>
   <div class="app-layout">
     <aside class="sidebar" id="sidebar" aria-label="Main navigation">
-      <a href="dashboard.html" class="sidebar-logo"><span>TradeWise Pro</span></a>
+      <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+        <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+        <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
+      </a>
             <nav class="sidebar-nav">
         <div class="nav-section">
           <div class="nav-section-label">Overview</div>
@@ -60,6 +67,15 @@
           </a>
         </div>
       </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="avatar-placeholder" id="sidebar-avatar" aria-hidden="true">P</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebar-user-name">Pro Trader</div>
+            <div class="sidebar-user-role">Pro Trader</div>
+          </div>
+        </div>
+      </div>
     </aside>
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 
@@ -70,6 +86,7 @@
           <h1 class="topbar-title">Account Settings</h1>
         </div>
         <div class="topbar-right">
+          <button class="btn btn-secondary btn-sm theme-toggle-btn" id="theme-toggle-btn" type="button">Switch to Dark Mode</button>
           <button class="btn btn-icon btn-ghost" id="notif-bell" aria-label="Notifications">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
             <span class="notif-badge hidden" id="notif-badge">0</span>
@@ -89,7 +106,14 @@
           <h3 class="settings-section-title">Change Password</h3>
           <p class="settings-section-desc">Use a strong password to protect your account</p>
           <div id="pw-alert" class="alert hidden" role="alert" aria-live="polite"></div>
-          <form id="pw-form" novalidate style="max-width: 480px;">
+          <div class="password-collapsed" id="password-collapsed">
+            <div>
+              <div class="password-collapsed-title">Password is hidden</div>
+              <div class="password-collapsed-desc">Open the password editor only when you want to change it.</div>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="edit-password-btn">Edit Password</button>
+          </div>
+          <form id="pw-form" class="hidden" novalidate style="max-width: 480px;">
             <div class="form-group">
               <label class="form-label" for="current-pw">Current Password <span class="required">*</span></label>
               <input type="password" id="current-pw" class="input" autocomplete="current-password" />
@@ -113,6 +137,7 @@
               <span class="btn-text">Change Password</span>
               <div class="btn-spinner spinner" aria-hidden="true"></div>
             </button>
+            <button type="button" class="btn btn-secondary" id="cancel-pw-btn" style="margin-left:var(--space-2);">Cancel</button>
           </form>
         </div>
 
@@ -163,7 +188,7 @@
     <div class="modal">
       <div class="modal-header">
         <h2 class="modal-title" id="twofa-title">Enable Two-Factor Authentication</h2>
-        <button class="modal-close" id="close-2fa-modal" aria-label="Close">×</button>
+        <button class="modal-close" id="close-2fa-modal" aria-label="Close">x</button>
       </div>
       <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">
         Scan this QR code with Google Authenticator, Authy, or Microsoft Authenticator.
@@ -191,13 +216,32 @@
 
   <script type="module">
     import Auth from '../js/auth.js';
-    import { authAPI, accountAPI } from '../js/api.js';
+    import { authAPI, accountAPI } from '../js/api.js?v=api-host-3';
     import { validatePassword, timeAgo } from '../js/utils.js';
-    import App from '../js/main.js';
+    import App from '../js/main.js?v=sidebar-kyc-1';
+    import { bindProThemeToggle } from '../js/theme.js?v=theme-sync-3';
 
     if (!Auth.requireAuth()) throw new Error('Not authenticated');
-    window.Toast = { show(m, t = 'info') { const c = document.getElementById('toast-container'); const el = document.createElement('div'); el.className = `toast toast-${t}`; el.innerHTML = `<div class="toast-content"><div class="toast-message">${m}</div></div><button class="toast-dismiss">×</button>`; c.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); const d = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }; el.querySelector('.toast-dismiss').addEventListener('click', d); setTimeout(d, 4000); } };
+    window.Toast = { show(m, t = 'info') { const c = document.getElementById('toast-container'); const el = document.createElement('div'); el.className = `toast toast-${t}`; el.innerHTML = `<div class="toast-content"><div class="toast-message">${m}</div></div><button class="toast-dismiss">x</button>`; c.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); const d = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }; el.querySelector('.toast-dismiss').addEventListener('click', d); setTimeout(d, 4000); } };
     App.init();
+    bindProThemeToggle(document.getElementById('theme-toggle-btn'));
+
+    function setPasswordEditMode(isEditing) {
+      document.getElementById('password-collapsed').classList.toggle('hidden', isEditing);
+      document.getElementById('pw-form').classList.toggle('hidden', !isEditing);
+      if (!isEditing) {
+        document.getElementById('pw-form').reset();
+        document.getElementById('pw-strength-fill').style.width = '0%';
+        document.getElementById('pw-strength-hint').textContent = 'Min 8 characters required';
+        ['current-pw-error', 'new-pw-error', 'confirm-pw-error'].forEach(id => {
+          document.getElementById(id).textContent = '';
+        });
+      }
+    }
+
+    document.getElementById('edit-password-btn').addEventListener('click', () => setPasswordEditMode(true));
+    document.getElementById('cancel-pw-btn').addEventListener('click', () => setPasswordEditMode(false));
+
 // Password strength
     document.getElementById('new-pw').addEventListener('input', (e) => {
       const pw = e.target.value;
@@ -212,7 +256,7 @@
       const colors = ['#EF4444', '#EF4444', '#F59E0B', '#3B82F6', '#3B82F6', '#10B981'];
       fill.style.width = (score / 5 * 100) + '%';
       fill.style.background = colors[score];
-      hint.textContent = score < 5 ? ['Very Weak','Weak','Fair','Good','Strong'][score] + ' password' : '✓ Strong password';
+      hint.textContent = score < 5 ? ['Very Weak','Weak','Fair','Good','Strong'][score] + ' password' : 'Strong password';
     });
 
     // Change password
@@ -240,6 +284,7 @@
         alertEl.className = 'alert alert-success';
         alertEl.classList.remove('hidden');
         document.getElementById('pw-form').reset();
+        setPasswordEditMode(false);
       } catch (err) {
         alertEl.textContent = err.message || 'Failed to change password.';
         alertEl.className = 'alert alert-error';
@@ -285,7 +330,7 @@
       const desc = document.getElementById('2fa-desc');
       const btn = document.getElementById('toggle-2fa-btn');
       if (twoFAEnabled) {
-        desc.textContent = '✓ Two-Factor Authentication is enabled';
+        desc.textContent = 'Two-Factor Authentication is enabled';
         desc.style.color = 'var(--color-success)';
         btn.textContent = 'Disable 2FA';
         btn.className = 'btn btn-danger btn-sm';
@@ -347,7 +392,7 @@
         tbody.innerHTML = activities.map((a, i) => `<tr>
           <td>${timeAgo(a.created_at || a.login_at)}</td>
           <td style="font-size:0.75rem">${a.user_agent ? a.user_agent.split(' ')[0] : 'Unknown'}</td>
-          <td style="font-family:var(--font-mono);font-size:0.75rem">${a.ip_address || '—'}</td>
+          <td style="font-family:var(--font-mono);font-size:0.75rem">${a.ip_address || '-'}</td>
           <td><span class="badge badge-${a.status === 'success' ? 'success' : 'danger'}">${a.status || 'success'}${i === 0 ? ' (Current)' : ''}</span></td>
         </tr>`).join('');
       } catch {

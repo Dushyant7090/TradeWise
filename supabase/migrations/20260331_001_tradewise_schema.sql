@@ -300,7 +300,7 @@ CREATE TABLE IF NOT EXISTS public.trades (
   closed_at           TIMESTAMPTZ    NULL,
   closed_by_trader_at TIMESTAMPTZ    NULL,
 
-  CONSTRAINT chk_trades_rrr_positive CHECK (rrr > 0),
+  CONSTRAINT chk_trades_rrr_non_negative CHECK (rrr >= 0),
   CONSTRAINT chk_trades_entry_positive CHECK (entry_price > 0),
   CONSTRAINT chk_trades_sl_positive CHECK (stop_loss_price > 0),
   CONSTRAINT chk_trades_target_positive CHECK (target_price > 0)
@@ -368,7 +368,6 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
   started_at    TIMESTAMPTZ          NOT NULL DEFAULT NOW(),
   ends_at       TIMESTAMPTZ          NOT NULL,
   status        subscription_status  NOT NULL DEFAULT 'active',
-  auto_renew    BOOLEAN              NOT NULL DEFAULT FALSE,
 
   created_at    TIMESTAMPTZ          NOT NULL DEFAULT NOW(),
 
@@ -377,7 +376,6 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
 
 COMMENT ON TABLE  public.subscriptions IS 'Paid subscriptions; grants full access to all of a pro trader''s trades for the subscription period';
 COMMENT ON COLUMN public.subscriptions.ends_at    IS 'Calculated from plan duration at payment time (1/3/6 months)';
-COMMENT ON COLUMN public.subscriptions.auto_renew IS 'Reserved for future recurring billing integration';
 
 CREATE INDEX IF NOT EXISTS idx_subscriptions_subscriber_id ON public.subscriptions (subscriber_id);
 CREATE INDEX IF NOT EXISTS idx_subscriptions_trader_id     ON public.subscriptions (trader_id);

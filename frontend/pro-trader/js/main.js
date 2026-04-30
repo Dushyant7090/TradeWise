@@ -5,7 +5,7 @@
 import Storage from './storage.js';
 import Auth from './auth.js';
 import Realtime from './realtime.js';
-import { notificationsAPI } from './api.js';
+import api from './api.js?v=api-host-4';
 import { timeAgo } from './utils.js';
 
 // ===== CONFIG (injected from .env or window globals) =====
@@ -127,8 +127,8 @@ const NotifBell = {
 
   async updateCount() {
     try {
-      const data = await notificationsAPI.getAll();
-      const unread = (data.notifications || []).filter(n => !n.is_read).length;
+      const data = await api.get('/pro-trader/notifications/unread-count');
+      const unread = data?.unread_count || 0;
       const badge = document.getElementById('notif-badge');
       if (badge) {
         badge.textContent = unread > 99 ? '99+' : unread;
@@ -142,29 +142,60 @@ const NotifBell = {
 
 // ===== HEADER USER INFO =====
 const HeaderUser = {
-  init() {
-    const user = Storage.getUser();
-    if (!user) return;
+  render(user = Storage.getUser(), profile = Storage.getProProfile() || {}) {
+    if (!user && !profile) return;
 
     const nameEl = document.getElementById('header-user-name');
     const avatarEl = document.getElementById('header-avatar');
+    const sidebarNameEl = document.getElementById('sidebar-user-name');
+    const sidebarAvatarEl = document.getElementById('sidebar-avatar');
+    const displayName = profile.display_name || user?.display_name || user?.full_name || user?.email || 'Pro Trader';
+    const avatarUrl = profile.profile_picture_url || profile.avatar_url || user?.profile_picture_url || user?.avatar_url || '';
+    const initial = (displayName || 'P').trim()[0]?.toUpperCase() || 'P';
 
-    if (nameEl) nameEl.textContent = user.display_name || user.email || 'Pro Trader';
+    if (nameEl) nameEl.textContent = displayName;
+    if (sidebarNameEl) sidebarNameEl.textContent = displayName;
 
     if (avatarEl) {
-      if (user.profile_picture_url) {
-        avatarEl.src = user.profile_picture_url;
-        avatarEl.alt = user.display_name || 'Profile';
+      if (avatarUrl) {
+        avatarEl.src = avatarUrl;
+        avatarEl.alt = displayName || 'Profile';
       } else {
-        const initials = (user.display_name || user.email || 'P')[0].toUpperCase();
-        avatarEl.outerHTML = `<div class="avatar-placeholder" id="header-avatar">${initials}</div>`;
+        avatarEl.outerHTML = `<div class="avatar-placeholder" id="header-avatar">${initial}</div>`;
       }
     }
+
+    if (sidebarAvatarEl) {
+      if (avatarUrl) {
+        const img = document.createElement('img');
+        img.src = avatarUrl;
+        img.alt = '';
+        sidebarAvatarEl.replaceChildren(img);
+        sidebarAvatarEl.classList.add('has-image');
+      } else {
+        sidebarAvatarEl.textContent = initial;
+        sidebarAvatarEl.classList.remove('has-image');
+      }
+    }
+  },
+
+  async init() {
+    this.render();
 
     // Logout button
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => Auth.logout());
+    }
+
+    if (Auth.isAuthenticated()) {
+      try {
+        const profile = await api.get('/pro-trader/profile');
+        Storage.setProProfile(profile);
+        this.render(Storage.getUser(), profile);
+      } catch {
+        // Keep cached user info if the profile request is unavailable.
+      }
     }
   },
 };
@@ -182,9 +213,9 @@ const App = {
     Sidebar.init();
     HeaderUser.init();
 
-    // Notification bell (only on authenticated pages)
+    // Notification bell (only on authenticated pages) — non-blocking
     if (Auth.isAuthenticated()) {
-      await NotifBell.init();
+      NotifBell.init(); // No await — don't block UI rendering
 
       // Subscribe to realtime notifications
       const user = Storage.getUser();

@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Profile Setup</title>
+  
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise � Profile Setup</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -104,7 +107,7 @@
         <div style="display:flex;gap:var(--space-3);justify-content:flex-end;">
           <button class="btn btn-secondary" id="step4-back">Back</button>
           <button class="btn btn-primary" id="step4-finish">
-            <span class="btn-text">Start Learning →</span>
+            <span class="btn-text">Start Learning ?</span>
             <div class="btn-spinner spinner" aria-hidden="true"></div>
           </button>
         </div>
@@ -144,7 +147,7 @@
 
   <script type="module">
     import Auth from '../js/auth.js';
-    import { learnerProfileAPI } from '../js/api.js';
+    import { learnerProfileAPI } from '../js/api.js?v=api-host-3';
     import { MARKETS } from '../js/utils.js';
 
     Auth.requireAuth();

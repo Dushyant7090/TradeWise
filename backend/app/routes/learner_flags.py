@@ -23,7 +23,7 @@ def flag_trade(trade_id):
     """Flag/report a trade as fraudulent."""
     user_id = get_jwt_identity()
 
-    trade = Trade.query.get(trade_id)
+    trade = db.session.get(Trade, trade_id)
     if not trade:
         return jsonify({"error": "Trade not found"}), 404
 
@@ -71,7 +71,7 @@ def get_flags():
     flags = []
     for flag in paginated.items:
         entry = flag.to_dict()
-        trade = Trade.query.get(flag.trade_id)
+        trade = db.session.get(Trade, flag.trade_id)
         if trade:
             entry["trade_symbol"] = trade.symbol
             entry["trade_status"] = trade.status

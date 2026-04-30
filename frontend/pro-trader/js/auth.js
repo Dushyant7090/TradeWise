@@ -3,7 +3,7 @@
  */
 
 import Storage from './storage.js';
-import { authAPI } from './api.js';
+import { authAPI } from './api.js?v=api-host-4';
 
 const Auth = {
   // ===== AUTH STATUS =====
@@ -18,6 +18,11 @@ const Auth = {
   requireAuth() {
     if (!this.isAuthenticated()) {
       this.redirectToLogin();
+      return false;
+    }
+    const role = (Storage.getUser()?.role || '').toLowerCase();
+    if (role === 'public_trader' || role === 'learner') {
+      window.location.href = '/learner/pages/dashboard.html';
       return false;
     }
     return true;
@@ -39,10 +44,21 @@ const Auth = {
   },
 
   _storeSession(data) {
+    Storage.clearAll();
     if (data.token)         Storage.setToken(data.token);
     if (data.access_token)  Storage.setToken(data.access_token);
     if (data.refresh_token) Storage.setRefreshToken(data.refresh_token);
-    if (data.user)          Storage.setUser(data.user);
+    const user = {
+      ...(data.user || {}),
+      ...(data.profile ? {
+        role: data.profile.role,
+        display_name: data.profile.display_name,
+        avatar_url: data.profile.avatar_url,
+        profile_id: data.profile.id,
+      } : {}),
+    };
+    if (Object.keys(user).length) Storage.setUser(user);
+    if (data.profile?.role === 'pro_trader') Storage.setProProfile(data.profile);
   },
 
   // ===== REGISTER =====

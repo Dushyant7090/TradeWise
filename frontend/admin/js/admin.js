@@ -9,6 +9,11 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
   ? 'http://localhost:5000/api'
   : '/api';
 
+const ADMIN_GET_CACHE_TTL_MS = 15000;
+const ADMIN_GET_STALE_MS = 30000;
+const adminResponseCache = new Map();
+const adminInflight = new Map();
+
 /* ===== AUTH ===== */
 function getToken() { return localStorage.getItem('tw_admin_token'); }
 
@@ -28,18 +33,137 @@ function logout() {
   window.location.replace('../404.html');
 }
 
-async function apiRequest(path, options = {}) {
-  const token = getToken();
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
+function buildAdminCacheKey(method, path) {
+  return `${String(method || 'GET').toUpperCase()}:${path}`;
+}
+
+function makeCachedJsonResponse(payload) {
+  return new Response(JSON.stringify(payload), {
+    status: 200,
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
+      'X-TW-Cache': 'HIT',
     },
   });
-  if (res.status === 401) { logout(); return null; }
-  return res;
+}
+
+function invalidateAdminCache(scope = '') {
+  const matcher = String(scope || '');
+  [...adminResponseCache.keys()].forEach((key) => {
+    if (!matcher || key.includes(matcher)) {
+      adminResponseCache.delete(key);
+    }
+  });
+}
+
+async function apiRequest(path, options = {}) {
+  const {
+    forceRefresh = false,
+    noCache = false,
+    swr = true,
+    dedupe = true,
+    prefetch = false,
+    ...fetchOptions
+  } = options;
+
+  const method = String(fetchOptions.method || 'GET').toUpperCase();
+  const cacheable = method === 'GET' && !noCache;
+  const cacheKey = buildAdminCacheKey(method, path);
+  const now = Date.now();
+
+  if (cacheable && !forceRefresh) {
+    const cached = adminResponseCache.get(cacheKey);
+    if (cached) {
+      if (cached.expiresAt > now) {
+        return makeCachedJsonResponse(cached.payload);
+      }
+      if (cached.staleUntil > now && swr) {
+        void apiRequest(path, { ...options, forceRefresh: true, dedupe: true }).catch(() => null);
+        return makeCachedJsonResponse(cached.payload);
+      }
+      adminResponseCache.delete(cacheKey);
+    }
+  }
+
+  if (cacheable && dedupe && adminInflight.has(cacheKey)) {
+    const inflightResponse = await adminInflight.get(cacheKey);
+    return inflightResponse ? inflightResponse.clone() : inflightResponse;
+  }
+
+  const token = getToken();
+
+  const requestPromise = (async () => {
+    const response = await fetch(`${API_BASE}${path}`, {
+      ...fetchOptions,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(fetchOptions.headers || {}),
+      },
+    });
+
+    if (response.status === 401) {
+      logout();
+      return null;
+    }
+
+    if (cacheable && response && response.ok) {
+      const payload = await response.clone().json().catch(() => null);
+      if (payload && typeof payload === 'object') {
+        adminResponseCache.set(cacheKey, {
+          payload,
+          expiresAt: Date.now() + ADMIN_GET_CACHE_TTL_MS,
+          staleUntil: Date.now() + ADMIN_GET_CACHE_TTL_MS + ADMIN_GET_STALE_MS,
+        });
+      }
+    }
+
+    if (!cacheable && response && response.ok) {
+      const rootScope = path.split('?')[0].split('/').slice(0, 3).join('/');
+      invalidateAdminCache(rootScope || '/admin/');
+    }
+
+    return response;
+  })();
+
+  if (cacheable && dedupe) {
+    adminInflight.set(cacheKey, requestPromise);
+    requestPromise.finally(() => adminInflight.delete(cacheKey));
+  }
+
+  const finalResponse = await requestPromise;
+  if (prefetch) return finalResponse;
+  return finalResponse ? finalResponse.clone() : finalResponse;
+}
+
+const sectionPrefetchMap = {
+  overview: ['/admin/stats'],
+  analytics: [
+    '/admin/analytics/revenue',
+    '/admin/analytics/users',
+    '/admin/analytics/flags',
+    '/admin/analytics/payouts',
+  ],
+  users: ['/admin/users?page=1&per_page=20'],
+  trades: ['/admin/trades?page=1&per_page=20'],
+  payouts: ['/admin/payouts?page=1&per_page=20'],
+  reports: ['/admin/reports?page=1&per_page=20'],
+  comments: ['/admin/comments?page=1&per_page=20'],
+  kyc: ['/admin/kyc?page=1&per_page=20&status=pending'],
+};
+
+const prefetchedSections = new Set();
+
+function prefetchSectionData(section) {
+  const sectionName = String(section || '').toLowerCase();
+  if (!sectionName || prefetchedSections.has(sectionName)) return;
+  const endpoints = sectionPrefetchMap[sectionName];
+  if (!Array.isArray(endpoints) || endpoints.length === 0) return;
+
+  prefetchedSections.add(sectionName);
+  endpoints.forEach((endpoint) => {
+    apiRequest(endpoint, { prefetch: true, dedupe: true, swr: true }).catch(() => null);
+  });
 }
 
 /* ===== SECTION NAVIGATION ===== */
@@ -249,12 +373,78 @@ function destroyChart(id) {
 }
 
 const chartDefaults = {
-  color: '#a3a3a3',
   font: { family: 'Inter, sans-serif', size: 11 },
 };
 
-Chart.defaults.color = chartDefaults.color;
 Chart.defaults.font = chartDefaults.font;
+
+function cssVar(name, fallback) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+}
+
+function adminChartTheme() {
+  return {
+    text: cssVar('--text-secondary', '#a3a3a3'),
+    grid: cssVar('--border-subtle', 'rgba(255,255,255,0.05)'),
+  };
+}
+
+function applyChartTheme() {
+  if (typeof Chart === 'undefined') return;
+  const theme = adminChartTheme();
+  Chart.defaults.color = theme.text;
+  Chart.defaults.font = chartDefaults.font;
+
+  Object.values(charts).forEach(chart => {
+    if (!chart?.options?.scales) return;
+    Object.values(chart.options.scales).forEach(scale => {
+      scale.grid = { ...(scale.grid || {}), color: theme.grid };
+      scale.ticks = { ...(scale.ticks || {}), color: theme.text };
+    });
+    chart.update();
+  });
+}
+
+function currentAdminTheme() {
+  return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+}
+
+function updateAdminThemeToggle() {
+  const toggle = document.getElementById('themeToggleBtn');
+  if (!toggle) return;
+
+  const isDark = currentAdminTheme() === 'dark';
+  toggle.setAttribute('aria-pressed', String(isDark));
+  toggle.setAttribute('title', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+  toggle.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+  toggle.querySelector('.theme-icon-sun')?.classList.toggle('active', !isDark);
+  toggle.querySelector('.theme-icon-moon')?.classList.toggle('active', isDark);
+}
+
+function bindAdminThemeToggle() {
+  const toggle = document.getElementById('themeToggleBtn');
+  if (!toggle) return;
+
+  toggle.addEventListener('click', () => {
+    if (window.TradeWiseTheme?.toggleTheme) {
+      window.TradeWiseTheme.toggleTheme();
+    } else {
+      const next = currentAdminTheme() === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('theme', next); } catch (e) {}
+      window.dispatchEvent(new CustomEvent('tw:theme-changed', { detail: { theme: next } }));
+    }
+    updateAdminThemeToggle();
+  });
+
+  updateAdminThemeToggle();
+}
+
+applyChartTheme();
+window.addEventListener('tw:theme-changed', () => {
+  updateAdminThemeToggle();
+  applyChartTheme();
+});
 
 async function loadAnalytics() {
   try {
@@ -298,6 +488,7 @@ function buildChart(canvasId, type, labels, datasets, extraScaleOptions = {}) {
   destroyChart(canvasId);
   const ctx = document.getElementById(canvasId);
   if (!ctx) return;
+  const theme = adminChartTheme();
   charts[canvasId] = new Chart(ctx, {
     type,
     data: { labels, datasets },
@@ -309,8 +500,8 @@ function buildChart(canvasId, type, labels, datasets, extraScaleOptions = {}) {
         tooltip: { mode: 'index', intersect: false },
       },
       scales: {
-        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { maxRotation: 45 } },
-        y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true, stacked: extraScaleOptions.stacked || false },
+        x: { grid: { color: theme.grid }, ticks: { color: theme.text, maxRotation: 45 } },
+        y: { grid: { color: theme.grid }, ticks: { color: theme.text }, beginAtZero: true, stacked: extraScaleOptions.stacked || false },
       },
     },
   });
@@ -488,7 +679,7 @@ async function loadPayouts(page = 1) {
         <td>${fmtDate(p.completed_at)}</td>
         <td>
           <div class="table-actions">
-            ${p.status !== 'success' ? `<button class="btn btn-sm btn-primary" onclick="markPayoutPaid('${p.id}')">Mark Paid</button>` : ''}
+            ${['initiated', 'processing'].includes(p.status) ? `<button class="btn btn-sm btn-primary" onclick="markPayoutPaid('${p.id}')">Mark Paid</button>` : ''}
             ${p.status === 'success' ? `<button class="btn btn-sm btn-outline" onclick="markPayoutUnpaid('${p.id}')">Mark Unpaid</button>` : ''}
           </div>
         </td>
@@ -580,6 +771,7 @@ async function executeResolve() {
 
 /* ===== COMMENTS ===== */
 let commentsPage = 1;
+const commentsById = new Map();
 
 async function loadComments(page = 1) {
   commentsPage = page;
@@ -594,6 +786,8 @@ async function loadComments(page = 1) {
     if (!res || !res.ok) { tbody.innerHTML = '<tr><td colspan="5" class="table-loading">Failed to load.</td></tr>'; return; }
     const json = await res.json();
     const comments = json.comments || [];
+    commentsById.clear();
+    comments.forEach(comment => commentsById.set(comment.id, comment));
 
     if (comments.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="table-loading">No comments found.</td></tr>'; return; }
 
@@ -601,11 +795,14 @@ async function loadComments(page = 1) {
       <tr>
         <td>${esc(c.author_name || '—')}</td>
         <td><span class="badge badge-muted">${esc(c.trade_symbol || c.trade_id?.slice(0, 8) + '…' || '—')}</span></td>
-        <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(c.content)}">${esc(c.content)}</td>
+        <td class="comment-content-cell" title="${esc(c.content)}">
+          <div class="comment-content-text">${esc(c.content)}</div>
+          ${c.has_admin_reply ? `<div class="comment-reply-chip" title="${esc(c.admin_reply?.content || '')}">Replied: ${esc(c.admin_reply?.content || '').slice(0, 80)}</div>` : '<span class="badge badge-muted">Not replied</span>'}
+        </td>
         <td>${fmtDate(c.created_at)}</td>
         <td>
           <div class="table-actions">
-            <button class="btn btn-sm btn-outline" onclick="openReplyModal('${c.id}', '${escJS(c.content?.slice(0,60))}')">Reply</button>
+            <button class="btn btn-sm btn-outline" onclick="openReplyModal('${c.id}')">${c.has_admin_reply ? 'View Reply' : 'Reply'}</button>
             <button class="btn btn-sm btn-danger" onclick="deleteComment('${c.id}')">Delete</button>
           </div>
         </td>
@@ -619,10 +816,16 @@ async function loadComments(page = 1) {
 }
 
 let pendingReplyCommentId = null;
-function openReplyModal(commentId, preview) {
+function openReplyModal(commentId) {
   pendingReplyCommentId = commentId;
-  document.getElementById('replyPreview').textContent = preview;
-  document.getElementById('replyContent').value = '';
+  const comment = commentsById.get(commentId);
+  const existingReply = comment?.admin_reply?.content || '';
+  document.getElementById('replyPreview').innerHTML = `
+    <div class="reply-preview-label">Comment</div>
+    <div>${esc(comment?.content || '')}</div>
+    ${existingReply ? `<div class="reply-preview-label reply-preview-label-spaced">Saved admin reply</div><div class="saved-reply-text">${esc(existingReply)}</div>` : ''}
+  `;
+  document.getElementById('replyContent').value = existingReply;
   openModal('replyModal');
 }
 async function executeReply() {
@@ -634,8 +837,8 @@ async function executeReply() {
     body: JSON.stringify({ content }),
   });
   closeModal('replyModal');
-  if (res?.ok) { showToast('Reply posted.'); loadComments(commentsPage); }
-  else { showToast('Failed to post reply.', 'error'); }
+  if (res?.ok) { showToast('Reply saved.'); loadComments(commentsPage); }
+  else { showToast('Failed to save reply.', 'error'); }
   pendingReplyCommentId = null;
 }
 
@@ -648,6 +851,8 @@ async function deleteComment(commentId) {
 
 /* ===== KYC ===== */
 let kycPage = 1;
+const kycDocumentsByUser = new Map();
+let activeKYCDocuments = [];
 
 async function loadKYC(page = 1) {
   kycPage = page;
@@ -662,6 +867,8 @@ async function loadKYC(page = 1) {
     if (!res || !res.ok) { tbody.innerHTML = '<tr><td colspan="6" class="table-loading">Failed to load.</td></tr>'; return; }
     const json = await res.json();
     const requests = json.kyc_requests || [];
+    kycDocumentsByUser.clear();
+    requests.forEach(k => kycDocumentsByUser.set(k.user_id, k));
 
     if (requests.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="table-loading">No KYC requests found.</td></tr>'; return; }
 
@@ -676,7 +883,12 @@ async function loadKYC(page = 1) {
           </div>
         </td>
         <td><span class="user-email">${esc(k.email || '—')}</span></td>
-        <td><span class="badge badge-info">${k.document_count || 0} doc(s)</span></td>
+        <td>
+          <button class="document-count-btn" type="button" onclick="openKYCDocuments('${k.user_id}')">
+            <span class="badge badge-info">${k.document_count || 0} doc(s)</span>
+            <span>View</span>
+          </button>
+        </td>
         <td>${statusBadge(k.kyc_status)}</td>
         <td>${fmtDate(k.created_at)}</td>
         <td>
@@ -694,6 +906,126 @@ async function loadKYC(page = 1) {
   } catch (e) {
     tbody.innerHTML = '<tr><td colspan="6" class="table-loading">Error loading KYC requests.</td></tr>';
   }
+}
+
+function documentTypeLabel(type) {
+  const labels = {
+    aadhaar: 'Aadhaar',
+    pan: 'PAN',
+    passport: 'Passport',
+    voter_id: 'Voter ID',
+    driving_license: 'Driving License',
+    bank_statement: 'Bank Statement',
+  };
+  return labels[type] || (type ? String(type).replace(/_/g, ' ') : 'Document');
+}
+
+function openKYCDocuments(userId) {
+  const request = kycDocumentsByUser.get(userId);
+  const docs = request?.documents || [];
+  const title = document.getElementById('kycDocumentsTitle');
+  const subtitle = document.getElementById('kycDocumentsSubtitle');
+  const list = document.getElementById('kycDocumentsList');
+  const preview = document.getElementById('kycDocumentPreview');
+  const previewFrame = document.getElementById('kycPreviewFrame');
+  activeKYCDocuments = docs;
+
+  if (title) title.textContent = request?.display_name || request?.email || 'KYC Documents';
+  if (subtitle) {
+    subtitle.textContent = `${request?.email || 'Pro trader'} - ${statusBadgeText(request?.kyc_status)} - ${docs.length} uploaded file${docs.length === 1 ? '' : 's'}`;
+  }
+  if (list) list.classList.remove('hidden');
+  if (preview) preview.classList.add('hidden');
+  if (previewFrame) previewFrame.innerHTML = '';
+
+  if (!list) return;
+  if (docs.length === 0) {
+    list.innerHTML = `
+      <div class="kyc-document-empty">
+        <strong>No documents uploaded yet.</strong>
+        <span>This trader has no KYC files attached to the submission.</span>
+      </div>
+    `;
+  } else {
+    list.innerHTML = docs.map((doc) => {
+      const viewUrl = doc.view_url || doc.url || '';
+      const isPdf = String(doc.content_type || '').includes('pdf') || String(doc.filename || '').toLowerCase().endsWith('.pdf');
+      return `
+        <article class="kyc-document-card">
+          <div class="document-file-icon">${isPdf ? 'PDF' : 'IMG'}</div>
+          <div class="document-file-meta">
+            <div class="document-file-name">${esc(doc.filename || 'Uploaded document')}</div>
+            <div class="document-file-detail">
+              ${esc(documentTypeLabel(doc.type))} - ${esc(doc.content_type || 'file')} - ${fmtDate(doc.uploaded_at)}
+            </div>
+            ${doc.storage_path ? `<div class="document-file-path">${esc(doc.storage_path)}</div>` : ''}
+          </div>
+          <div class="document-file-actions">
+            ${viewUrl ? `
+              <button class="btn btn-sm btn-primary" type="button" onclick="previewKYCDocument('${escJS(doc.id)}')">Open</button>
+            ` : '<span class="badge badge-danger">Unavailable</span>'}
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
+  openModal('kycDocumentsModal');
+}
+
+function previewKYCDocument(docId) {
+  const doc = activeKYCDocuments.find(item => String(item.id) === String(docId));
+  if (!doc) return;
+
+  const viewUrl = doc.view_url || doc.url || '';
+  const list = document.getElementById('kycDocumentsList');
+  const preview = document.getElementById('kycDocumentPreview');
+  const title = document.getElementById('kycPreviewTitle');
+  const meta = document.getElementById('kycPreviewMeta');
+  const frame = document.getElementById('kycPreviewFrame');
+  if (!viewUrl || !preview || !frame) return;
+
+  const contentType = String(doc.content_type || '').toLowerCase();
+  const filename = String(doc.filename || 'Document');
+  const isPdf = contentType.includes('pdf') || filename.toLowerCase().endsWith('.pdf');
+  const isImage = contentType.includes('image') || /\.(png|jpe?g|webp|gif)$/i.test(filename);
+
+  if (title) title.textContent = filename;
+  if (meta) meta.textContent = `${documentTypeLabel(doc.type)} - ${doc.content_type || 'file'} - ${fmtDate(doc.uploaded_at)}`;
+
+  if (isPdf) {
+    frame.innerHTML = `<iframe class="kyc-preview-embed" src="${esc(viewUrl)}" title="${esc(filename)}"></iframe>`;
+  } else if (isImage) {
+    frame.innerHTML = `<img class="kyc-preview-image" src="${esc(viewUrl)}" alt="${esc(filename)}" />`;
+  } else {
+    frame.innerHTML = `
+      <div class="kyc-preview-unavailable">
+        <strong>Preview is not available for this file type.</strong>
+        <span>${esc(filename)}</span>
+      </div>
+    `;
+  }
+
+  if (list) list.classList.add('hidden');
+  preview.classList.remove('hidden');
+}
+
+function closeKYCPreview() {
+  const list = document.getElementById('kycDocumentsList');
+  const preview = document.getElementById('kycDocumentPreview');
+  const frame = document.getElementById('kycPreviewFrame');
+  if (frame) frame.innerHTML = '';
+  if (preview) preview.classList.add('hidden');
+  if (list) list.classList.remove('hidden');
+}
+
+function statusBadgeText(status) {
+  const labels = {
+    pending: 'Pending review',
+    verified: 'Verified',
+    rejected: 'Rejected',
+  };
+  return labels[status] || 'KYC status unknown';
 }
 
 async function approveKYC(userId, name) {
@@ -793,18 +1125,26 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       switchSection(link.dataset.section);
     });
+    link.addEventListener('mouseenter', () => {
+      prefetchSectionData(link.dataset.section);
+    });
+    link.addEventListener('focus', () => {
+      prefetchSectionData(link.dataset.section);
+    });
   });
 
   // Sidebar toggle (mobile)
   document.getElementById('sidebarToggleBtn')?.addEventListener('click', openSidebar);
   document.getElementById('sidebarCloseBtn')?.addEventListener('click', closeSidebar);
   document.getElementById('sidebarOverlay')?.addEventListener('click', closeSidebar);
+  bindAdminThemeToggle();
 
   // Logout
   document.getElementById('logoutBtn')?.addEventListener('click', logout);
 
   // Refresh
   document.getElementById('refreshBtn')?.addEventListener('click', () => {
+    invalidateAdminCache('/admin/');
     const activeSection = document.querySelector('.section.active')?.id?.replace('section-', '') || 'overview';
     switchSection(activeSection);
     showToast('Data refreshed.');

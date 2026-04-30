@@ -1,0 +1,235 @@
+/* =====================================================
+   theme.css — Pro Trader Theme Overrides
+   ===================================================== */
+
+.theme-toggle-btn {
+  min-width: 142px;
+  border-color: var(--border-medium);
+  white-space: nowrap;
+}
+
+.theme-toggle-btn[data-theme-state='dark'] {
+  color: var(--color-primary);
+  border-color: var(--color-primary-glow);
+  background: var(--color-primary-light);
+}
+
+html[data-app='pro-trader'][data-theme='light'] {
+  color-scheme: light;
+
+  --color-primary: #0f9f77;
+  --color-primary-dark: #0c7f60;
+  --color-primary-light: rgba(15, 159, 119, 0.14);
+  --color-primary-glow: rgba(15, 159, 119, 0.24);
+
+  --bg-dark: #f2f6f5;
+  --bg-surface: rgba(255, 255, 255, 0.94);
+  --bg-card: rgba(255, 255, 255, 0.84);
+  --bg-card-hover: rgba(240, 247, 244, 0.92);
+  --bg-input: #ffffff;
+  --bg-overlay: rgba(17, 24, 39, 0.4);
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-disabled: #94a3b8;
+
+  --border-subtle: rgba(15, 23, 42, 0.1);
+  --border-medium: rgba(15, 23, 42, 0.18);
+  --border-strong: rgba(15, 23, 42, 0.28);
+
+  --color-success-bg: rgba(16, 185, 129, 0.12);
+  --color-warning-bg: rgba(245, 158, 11, 0.14);
+  --color-danger-bg: rgba(239, 68, 68, 0.12);
+  --color-info-bg: rgba(59, 130, 246, 0.12);
+
+  --shadow-sm: 0 1px 4px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 18px 40px rgba(15, 23, 42, 0.12);
+  --shadow-glow: 0 0 20px rgba(15, 159, 119, 0.15);
+}
+
+html[data-app='pro-trader'][data-theme='light'] body {
+  background:
+    radial-gradient(1200px 540px at -10% -20%, rgba(15, 159, 119, 0.12), transparent 60%),
+    radial-gradient(900px 460px at 120% 0%, rgba(59, 130, 246, 0.12), transparent 60%),
+    linear-gradient(140deg, #f7faf8 0%, #eef4f9 45%, #f7f5ef 100%),
+    #f2f6f5;
+}
+
+html[data-app='pro-trader'][data-theme='light'] .app-layout,
+html[data-app='pro-trader'][data-theme='light'] .main-content,
+html[data-app='pro-trader'][data-theme='light'] .page-content {
+  background: transparent;
+}
+
+html[data-app='pro-trader'][data-theme='light'] .sidebar {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 252, 251, 0.95)),
+    #ffffff;
+  box-shadow: 10px 0 28px rgba(15, 23, 42, 0.08);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .topbar {
+  background-color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(14px);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .card,
+html[data-app='pro-trader'][data-theme='light'] .metric-card,
+html[data-app='pro-trader'][data-theme='light'] .stat-item,
+html[data-app='pro-trader'][data-theme='light'] .trade-card,
+html[data-app='pro-trader'][data-theme='light'] .activity-item,
+html[data-app='pro-trader'][data-theme='light'] .analytics-score-card,
+html[data-app='pro-trader'][data-theme='light'] .kyc-doc-card,
+html[data-app='pro-trader'][data-theme='light'] .profile-avatar-section,
+html[data-app='pro-trader'][data-theme='light'] .profile-summary-item,
+html[data-app='pro-trader'][data-theme='light'] .password-collapsed,
+html[data-app='pro-trader'][data-theme='light'] .notification-item,
+html[data-app='pro-trader'][data-theme='light'] .settings-section,
+html[data-app='pro-trader'][data-theme='light'] .modal {
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(8px);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .metric-card,
+html[data-app='pro-trader'][data-theme='light'] .card,
+html[data-app='pro-trader'][data-theme='light'] .trade-card,
+html[data-app='pro-trader'][data-theme='light'] .activity-item,
+html[data-app='pro-trader'][data-theme='light'] .analytics-score-card,
+html[data-app='pro-trader'][data-theme='light'] .kyc-doc-card,
+html[data-app='pro-trader'][data-theme='light'] .settings-section,
+html[data-app='pro-trader'][data-theme='light'] .profile-avatar-section,
+html[data-app='pro-trader'][data-theme='light'] .profile-summary-item,
+html[data-app='pro-trader'][data-theme='light'] .password-collapsed,
+html[data-app='pro-trader'][data-theme='light'] .notification-item {
+  background: rgba(255, 255, 255, 0.86);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .metric-card:hover,
+html[data-app='pro-trader'][data-theme='light'] .card:hover,
+html[data-app='pro-trader'][data-theme='light'] .trade-card:hover,
+html[data-app='pro-trader'][data-theme='light'] .activity-item:hover,
+html[data-app='pro-trader'][data-theme='light'] .notification-item:hover {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(15, 159, 119, 0.24);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .trade-card-expand,
+html[data-app='pro-trader'][data-theme='light'] .comments-section,
+html[data-app='pro-trader'][data-theme='light'] .modal-footer,
+html[data-app='pro-trader'][data-theme='light'] .settings-row,
+html[data-app='pro-trader'][data-theme='light'] .table th,
+html[data-app='pro-trader'][data-theme='light'] .table td {
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+html[data-app='pro-trader'][data-theme='light'] input,
+html[data-app='pro-trader'][data-theme='light'] textarea,
+html[data-app='pro-trader'][data-theme='light'] select,
+html[data-app='pro-trader'][data-theme='light'] .input,
+html[data-app='pro-trader'][data-theme='light'] .search-input {
+  background: #ffffff;
+  color: var(--text-primary);
+  border-color: rgba(15, 23, 42, 0.16);
+}
+
+html[data-app='pro-trader'][data-theme='light'] input::placeholder,
+html[data-app='pro-trader'][data-theme='light'] textarea::placeholder {
+  color: #94a3b8;
+}
+
+html[data-app='pro-trader'][data-theme='light'] input:focus,
+html[data-app='pro-trader'][data-theme='light'] textarea:focus,
+html[data-app='pro-trader'][data-theme='light'] select:focus,
+html[data-app='pro-trader'][data-theme='light'] .input:focus {
+  border-color: rgba(15, 159, 119, 0.45);
+  box-shadow: 0 0 0 3px rgba(15, 159, 119, 0.12);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .table-container,
+html[data-app='pro-trader'][data-theme='light'] .tabs,
+html[data-app='pro-trader'][data-theme='light'] .rrr-display,
+html[data-app='pro-trader'][data-theme='light'] .comment-body {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .table th {
+  background: rgba(240, 247, 244, 0.88);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .table tr:hover td {
+  background: rgba(240, 247, 244, 0.72);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .tab.active,
+html[data-app='pro-trader'][data-theme='light'] .filter-chip.active {
+  background: rgba(15, 159, 119, 0.14);
+  color: var(--color-primary);
+  border-color: rgba(15, 159, 119, 0.28);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .filter-chip,
+html[data-app='pro-trader'][data-theme='light'] .radio-item,
+html[data-app='pro-trader'][data-theme='light'] .checkbox-item {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .file-dropzone {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(15, 23, 42, 0.18);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .file-dropzone:hover,
+html[data-app='pro-trader'][data-theme='light'] .file-dropzone.dragover {
+  background: rgba(15, 159, 119, 0.1);
+  border-color: rgba(15, 159, 119, 0.42);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .balance-hero {
+  background: linear-gradient(135deg, rgba(15, 159, 119, 0.16), rgba(255, 255, 255, 0.76));
+  border-color: rgba(15, 159, 119, 0.28);
+  box-shadow: var(--shadow-sm);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .notification-item.unread {
+  background: rgba(15, 159, 119, 0.08);
+  border-left-color: var(--color-primary);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .modal {
+  background: #ffffff;
+}
+
+html[data-app='pro-trader'][data-theme='light'] .toast {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.14);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .loading-overlay {
+  background: rgba(255, 255, 255, 0.58);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .notif-badge {
+  border-color: #f2f6f5;
+}
+
+html[data-app='pro-trader'][data-theme='light'] .sidebar-overlay,
+html[data-app='pro-trader'][data-theme='light'] .modal-overlay {
+  background: rgba(15, 23, 42, 0.36);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .theme-toggle-btn {
+  border-color: rgba(15, 159, 119, 0.28);
+  color: #0b6b50;
+  background: rgba(15, 159, 119, 0.08);
+}
+
+html[data-app='pro-trader'][data-theme='light'] .theme-toggle-btn:hover {
+  background: rgba(15, 159, 119, 0.16);
+  border-color: rgba(15, 159, 119, 0.42);
+}

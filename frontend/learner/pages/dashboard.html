@@ -1,9 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Dashboard</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise — Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -11,7 +16,7 @@
   <link rel="stylesheet" href="../../shared/css/components.css" />
   <link rel="stylesheet" href="../../shared/css/pages.css" />
   <link rel="stylesheet" href="../css/learner.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
@@ -19,9 +24,9 @@
 
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar" aria-label="Main navigation">
-    <a href="dashboard.html" class="sidebar-logo">
-      <span>Trade<span class="accent" style="color:var(--color-primary);">Wise</span></span>
-      <span class="sidebar-logo-learner" style="font-size:.7rem;color:var(--color-primary);margin-left:6px;">Learner</span>
+    <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+      <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+      <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
     </a>
     <nav class="sidebar-nav">
       <div class="nav-section">
@@ -103,12 +108,12 @@
 
     <main class="page-content" id="page-content">
       <div class="page-header">
-        <h2 class="page-title">Welcome back, <span id="username-display">Learner</span> 👋</h2>
+        <h2 class="page-title">Welcome back, <span id="username-display">Learner</span></h2>
         <p class="page-subtitle">Here's your learning overview for today</p>
       </div>
 
-      <!-- Credit display + streak -->
-      <div style="display:grid;grid-template-columns:1fr auto;gap:var(--space-5);margin-bottom:var(--space-6);align-items:start;">
+      <!-- Credit display -->
+      <div style="margin-bottom:var(--space-6);">
         <div class="credit-display">
           <div class="credit-display-row">
             <span class="credit-label">Available Credits</span>
@@ -122,26 +127,21 @@
             <a href="feed.html" style="font-size:.75rem;">Browse Feed →</a>
           </div>
         </div>
-        <div id="streak-wrap"></div>
       </div>
 
       <!-- Stats grid -->
       <div class="stat-grid" id="stats-grid">
         <div class="stat-item">
-          <div class="stat-value" id="stat-unlocked">—</div>
+          <div class="stat-value" id="stat-unlocked"><span class="tw-skeleton tw-skeleton-line" style="width:40px;height:24px;display:inline-block;"></span></div>
           <div class="stat-label">Trades Unlocked</div>
         </div>
         <div class="stat-item">
-          <div class="stat-value" id="stat-subs">—</div>
+          <div class="stat-value" id="stat-subs"><span class="tw-skeleton tw-skeleton-line" style="width:30px;height:24px;display:inline-block;"></span></div>
           <div class="stat-label">Active Subscriptions</div>
         </div>
         <div class="stat-item">
-          <div class="stat-value" id="stat-winrate">—</div>
+          <div class="stat-value" id="stat-winrate"><span class="tw-skeleton tw-skeleton-line" style="width:50px;height:24px;display:inline-block;"></span></div>
           <div class="stat-label">Win Rate Observed</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value" id="stat-streak">—</div>
-          <div class="stat-label">Day Streak</div>
         </div>
       </div>
 
@@ -152,7 +152,10 @@
           <a href="my-subscriptions.html" style="font-size:.875rem;">View All →</a>
         </div>
         <div class="featured-traders" id="featured-traders">
-          <div class="spinner" style="margin:var(--space-4) auto;"></div>
+          <div style="display:flex;gap:12px;">
+            <div class="tw-skeleton-card" style="display:flex;align-items:center;gap:10px;padding:10px 14px;flex:1;"><span class="tw-skeleton tw-skeleton-avatar"></span><div style="flex:1;"><span class="tw-skeleton tw-skeleton-line" style="width:80px;height:14px;display:block;"></span><span class="tw-skeleton tw-skeleton-line" style="width:60px;height:10px;display:block;margin-top:4px;"></span></div></div>
+            <div class="tw-skeleton-card" style="display:flex;align-items:center;gap:10px;padding:10px 14px;flex:1;"><span class="tw-skeleton tw-skeleton-avatar"></span><div style="flex:1;"><span class="tw-skeleton tw-skeleton-line" style="width:80px;height:14px;display:block;"></span><span class="tw-skeleton tw-skeleton-line" style="width:60px;height:10px;display:block;margin-top:4px;"></span></div></div>
+          </div>
         </div>
       </div>
 
@@ -163,7 +166,10 @@
           <a href="my-history.html" style="font-size:.875rem;">View All →</a>
         </div>
         <div id="recent-trades">
-          <div class="spinner" style="margin:var(--space-4) auto;"></div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="tw-skeleton-card" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;"><span class="tw-skeleton tw-skeleton-line" style="width:60px;height:16px;display:inline-block;"></span><span class="tw-skeleton tw-skeleton-line" style="width:50px;height:14px;display:inline-block;"></span><span class="tw-skeleton tw-skeleton-line" style="width:40px;height:12px;display:inline-block;"></span></div>
+            <div class="tw-skeleton-card" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;"><span class="tw-skeleton tw-skeleton-line" style="width:60px;height:16px;display:inline-block;"></span><span class="tw-skeleton tw-skeleton-line" style="width:50px;height:14px;display:inline-block;"></span><span class="tw-skeleton tw-skeleton-line" style="width:40px;height:12px;display:inline-block;"></span></div>
+          </div>
         </div>
       </div>
 
@@ -184,12 +190,14 @@
 
 <script type="module">
   import Auth from '../js/auth.js';
-  import { learnerProfileAPI } from '../js/api.js';
-  import { createLearningProgressChart } from '../js/charts.js';
-  import { timeAgo, getInitials } from '../js/utils.js';
-  import Realtime from '../js/realtime.js';
+import { learnerProfileAPI } from '../js/api.js?v=api-host-3';
+import { createLearningProgressChart } from '../js/charts.js';
+import { timeAgo, getInitials } from '../js/utils.js';
+import Realtime from '../js/realtime.js';
+import { initLearnerSidebarProfile } from '../js/sidebar-profile.js';
 
-  if (!Auth.requireAuth()) throw new Error('Not authenticated');
+if (!Auth.requireAuth()) throw new Error('Not authenticated');
+initLearnerSidebarProfile();
 
   // ===== TOAST =====
   window.Toast = {
@@ -240,20 +248,20 @@
       document.getElementById('stat-subs').textContent = data.active_subscriptions ?? 0;
       document.getElementById('stat-winrate').textContent = data.win_rate != null ? data.win_rate + '%' : '—';
 
-      // Streak
-      const streak = data.streak || 0;
-      document.getElementById('stat-streak').textContent = streak;
-      if (streak > 0) {
-        document.getElementById('streak-wrap').innerHTML = `<div class="streak-badge">🔥 ${streak}-day streak</div>`;
-      }
-
       // Sidebar username
       const profile = data.profile || Auth.getLearnerProfile() || {};
       const user = Auth.getCurrentUser() || {};
       const name = profile.display_name || user.email?.split('@')[0] || 'Learner';
       document.getElementById('username-display').textContent = name;
       document.getElementById('sidebar-username').textContent = name;
-      document.getElementById('sidebar-avatar').textContent = getInitials(name);
+
+      const sbAvatar = document.getElementById('sidebar-avatar');
+      const avatarUrl = profile.avatar_url || profile.profile_image;
+      if (avatarUrl) {
+        sbAvatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.onerror=null; this.parentElement.textContent='${getInitials(name)}';">`;
+      } else {
+        sbAvatar.textContent = getInitials(name);
+      }
 
       // Featured traders
       renderFeaturedTraders(data.featured_traders || []);
@@ -281,14 +289,18 @@
   function renderFeaturedTraders(traders) {
     const wrap = document.getElementById('featured-traders');
     if (!traders.length) { wrap.innerHTML = '<p style="color:var(--text-muted);font-size:.875rem;">No featured traders yet.</p>'; return; }
-    wrap.innerHTML = traders.map(t => `
-      <div class="featured-trader-chip" onclick="location.href='my-subscriptions.html?trader=${t.id}'">
-        <div class="trader-mini-avatar">${getInitials(t.display_name||t.name||'T')}</div>
+    wrap.innerHTML = traders.map(t => {
+      const imgUrl = t.profile_picture_url || t.avatar_url;
+      const initials = getInitials(t.display_name||t.name||'T');
+      return `
+      <div class="featured-trader-chip" onclick="location.href='my-subscriptions.html?trader=${t.trader_id||t.id}'">
+        <div class="trader-mini-avatar">${imgUrl ? `<img src="${imgUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.onerror=null; this.parentElement.textContent='${initials}';">` : initials}</div>
         <div>
           <div style="font-size:.875rem;font-weight:600;">${t.display_name||t.name||'Trader'}</div>
           <div style="font-size:.75rem;color:var(--color-success);">${t.accuracy_score??0}% accuracy</div>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
 
   function renderRecentTrades(trades) {

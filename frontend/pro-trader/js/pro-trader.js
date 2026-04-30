@@ -7,9 +7,11 @@
 'use strict';
 
 /* ===== CONFIG ===== */
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:5000/api'
-  : '/api';
+const FALLBACK_LOCAL_API_BASE = 'http://localhost:5000/api';
+const configuredApiBase = window.TW_API_BASE_URL || localStorage.getItem('tw_api_base_url') || FALLBACK_LOCAL_API_BASE;
+const API_BASE = /^https?:\/\/(localhost|127\.0\.0\.1|\[?::1\]?):5000\/api$/i.test(configuredApiBase)
+  ? configuredApiBase.replace(/\/$/, '')
+  : configuredApiBase.replace(/\/$/, '').replace(/^https?:\/\/10\.25\.183\.119:5000\/api$/i, FALLBACK_LOCAL_API_BASE);
 
 const TOKEN_KEY = 'tw_jwt_token';
 const USER_KEY  = 'tw_user';

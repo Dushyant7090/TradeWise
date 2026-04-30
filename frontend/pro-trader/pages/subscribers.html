@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Subscribers</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise - Subscribers</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -11,11 +14,15 @@
   <link rel="stylesheet" href="../../shared/css/components.css" />
   <link rel="stylesheet" href="../../shared/css/pages.css" />
   <link rel="stylesheet" href="../../shared/css/responsive.css" />
+  <link rel="stylesheet" href="../css/theme.css?v=theme-sync-4" />
 </head>
 <body>
   <div class="app-layout">
     <aside class="sidebar" id="sidebar" aria-label="Main navigation">
-      <a href="dashboard.html" class="sidebar-logo"><span>TradeWise Pro</span></a>
+      <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+        <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+        <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
+      </a>
             <nav class="sidebar-nav">
         <div class="nav-section">
           <div class="nav-section-label">Overview</div>
@@ -60,6 +67,15 @@
           </a>
         </div>
       </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="avatar-placeholder" id="sidebar-avatar" aria-hidden="true">P</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebar-user-name">Pro Trader</div>
+            <div class="sidebar-user-role">Pro Trader</div>
+          </div>
+        </div>
+      </div>
     </aside>
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 
@@ -91,21 +107,21 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
             </div>
             <div class="metric-label">Total Subscribers</div>
-            <div class="metric-value" id="total-subs">—</div>
+            <div class="metric-value" id="total-subs">-</div>
           </div>
           <div class="metric-card">
             <div class="metric-icon" aria-hidden="true">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
             <div class="metric-label">Active Subscribers</div>
-            <div class="metric-value success" id="active-subs">—</div>
+            <div class="metric-value success" id="active-subs">-</div>
           </div>
           <div class="metric-card">
             <div class="metric-icon" aria-hidden="true">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
             </div>
             <div class="metric-label">Monthly Recurring Revenue</div>
-            <div class="metric-value success" id="mrr">—</div>
+            <div class="metric-value success" id="mrr">-</div>
           </div>
         </div>
 
@@ -143,12 +159,12 @@
 
   <script type="module">
     import Auth from '../js/auth.js';
-    import { subscribersAPI, earningsAPI } from '../js/api.js';
+    import { subscribersAPI, earningsAPI } from '../js/api.js?v=api-host-3';
     import { formatCurrency, formatDate, debounce } from '../js/utils.js';
-    import App from '../js/main.js';
+    import App from '../js/main.js?v=sidebar-kyc-1';
 
     if (!Auth.requireAuth()) throw new Error('Not authenticated');
-    window.Toast = { show(m, t = 'info') { const c = document.getElementById('toast-container'); const el = document.createElement('div'); el.className = `toast toast-${t}`; el.innerHTML = `<div class="toast-content"><div class="toast-message">${m}</div></div><button class="toast-dismiss">×</button>`; c.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); const d = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }; el.querySelector('.toast-dismiss').addEventListener('click', d); setTimeout(d, 4000); } };
+    window.Toast = { show(m, t = 'info') { const c = document.getElementById('toast-container'); const el = document.createElement('div'); el.className = `toast toast-${t}`; el.innerHTML = `<div class="toast-content"><div class="toast-message">${m}</div></div><button class="toast-dismiss">x</button>`; c.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); const d = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }; el.querySelector('.toast-dismiss').addEventListener('click', d); setTimeout(d, 4000); } };
     App.init();
 let allSubs = [];
 
@@ -167,7 +183,8 @@ let allSubs = [];
 
           if (earningsData.status === 'fulfilled') {
             const price = earningsData.value.subscription_price ?? earningsData.value.monthly_subscription_price ?? 0;
-            document.getElementById('mrr').textContent = formatCurrency(active * price);
+            const mrr = earningsData.value.monthly_recurring_revenue ?? (active * price);
+            document.getElementById('mrr').textContent = formatCurrency(mrr);
           }
 
           renderTable(allSubs);

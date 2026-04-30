@@ -16,15 +16,69 @@ from flask_jwt_extended import get_jwt_identity
 from sqlalchemy import func
 
 from app import db
-from app.middleware import require_pro_trader
+from app.middleware import require_pro_trader, require_verified_trader
 from app.models.pro_trader_profile import ProTraderProfile
 from app.models.payout import Payout
 from app.models.revenue_split import RevenueSplit
 from app.models.payment import Payment
+from app.models.subscription import Subscription
+from app.models.subscription_plan import SubscriptionPlan
 from app.utils.encryption import decrypt_value
 
 logger = logging.getLogger(__name__)
 earnings_bp = Blueprint("earnings", __name__)
+
+
+def _effective_subscription_price(user_id: str, pt_profile: ProTraderProfile) -> float:
+    """Return the active one-month plan price, falling back to legacy profile price."""
+    active_plan = SubscriptionPlan.query.filter_by(
+        trader_id=user_id,
+        duration_months=1,
+        is_active=True,
+    ).order_by(SubscriptionPlan.updated_at.desc()).first()
+
+    if active_plan and active_plan.price_paise:
+        return float(active_plan.price_paise or 0) / 100.0
+
+    return float(pt_profile.monthly_subscription_price or 0)
+
+
+def _ensure_revenue_split(payment: Payment) -> RevenueSplit:
+    """Create the 90/10 split row for successful payments if it is missing."""
+    existing = RevenueSplit.query.filter_by(payment_id=payment.id).first()
+    if existing:
+        return existing
+
+    amount = float(payment.amount or 0)
+    split = RevenueSplit(
+        payment_id=payment.id,
+        trader_id=payment.trader_id,
+        pro_trader_amount=round(amount * 0.9, 2),
+        admin_amount=round(amount * 0.1, 2),
+        split_percentage_pro=90,
+        split_percentage_admin=10,
+        pro_trader_wallet_credited=True,
+        admin_wallet_credited=True,
+    )
+    db.session.add(split)
+    return split
+
+
+def _backfill_missing_success_splits(user_id: str) -> None:
+    """Keep older successful payments compatible with earnings/monthly charts."""
+    successful_payments = Payment.query.filter(
+        Payment.trader_id == user_id,
+        Payment.status == "success",
+    ).all()
+
+    created = False
+    for payment in successful_payments:
+        if not RevenueSplit.query.filter_by(payment_id=payment.id).first():
+            _ensure_revenue_split(payment)
+            created = True
+
+    if created:
+        db.session.commit()
 
 
 @earnings_bp.route("/earnings", methods=["GET"])
@@ -36,8 +90,11 @@ def get_earnings():
     if not pt_profile:
         return jsonify({"error": "Profile not found"}), 404
 
+    _backfill_missing_success_splits(user_id)
+
     now = datetime.now(timezone.utc)
     month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    price = _effective_subscription_price(user_id, pt_profile)
 
     monthly = db.session.query(func.sum(RevenueSplit.pro_trader_amount)).join(
         Payment, RevenueSplit.payment_id == Payment.id
@@ -47,10 +104,20 @@ def get_earnings():
         Payment.status == "success",
     ).scalar()
 
+    active_subscribers = Subscription.query.filter(
+        Subscription.trader_id == user_id,
+        Subscription.status == "active",
+        Subscription.ends_at > now,
+    ).count()
+
     return jsonify({
         "total_earnings": float(pt_profile.total_earnings or 0),
         "available_balance": float(pt_profile.available_balance or 0),
         "monthly_earnings": float(monthly) if monthly else 0.0,
+        "subscription_price": price,
+        "monthly_subscription_price": price,
+        "monthly_recurring_revenue": round(active_subscribers * price, 2),
+        "active_subscribers": active_subscribers,
     }), 200
 
 
@@ -62,8 +129,10 @@ def get_subscription_price():
     pt_profile = ProTraderProfile.query.filter_by(user_id=user_id).first()
     if not pt_profile:
         return jsonify({"error": "Profile not found"}), 404
+    price = _effective_subscription_price(user_id, pt_profile)
     return jsonify({
-        "monthly_subscription_price": float(pt_profile.monthly_subscription_price or 0)
+        "monthly_subscription_price": price,
+        "subscription_price": price,
     }), 200
 
 
@@ -86,11 +155,27 @@ def set_subscription_price():
         return jsonify({"error": "Price cannot be negative"}), 400
 
     pt_profile.monthly_subscription_price = price
+    active_plan = SubscriptionPlan.query.filter_by(
+        trader_id=user_id,
+        duration_months=1,
+        is_active=True,
+    ).order_by(SubscriptionPlan.updated_at.desc()).first()
+    if active_plan:
+        active_plan.price_paise = int(round(price * 100))
+    else:
+        db.session.add(SubscriptionPlan(
+            trader_id=user_id,
+            plan_name="1 Month",
+            duration_months=1,
+            price_paise=int(round(price * 100)),
+            is_active=True,
+        ))
     db.session.commit()
 
     return jsonify({
         "message": "Subscription price updated",
         "monthly_subscription_price": price,
+        "subscription_price": price,
     }), 200
 
 
@@ -129,7 +214,7 @@ def get_payouts():
 
 
 @earnings_bp.route("/payouts/initiate", methods=["POST"])
-@require_pro_trader
+@require_verified_trader
 def initiate_payout():
     """Initiate a withdrawal via Cashfree Payouts."""
     user_id = get_jwt_identity()

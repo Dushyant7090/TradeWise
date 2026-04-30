@@ -1,0 +1,8 @@
+[functions.create-order]
+verify_jwt = false
+
+[functions.cashfree-webhook]
+verify_jwt = false
+
+[functions.verify-payment]
+verify_jwt = false

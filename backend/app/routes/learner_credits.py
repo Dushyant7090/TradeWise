@@ -17,6 +17,7 @@ from app.models.learner_credit_transaction import LearnerCreditsLog
 from app.models.trade import Trade
 from app.models.subscription import Subscription
 from app.models.profile import Profile
+from app.utils.response_cache import cache_response
 
 logger = logging.getLogger(__name__)
 learner_credits_bp = Blueprint("learner_credits", __name__)
@@ -60,7 +61,7 @@ def unlock_trade(trade_id):
     if not learner:
         return jsonify({"error": "Learner profile not found"}), 404
 
-    trade = Trade.query.get(trade_id)
+    trade = db.session.get(Trade, trade_id)
     if not trade:
         return jsonify({"error": "Trade not found"}), 404
 
@@ -127,46 +128,64 @@ def unlock_trade(trade_id):
 
 @learner_credits_bp.route("/history", methods=["GET"])
 @require_auth
+@cache_response(ttl_seconds=8, key_prefix="learner_history")
 def get_history():
     """Get all unlocked trades history."""
     user_id = get_jwt_identity()
     page = int(request.args.get("page", 1))
-    per_page = min(int(request.args.get("per_page", 20)), 100)
-    status_filter = request.args.get("status", "")
+    per_page = min(int(request.args.get("per_page", request.args.get("limit", 20))), 100)
+    status_filter = request.args.get("status", request.args.get("filter", ""))
+    if status_filter == "all":
+        status_filter = ""
 
-    query = LearnerUnlockedTrade.query.filter_by(learner_id=user_id)
+    query = (
+        db.session.query(LearnerUnlockedTrade, Trade, Profile.display_name)
+        .join(Trade, Trade.id == LearnerUnlockedTrade.trade_id)
+        .outerjoin(Profile, Profile.user_id == Trade.trader_id)
+        .filter(LearnerUnlockedTrade.learner_id == user_id)
+    )
+    if status_filter:
+        query = query.filter(Trade.status == status_filter)
     query = query.order_by(LearnerUnlockedTrade.unlocked_at.desc())
-    paginated = query.paginate(page=page, per_page=per_page, error_out=False)
+    total = query.count()
+    items = query.offset((page - 1) * per_page).limit(per_page).all()
+    pages = (total + per_page - 1) // per_page if per_page else 0
 
     history = []
-    for unlock in paginated.items:
-        trade = Trade.query.get(unlock.trade_id)
-        if trade:
-            if status_filter and trade.status != status_filter:
-                continue
-            trader_profile = Profile.query.filter_by(user_id=trade.trader_id).first()
-            entry = unlock.to_dict()
-            entry["trade"] = {
-                "id": trade.id,
-                "symbol": trade.symbol,
-                "direction": trade.direction,
-                "entry_price": float(trade.entry_price),
-                "stop_loss_price": float(trade.stop_loss_price),
-                "target_price": float(trade.target_price),
-                "rrr": float(trade.rrr),
-                "status": trade.status,
-                "outcome": trade.outcome,
-                "created_at": trade.created_at.isoformat() if trade.created_at else None,
-                "trader_name": trader_profile.display_name if trader_profile else "Unknown",
-            }
-            history.append(entry)
+    for unlock, trade, trader_name in items:
+        safe_trader_name = trader_name or "Unknown"
+        entry = unlock.to_dict()
+        entry["trade"] = {
+            "id": trade.id,
+            "symbol": trade.symbol,
+            "direction": trade.direction,
+            "entry_price": float(trade.entry_price),
+            "stop_loss_price": float(trade.stop_loss_price),
+            "target_price": float(trade.target_price),
+            "rrr": float(trade.rrr),
+            "status": trade.status,
+            "outcome": trade.outcome,
+            "created_at": trade.created_at.isoformat() if trade.created_at else None,
+            "trader_name": safe_trader_name,
+            "market": trade.symbol,
+        }
+        entry["trade_id"] = trade.id
+        entry["symbol"] = trade.symbol
+        entry["direction"] = trade.direction
+        entry["rrr"] = float(trade.rrr)
+        entry["status"] = trade.status
+        entry["outcome"] = trade.outcome
+        entry["market"] = trade.symbol
+        entry["pro_trader_name"] = safe_trader_name
+        history.append(entry)
 
     return jsonify({
         "history": history,
-        "total": paginated.total,
+        "data": history,
+        "total": total,
         "page": page,
         "per_page": per_page,
-        "pages": paginated.pages,
+        "pages": pages,
     }), 200
 
 

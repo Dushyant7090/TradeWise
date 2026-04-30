@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Notifications</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise - Notifications</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -11,11 +14,15 @@
   <link rel="stylesheet" href="../../shared/css/components.css" />
   <link rel="stylesheet" href="../../shared/css/pages.css" />
   <link rel="stylesheet" href="../../shared/css/responsive.css" />
+  <link rel="stylesheet" href="../css/theme.css?v=theme-sync-4" />
 </head>
 <body>
   <div class="app-layout">
     <aside class="sidebar" id="sidebar" aria-label="Main navigation">
-      <a href="dashboard.html" class="sidebar-logo"><span>TradeWise Pro</span></a>
+      <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+        <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+        <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
+      </a>
             <nav class="sidebar-nav">
         <div class="nav-section">
           <div class="nav-section-label">Overview</div>
@@ -60,6 +67,15 @@
           </a>
         </div>
       </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="avatar-placeholder" id="sidebar-avatar" aria-hidden="true">P</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebar-user-name">Pro Trader</div>
+            <div class="sidebar-user-role">Pro Trader</div>
+          </div>
+        </div>
+      </div>
     </aside>
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 
@@ -101,14 +117,14 @@
 
   <script type="module">
     import Auth from '../js/auth.js';
-    import { notificationsAPI } from '../js/api.js';
+    import { notificationsAPI } from '../js/api.js?v=api-host-3';
     import { timeAgo } from '../js/utils.js';
     import Realtime from '../js/realtime.js';
     import Storage from '../js/storage.js';
-    import App from '../js/main.js';
+    import App from '../js/main.js?v=sidebar-kyc-1';
 
     if (!Auth.requireAuth()) throw new Error('Not authenticated');
-    window.Toast = { show(m, t = 'info') { const c = document.getElementById('toast-container'); const el = document.createElement('div'); el.className = `toast toast-${t}`; el.innerHTML = `<div class="toast-content"><div class="toast-message">${m}</div></div><button class="toast-dismiss">×</button>`; c.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); const d = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }; el.querySelector('.toast-dismiss').addEventListener('click', d); setTimeout(d, 4000); } };
+    window.Toast = { show(m, t = 'info') { const c = document.getElementById('toast-container'); const el = document.createElement('div'); el.className = `toast toast-${t}`; el.innerHTML = `<div class="toast-content"><div class="toast-message">${m}</div></div><button class="toast-dismiss">x</button>`; c.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); const d = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }; el.querySelector('.toast-dismiss').addEventListener('click', d); setTimeout(d, 4000); } };
     App.init();
 
     function escapeHTML(str) {
@@ -123,15 +139,17 @@
 
     let allNotifs = [];
     let currentFilter = 'all';
+    const NOTIF_PAGE_SIZE = 20;
+    let visibleCount = NOTIF_PAGE_SIZE;
 
     const notifIcons = {
-      new_subscriber: '👤',
-      trade_closed: '📊',
-      payment_success: '💰',
-      flag_alert: '🚩',
-      kyc_update: '🔐',
-      payout_status: '💳',
-      default: '🔔',
+      new_subscriber: '-',
+      trade_closed: '-',
+      payment_success: '-',
+      flag_alert: '-',
+      kyc_update: '-',
+      payout_status: '-',
+      default: '-',
     };
 
     async function loadNotifications() {
@@ -167,7 +185,10 @@
         return;
       }
 
-      list.innerHTML = notifs.map(n => `
+      const visible = notifs.slice(0, visibleCount);
+      const hasMore = notifs.length > visibleCount;
+
+      list.innerHTML = visible.map(n => `
         <div class="notification-item ${n.is_read ? '' : 'unread'}" data-id="${n.id}" role="listitem">
           <div class="notification-icon" style="background: var(--bg-card-hover);" aria-hidden="true">
             ${notifIcons[n.type] || notifIcons.default}
@@ -178,13 +199,16 @@
             <div class="notification-time">${timeAgo(n.created_at)}</div>
           </div>
           <div class="notification-actions">
-            ${!n.is_read ? `<button class="btn btn-ghost btn-sm mark-read-btn" data-id="${n.id}" title="Mark as read" aria-label="Mark as read">✓</button>` : ''}
+            ${!n.is_read ? `<button class="btn btn-ghost btn-sm mark-read-btn" data-id="${n.id}" title="Mark as read" aria-label="Mark as read">Read</button>` : ''}
             <button class="btn btn-ghost btn-sm delete-notif-btn" data-id="${n.id}" title="Delete" aria-label="Delete notification">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
             </button>
           </div>
         </div>
-      `).join('');
+      `).join('') + (hasMore ? `
+        <div style="text-align:center;padding:var(--space-4);">
+          <button class="btn btn-secondary btn-sm" id="load-more-notifs">Load More (${notifs.length - visibleCount} remaining)</button>
+        </div>` : '');
 
       // Mark read
       list.querySelectorAll('.mark-read-btn').forEach(btn => {
@@ -229,6 +253,15 @@
           } catch {}
         });
       });
+
+      // Load more button
+      const loadMoreBtn = document.getElementById('load-more-notifs');
+      if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', () => {
+          visibleCount += NOTIF_PAGE_SIZE;
+          renderNotifications();
+        });
+      }
     }
 
     // Filter tabs
@@ -237,6 +270,7 @@
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         currentFilter = tab.dataset.filter;
+        visibleCount = NOTIF_PAGE_SIZE;
         renderNotifications();
       });
       tab.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') tab.click(); });

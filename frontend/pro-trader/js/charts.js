@@ -3,8 +3,6 @@
  * Requires Chart.js loaded via CDN
  */
 
-import { getCSSVar } from './utils.js';
-
 // ===== BRAND COLORS =====
 const COLORS = {
   primary: '#10B981',
@@ -14,47 +12,97 @@ const COLORS = {
   warning: '#F59E0B',
   info: '#3B82F6',
   infoLight: 'rgba(59, 130, 246, 0.15)',
-  gridLine: 'rgba(255, 255, 255, 0.05)',
-  text: '#737373',
 };
 
-// Shared chart defaults
-const sharedDefaults = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      labels: {
-        color: COLORS.text,
-        font: { family: 'Inter', size: 12 },
-        usePointStyle: true,
-        pointStyleWidth: 10,
+function getCssVar(name, fallback) {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return value || fallback;
+}
+
+function getThemeTokens() {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  return {
+    text: getCssVar('--text-muted', '#737373'),
+    textPrimary: getCssVar('--text-primary', '#FFFFFF'),
+    textSecondary: getCssVar('--text-secondary', '#A3A3A3'),
+    gridLine: getCssVar('--border-subtle', isLight ? 'rgba(15, 23, 42, 0.12)' : 'rgba(255, 255, 255, 0.08)'),
+    tooltipBg: isLight ? '#ffffff' : '#111827',
+    tooltipBorder: getCssVar('--border-medium', isLight ? 'rgba(15, 23, 42, 0.18)' : 'rgba(255, 255, 255, 0.15)'),
+    doughnutBorder: isLight ? '#f8fafc' : '#0a0a0a',
+  };
+}
+
+function getSharedDefaults(theme) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: theme.text,
+          font: { family: 'Inter', size: 12 },
+          usePointStyle: true,
+          pointStyleWidth: 10,
+        },
+      },
+      tooltip: {
+        backgroundColor: theme.tooltipBg,
+        borderColor: theme.tooltipBorder,
+        borderWidth: 1,
+        titleColor: theme.textPrimary,
+        bodyColor: theme.textSecondary,
+        padding: 12,
+        cornerRadius: 8,
       },
     },
-    tooltip: {
-      backgroundColor: '#1a1a1a',
-      borderColor: 'rgba(255,255,255,0.1)',
-      borderWidth: 1,
-      titleColor: '#fff',
-      bodyColor: '#A3A3A3',
-      padding: 12,
-      cornerRadius: 8,
-    },
-  },
-};
+  };
+}
 
-const axisDefaults = {
-  grid: { color: COLORS.gridLine },
-  ticks: { color: COLORS.text, font: { family: 'Inter', size: 11 } },
-};
+function getAxisDefaults(theme) {
+  return {
+    grid: { color: theme.gridLine },
+    ticks: { color: theme.text, font: { family: 'Inter', size: 11 } },
+  };
+}
+
+function replaceCanvasWithFallback(canvas, title, subtitle = '') {
+  const parent = canvas?.parentElement;
+  if (!parent) return null;
+  parent.innerHTML = `
+    <div class="chart-fallback" style="height:100%;min-height:180px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--text-muted);">
+      <div>
+        <div style="font-weight:700;color:var(--text-primary);margin-bottom:6px;">${title}</div>
+        <div style="font-size:.85rem;">${subtitle}</div>
+      </div>
+    </div>`;
+  return null;
+}
+
+function destroyExistingChart(canvas) {
+  if (!window.Chart || !canvas) return;
+  const existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
+}
 
 // ===== ACCURACY TREND LINE CHART =====
 export function createAccuracyChart(canvasId, data) {
   const ctx = document.getElementById(canvasId);
-  if (!ctx || !window.Chart) return null;
+  if (!ctx) return null;
+  if (!window.Chart) return replaceCanvasWithFallback(ctx, 'Chart library unavailable', 'Refresh the page to load the local chart bundle.');
+  const theme = getThemeTokens();
+  const sharedDefaults = getSharedDefaults(theme);
+  const axisDefaults = getAxisDefaults(theme);
 
   const labels = data?.labels || [];
-  const values = data?.values || [];
+  const rawValues = data?.values || [];
+  const currentValue = Number(data?.currentValue || 0);
+  const values = rawValues.length
+    ? rawValues.map((value) => Number(value || 0))
+    : labels.map((_, index) => (index === labels.length - 1 ? currentValue : 0));
+  if (!labels.length || !values.length) {
+    return replaceCanvasWithFallback(ctx, 'No accuracy history yet', 'Close trades to build the trend.');
+  }
+  destroyExistingChart(ctx);
 
   return new Chart(ctx, {
     type: 'line',
@@ -105,7 +153,11 @@ export function createAccuracyChart(canvasId, data) {
 // ===== WIN/LOSS PIE CHART =====
 export function createWinLossChart(canvasId, wins, losses) {
   const ctx = document.getElementById(canvasId);
-  if (!ctx || !window.Chart) return null;
+  if (!ctx) return null;
+  if (!window.Chart) return replaceCanvasWithFallback(ctx, 'Chart library unavailable', 'Refresh the page to load the local chart bundle.');
+  destroyExistingChart(ctx);
+  const theme = getThemeTokens();
+  const sharedDefaults = getSharedDefaults(theme);
 
   return new Chart(ctx, {
     type: 'doughnut',
@@ -115,7 +167,7 @@ export function createWinLossChart(canvasId, wins, losses) {
         {
           data: [wins || 0, losses || 0],
           backgroundColor: [COLORS.primary, COLORS.danger],
-          borderColor: ['#0a0a0a', '#0a0a0a'],
+          borderColor: [theme.doughnutBorder, theme.doughnutBorder],
           borderWidth: 3,
           hoverOffset: 6,
         },
@@ -145,10 +197,18 @@ export function createWinLossChart(canvasId, wins, losses) {
 // ===== MONTHLY EARNINGS BAR CHART =====
 export function createEarningsChart(canvasId, data) {
   const ctx = document.getElementById(canvasId);
-  if (!ctx || !window.Chart) return null;
+  if (!ctx) return null;
+  if (!window.Chart) return replaceCanvasWithFallback(ctx, 'Chart library unavailable', 'Refresh the page to load the local chart bundle.');
+  const theme = getThemeTokens();
+  const sharedDefaults = getSharedDefaults(theme);
+  const axisDefaults = getAxisDefaults(theme);
 
   const labels = data?.labels || [];
-  const values = data?.earnings || [];
+  const values = (data?.earnings || []).map((value) => Number(value || 0));
+  if (!labels.length || !values.length) {
+    return replaceCanvasWithFallback(ctx, 'No earnings yet', 'Subscription earnings will appear here.');
+  }
+  destroyExistingChart(ctx);
 
   return new Chart(ctx, {
     type: 'bar',
@@ -196,7 +256,12 @@ export function createEarningsChart(canvasId, data) {
 // ===== RRR DISTRIBUTION HISTOGRAM =====
 export function createRRRChart(canvasId, data) {
   const ctx = document.getElementById(canvasId);
-  if (!ctx || !window.Chart) return null;
+  if (!ctx) return null;
+  if (!window.Chart) return replaceCanvasWithFallback(ctx, 'Chart library unavailable', 'Refresh the page to load the local chart bundle.');
+  destroyExistingChart(ctx);
+  const theme = getThemeTokens();
+  const sharedDefaults = getSharedDefaults(theme);
+  const axisDefaults = getAxisDefaults(theme);
 
   const labels = data?.labels || ['<1', '1-1.5', '1.5-2', '2-3', '>3'];
   const values = data?.values || [];

@@ -3,6 +3,7 @@ Pro Trader Profile model
 """
 import uuid
 from datetime import datetime, timezone
+from sqlalchemy.ext.mutable import MutableDict
 from app import db
 
 
@@ -29,7 +30,7 @@ class ProTraderProfile(db.Model):
 
     # KYC
     kyc_status = db.Column(db.String(20), default="pending", nullable=False)
-    kyc_documents = db.Column(db.JSON, nullable=True, default=dict)
+    kyc_documents = db.Column(MutableDict.as_mutable(db.JSON), nullable=True, default=dict)
 
     # Stats
     accuracy_score = db.Column(db.Float, default=0.0)
@@ -42,6 +43,11 @@ class ProTraderProfile(db.Model):
     monthly_subscription_price = db.Column(db.Numeric(12, 2), default=0.0)
     total_earnings = db.Column(db.Numeric(12, 2), default=0.0)
     available_balance = db.Column(db.Numeric(12, 2), default=0.0)
+
+    # Onboarding state (single source of truth — see utils/pro_trader_state.py)
+    onboarding_step = db.Column(db.Integer, default=0, nullable=False)
+    is_review_pending = db.Column(db.Boolean, default=False, nullable=False)
+    cf_seller_id = db.Column(db.Text, nullable=True)
 
     # Media
     profile_picture_url = db.Column(db.Text, nullable=True)
@@ -93,6 +99,9 @@ class ProTraderProfile(db.Model):
             "available_balance": float(self.available_balance or 0),
             "profile_picture_url": self.profile_picture_url,
             "is_active": self.is_active,
+            "onboarding_step": self.onboarding_step,
+            "is_review_pending": self.is_review_pending,
+            "has_cf_seller_id": bool(self.cf_seller_id),
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }

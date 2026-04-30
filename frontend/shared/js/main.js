@@ -5,7 +5,7 @@
 import Storage from './storage.js';
 import Auth from './auth.js';
 import Realtime from './realtime.js';
-import { notificationsAPI } from './api.js';
+import api from './api.js';
 import { timeAgo } from './utils.js';
 
 // ===== CONFIG (injected from .env or window globals) =====
@@ -127,8 +127,8 @@ const NotifBell = {
 
   async updateCount() {
     try {
-      const data = await notificationsAPI.getAll();
-      const unread = (data.notifications || []).filter(n => !n.is_read).length;
+      const data = await api.get('/pro-trader/notifications/unread-count');
+      const unread = data?.unread_count || 0;
       const badge = document.getElementById('notif-badge');
       if (badge) {
         badge.textContent = unread > 99 ? '99+' : unread;
@@ -182,9 +182,9 @@ const App = {
     Sidebar.init();
     HeaderUser.init();
 
-    // Notification bell (only on authenticated pages)
+    // Notification bell (only on authenticated pages) — non-blocking
     if (Auth.isAuthenticated()) {
-      await NotifBell.init();
+      NotifBell.init(); // No await — don't block UI rendering
 
       // Subscribe to realtime notifications
       const user = Storage.getUser();

@@ -42,9 +42,10 @@ Before running any tests, ensure the following are in place:
 | Supabase project | Active | Log in at supabase.com |
 | Cashfree TEST account | Active | Log in at cashfree.com |
 
-### Automated Test Suite (No External Services)
+### Automated Test Suite (PostgreSQL Required)
 
-The backend test suite uses an **in-memory SQLite database** and does **not** require Supabase, Cashfree, or Redis:
+The backend test suite uses **PostgreSQL** and requires a valid `DATABASE_URL`.
+For isolation, set `TEST_DATABASE_URL` to a dedicated test database:
 
 ```bash
 cd backend
@@ -52,6 +53,11 @@ python3 -m venv venv
 source venv/bin/activate       # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 pip install pytest pytest-cov
+
+# Optional but recommended for isolated test runs
+export TEST_DATABASE_URL=postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres
+# Windows PowerShell:
+# $env:TEST_DATABASE_URL="postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres"
 
 # Run all tests
 pytest tests/ -v

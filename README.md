@@ -194,7 +194,7 @@ TradeWise/
 │           ├── encryption.py            # AES encryption for bank details
 │           └── validators.py            # Email, password, input validators
 │   └── tests/
-│       ├── conftest.py                  # Pytest fixtures (in-memory SQLite app)
+│       ├── conftest.py                  # Pytest fixtures (PostgreSQL test app)
 │       ├── test_auth.py                 # Auth endpoint tests
 │       ├── test_admin.py                # Admin endpoint tests
 │       ├── test_trades.py               # Trade CRUD tests
@@ -722,7 +722,8 @@ http://localhost:5500/admin/index.html
 
 ## Running Tests
 
-The backend test suite uses **pytest** with an in-memory SQLite database — no external services required.
+The backend test suite uses **pytest** against PostgreSQL (Supabase or any PostgreSQL instance).
+Use a dedicated test database via `TEST_DATABASE_URL` (recommended) or `DATABASE_URL`.
 
 ```bash
 cd backend

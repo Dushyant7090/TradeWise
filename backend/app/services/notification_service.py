@@ -48,7 +48,7 @@ def notify_new_subscriber(trader_id: str, subscriber_display_name: str, subscrib
         )
 
     if not prefs or prefs.email_new_subscriber:
-        trader = User.query.get(trader_id)
+        trader = db.session.get(User, trader_id)
         trader_profile = Profile.query.filter_by(user_id=trader_id).first()
         if trader:
             try:
@@ -79,7 +79,7 @@ def notify_trade_flagged(trader_id: str, trade_id: str, symbol: str, reason: str
         )
 
     if not prefs or prefs.email_trade_flagged:
-        trader = User.query.get(trader_id)
+        trader = db.session.get(User, trader_id)
         trader_profile = Profile.query.filter_by(user_id=trader_id).first()
         if trader:
             try:
@@ -118,7 +118,7 @@ def notify_payout_result(trader_id: str, amount: float, success: bool, transfer_
         )
 
     if not prefs or prefs.email_payout_confirmation:
-        trader = User.query.get(trader_id)
+        trader = db.session.get(User, trader_id)
         trader_profile = Profile.query.filter_by(user_id=trader_id).first()
         if trader:
             try:

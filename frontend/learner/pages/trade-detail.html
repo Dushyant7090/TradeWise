@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise ‚Äî Trade Detail</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise ó Trade Detail</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -17,7 +20,10 @@
 <div class="app-layout">
 
   <aside class="sidebar" id="sidebar">
-    <a href="dashboard.html" class="sidebar-logo"><span>Trade<span style="color:var(--color-primary)">Wise</span></span></a>
+    <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+      <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+      <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
+    </a>
     <nav class="sidebar-nav">
       <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
       <a href="feed.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Trade Feed</a>
@@ -25,9 +31,19 @@
       <a href="my-subscriptions.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Subscriptions</a>
       <a href="notifications.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
       <a href="profile-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    <a href="account-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Settings</a>
     </nav>
-      <a href="account-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Settings</a>
-    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user">
+        <div class="avatar-placeholder" id="sidebar-avatar">L</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="sidebar-username">Learner</div>
+          <div class="sidebar-user-role">Public Trader</div>
+        </div>
+      </div>
+    </div>
+
   </aside>
   <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 
@@ -35,12 +51,12 @@
     <header class="topbar">
       <div class="topbar-left">
         <button class="hamburger" id="hamburger" aria-label="Toggle"><span></span><span></span><span></span></button>
-        <a href="feed.html" class="btn btn-ghost btn-sm" style="gap:6px;">‚Üê Back to Feed</a>
+        <a href="feed.html" class="btn btn-ghost btn-sm" style="gap:6px;">? Back to Feed</a>
       </div>
       <div class="topbar-right">
         <div class="credit-pill credits-green" id="credit-pill">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
-          <span id="credit-pill-count">‚Äî</span> Credits
+          <span id="credit-pill-count">ó</span> Credits
         </div>
         <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
       </div>
@@ -55,8 +71,8 @@
 
 <!-- Lightbox -->
 <div id="lightbox" class="lightbox hidden" onclick="this.classList.add('hidden')">
-  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.add('hidden')">√ó</button>
-  <img id="lightbox-img" src="" alt="Chart" />
+  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.add('hidden')">◊</button>
+  <img id="lightbox-img" src="" alt="Chart" onerror="this.style.display='none'" onload="this.style.display='block'" />
 </div>
 
 <!-- Flag Modal -->
@@ -64,7 +80,7 @@
   <div class="modal">
     <div class="modal-header">
       <h2 class="modal-title">Report Trade</h2>
-      <button class="modal-close" id="close-flag-modal">√ó</button>
+      <button class="modal-close" id="close-flag-modal">◊</button>
     </div>
     <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:var(--space-4);">
       Help keep TradeWise trustworthy. Admins will review your report.
@@ -72,7 +88,7 @@
     <div class="form-group">
       <label class="form-label" for="flag-reason">Reason <span class="required">*</span></label>
       <select id="flag-reason" class="flag-reason-select input">
-        <option value="">Select a reason‚Ä¶</option>
+        <option value="">Select a reasonÖ</option>
         <option value="fake_trade">Fake / fabricated trade</option>
         <option value="misleading_analysis">Misleading analysis</option>
         <option value="copied_content">Copied from another source</option>
@@ -97,21 +113,21 @@
   <div class="modal">
     <div class="modal-header">
       <h2 class="modal-title">Rate this Trade</h2>
-      <button class="modal-close" id="close-rate-modal">√ó</button>
+      <button class="modal-close" id="close-rate-modal">◊</button>
     </div>
     <div class="form-group">
       <label class="form-label">Your Rating</label>
       <div class="star-rating" id="rating-stars">
-        <span class="star" data-value="1">‚òÖ</span>
-        <span class="star" data-value="2">‚òÖ</span>
-        <span class="star" data-value="3">‚òÖ</span>
-        <span class="star" data-value="4">‚òÖ</span>
-        <span class="star" data-value="5">‚òÖ</span>
+        <span class="star" data-value="1">?</span>
+        <span class="star" data-value="2">?</span>
+        <span class="star" data-value="3">?</span>
+        <span class="star" data-value="4">?</span>
+        <span class="star" data-value="5">?</span>
       </div>
     </div>
     <div class="form-group">
       <label class="form-label" for="rate-review">Review (optional)</label>
-      <textarea id="rate-review" class="input" rows="3" placeholder="Share your thoughts about this trade idea‚Ä¶"></textarea>
+      <textarea id="rate-review" class="input" rows="3" placeholder="Share your thoughts about this trade ideaÖ"></textarea>
     </div>
     <div id="rate-alert" class="alert hidden"></div>
     <div class="modal-footer">
@@ -128,26 +144,130 @@
 
 <script type="module">
   import Auth from '../js/auth.js';
-  import { learnerFeedAPI, learnerCreditsAPI, learnerCommentsAPI, learnerFlagsAPI, learnerRatingsAPI, paymentsAPI, learnerSubscriptionsAPI } from '../js/api.js';
-  import { timeAgo, getInitials } from '../js/utils.js';
-  import Realtime from '../js/realtime.js';
+import { learnerFeedAPI, learnerCreditsAPI, learnerCommentsAPI, learnerFlagsAPI, learnerRatingsAPI, paymentsAPI, learnerSubscriptionsAPI } from '../js/api.js?v=api-host-3';
+import { timeAgo, getInitials } from '../js/utils.js';
+import Realtime from '../js/realtime.js';
+import { initLearnerSidebarProfile } from '../js/sidebar-profile.js';
+import Storage from '../js/storage.js';
 
-  if (!Auth.requireAuth()) throw new Error('Not authenticated');
+if (!Auth.requireAuth()) throw new Error('Not authenticated');
+initLearnerSidebarProfile();
+
+      const profile = Auth.getLearnerProfile() || {};
+      const user = Auth.getCurrentUser() || {};
+      const name = profile.display_name || user.email?.split('@')[0] || 'Learner';
+      const sbName = document.getElementById('sidebar-username');
+      if (sbName) sbName.textContent = name;
+      const sbAvatar = document.getElementById('sidebar-avatar');
+      if (sbAvatar) {
+        const avatarUrl = profile.avatar_url || profile.profile_image;
+        const initFn = (typeof getInitials === 'function') ? getInitials : (n) => (n||'L').charAt(0).toUpperCase();
+        if (avatarUrl) {
+          sbAvatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.onerror=null; this.parentElement.textContent='${initFn(name)}';">`;
+        } else {
+          sbAvatar.textContent = initFn(name);
+        }
+      }
+
 
   window.Toast = {
     show(msg, type='info') {
       const c=document.getElementById('toast-container'),t=document.createElement('div');
       t.className=`toast toast-${type}`;
-      t.innerHTML=`<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">√ó</button>`;
+      t.innerHTML=`<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">◊</button>`;
       c.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));
       const d=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);};
       t.querySelector('.toast-dismiss').addEventListener('click',d);setTimeout(d,5000);
     }
   };
 
+  let chartObjectUrl = '';
+
+  function resolveApiUrl(path) {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path) || path.startsWith('blob:') || path.startsWith('data:')) return path;
+    const base = (window.TW_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+    return `${base}${path.startsWith('/api/') ? path.slice(4) : path}`;
+  }
+
+  function revokeChartObjectUrl() {
+    if (chartObjectUrl) URL.revokeObjectURL(chartObjectUrl);
+    chartObjectUrl = '';
+  }
+
+  function openChartLightbox(src) {
+    const lightbox = document.getElementById('lightbox');
+    const image = document.getElementById('lightbox-img');
+    if (!lightbox || !image || !src) return;
+    image.src = src;
+    image.style.display = 'block';
+    lightbox.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeChartLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    const image = document.getElementById('lightbox-img');
+    if (!lightbox || !image) return;
+    lightbox.classList.add('hidden');
+    image.removeAttribute('src');
+    document.body.style.overflow = '';
+  }
+
+  async function hydrateDetailChartImage() {
+    const img = document.getElementById('chart-img');
+    if (!img?.dataset.chartSrc) return;
+
+    const rawSrc = img.dataset.chartSrc;
+    const resolvedSrc = resolveApiUrl(rawSrc);
+    const token = Storage.getToken();
+    const needsAuth = rawSrc.startsWith('/api/') || resolvedSrc.includes('/api/learner/');
+
+    try {
+      const response = await fetch(resolvedSrc, {
+        headers: token && needsAuth ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!response.ok) throw new Error(`Chart request failed (${response.status})`);
+      const blob = await response.blob();
+      if (!blob.type.startsWith('image/')) throw new Error('Chart response was not an image');
+      revokeChartObjectUrl();
+      chartObjectUrl = URL.createObjectURL(blob);
+      img.src = chartObjectUrl;
+    } catch (err) {
+      if (!needsAuth) {
+        img.src = resolvedSrc;
+      } else {
+        img.style.display = 'none';
+      }
+      console.warn('Unable to load learner trade chart image:', err);
+    }
+
+    img.removeAttribute('data-chart-src');
+    img.style.cursor = 'zoom-in';
+    img.tabIndex = 0;
+    img.addEventListener('click', () => openChartLightbox(img.src));
+    img.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openChartLightbox(img.src);
+      }
+    });
+  }
+
   const hamburger=document.getElementById('hamburger'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
   hamburger.addEventListener('click',()=>{sidebar.classList.toggle('open');overlay.classList.toggle('active');});
   overlay.addEventListener('click',()=>{sidebar.classList.remove('open');overlay.classList.remove('active');});
+  document.getElementById('lightbox')?.addEventListener('click', (event) => {
+    if (event.target.id === 'lightbox') closeChartLightbox();
+  });
+  document.getElementById('lightbox-img')?.addEventListener('click', (event) => event.stopPropagation());
+  document.querySelector('.lightbox-close')?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    closeChartLightbox();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeChartLightbox();
+  });
   document.getElementById('logout-btn').addEventListener('click',()=>Auth.logout());
 
   const params = new URLSearchParams(location.search);
@@ -168,7 +288,13 @@
       // Realtime trade status updates
       const sbUrl=window.TW_SUPABASE_URL||'',sbKey=window.TW_SUPABASE_ANON_KEY||'';
       Realtime.init(sbUrl,sbKey);
-      Realtime.subscribeToTradeUpdates(tradeId, { onUpdate(updated) { Toast.show(`Trade status updated: ${updated.status}`, 'info'); document.querySelector('.trade-status')?.textContent = (updated.status||'').replace('_',' '); } });
+      Realtime.subscribeToTradeUpdates(tradeId, {
+        onUpdate(updated) {
+          Toast.show(`Trade status updated: ${updated.status}`, 'info');
+          const statusEl = document.querySelector('.trade-status');
+          if (statusEl) statusEl.textContent = (updated.status || '').replace('_', ' ');
+        },
+      });
       Realtime.subscribeToComments(tradeId, { onInsert(c) { appendComment(c); } });
     } catch (err) {
       document.getElementById('loading-spinner').classList.add('hidden');
@@ -190,22 +316,33 @@
 
   function renderTrade(t) {
     document.getElementById('loading-spinner').classList.add('hidden');
-    const locked = !t.is_unlocked;
+    const hasSubscription = t.has_subscription === true;
+    const isUnlocked = t.is_unlocked === true;
+    const locked = !(isUnlocked || hasSubscription);
+    const accessBadge = hasSubscription
+      ? '<span class="badge-unlocked">Subscribed</span>'
+      : '<span class="badge-unlocked">Unlocked</span>';
     const accuracy = t.pro_trader?.accuracy_score ?? 0;
     const initials = getInitials(t.pro_trader?.display_name||'T');
+    const entryPrice = t.entry_price ?? 'ó';
+    const stopLossPrice = t.stop_loss_price ?? t.stop_loss ?? 'ó';
+    const targetPrice = t.target_price ?? 'ó';
+    const chartImage = t.chart_proxy_url || t.chart_image_url || t.chart_image;
+    const rationale = t.technical_rationale || t.rationale;
+    const traderAvatar = t.pro_trader?.profile_picture_url || t.trader_profile_picture_url || t.pro_trader?.avatar_url || t.trader_avatar_url;
 
     const html = `
     <div class="trade-detail-header">
       <div class="trade-detail-title">
-        <span class="trade-detail-symbol">${t.symbol||'‚Äî'}</span>
+        <span class="trade-detail-symbol">${t.symbol||'ó'}</span>
         ${!locked && t.direction ? `<span class="trade-direction-badge ${t.direction==='buy'?'direction-buy':'direction-sell'}">${t.direction.toUpperCase()}</span>` : ''}
         <span class="trade-status status-${t.status||'active'}">${(t.status||'active').replace('_',' ')}</span>
-        ${locked ? '<span class="badge-locked">üîí Locked</span>' : '<span class="badge-unlocked">‚úì Unlocked</span>'}
+        ${locked ? '<span class="badge-locked">Locked</span>' : accessBadge}
       </div>
       <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;">
-        ${locked ? `<button class="btn btn-primary" id="unlock-btn">üîì Unlock (1 Credit)</button>` : ''}
-        ${!locked ? `<button class="btn btn-ghost btn-sm" id="rate-btn" title="Rate this trade">‚òÖ Rate</button>` : ''}
-        ${!locked ? `<button class="btn btn-ghost btn-sm" id="flag-btn" style="color:var(--color-danger);" title="Report trade">‚öë Report</button>` : ''}
+        ${locked ? `<button class="btn btn-primary" id="unlock-btn">Unlock (1 Credit)</button>` : ''}
+        ${!locked ? `<button class="btn btn-ghost btn-sm" id="rate-btn" title="Rate this trade">Rate</button>` : ''}
+        ${!locked ? `<button class="btn btn-ghost btn-sm" id="flag-btn" style="color:var(--color-danger);" title="Report trade">Report</button>` : ''}
       </div>
     </div>
 
@@ -213,7 +350,9 @@
     <div class="card" style="margin-bottom:var(--space-5);">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-4);">
         <div style="display:flex;align-items:center;gap:var(--space-3);">
-          <div class="avatar-placeholder" style="width:48px;height:48px;font-size:var(--text-base);">${initials}</div>
+          <div class="avatar-placeholder" style="width:48px;height:48px;font-size:var(--text-base);">
+            ${traderAvatar ? `<img src="${traderAvatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.onerror=null; this.parentElement.textContent='${initials}';">` : initials}
+          </div>
           <div>
             <div style="font-size:var(--text-base);font-weight:700;">${t.pro_trader?.display_name||'Pro Trader'}</div>
             <span class="trader-accuracy-badge ${accuracy>=70?'accuracy-high':accuracy>=50?'accuracy-medium':'accuracy-low'}">${accuracy}% accuracy</span>
@@ -224,7 +363,7 @@
           <div class="trader-stat"><div class="trader-stat-value">${t.pro_trader?.win_rate||0}%</div><div class="trader-stat-label">Win Rate</div></div>
           <div class="trader-stat"><div class="trader-stat-value">${t.pro_trader?.subscribers_count||0}</div><div class="trader-stat-label">Subscribers</div></div>
         </div>
-        <button class="btn btn-primary btn-sm" id="sub-trader-btn">Subscribe</button>
+        ${hasSubscription ? '<span class="badge-unlocked">Already subscribed</span>' : '<button class="btn btn-primary btn-sm" id="sub-trader-btn">Subscribe</button>'}
       </div>
     </div>
 
@@ -232,11 +371,11 @@
     <div class="trade-price-grid">
       <div class="price-cell">
         <div class="price-cell-label">Symbol</div>
-        <div class="price-cell-value" style="font-family:var(--font-mono);">${t.symbol||'‚Äî'}</div>
+        <div class="price-cell-value" style="font-family:var(--font-mono);">${t.symbol||'ó'}</div>
       </div>
       <div class="price-cell">
         <div class="price-cell-label">RRR</div>
-        <div class="price-cell-value rrr">${t.rrr||t.risk_reward_ratio||'‚Äî'}</div>
+        <div class="price-cell-value rrr">${t.rrr||t.risk_reward_ratio||'ó'}</div>
       </div>
       ${locked ? `
       <div class="price-cell">
@@ -253,33 +392,33 @@
       </div>` : `
       <div class="price-cell">
         <div class="price-cell-label">Entry</div>
-        <div class="price-cell-value entry">${t.entry_price||'‚Äî'}</div>
+        <div class="price-cell-value entry">${entryPrice}</div>
       </div>
       <div class="price-cell">
         <div class="price-cell-label">Stop Loss</div>
-        <div class="price-cell-value sl">${t.stop_loss||'‚Äî'}</div>
+        <div class="price-cell-value sl">${stopLossPrice}</div>
       </div>
       <div class="price-cell">
         <div class="price-cell-label">Target</div>
-        <div class="price-cell-value target">${t.target_price||'‚Äî'}</div>
+        <div class="price-cell-value target">${targetPrice}</div>
       </div>`}
       ${!locked && t.outcome ? `<div class="price-cell"><div class="price-cell-label">Outcome</div><div class="price-cell-value" style="color:var(--color-${t.status==='target_hit'?'success':'danger'});">${t.outcome}</div></div>` : ''}
     </div>
 
-    ${t.chart_image ? `
+    ${chartImage ? `
     <!-- Chart -->
     <div class="card" style="margin-top:var(--space-5);">
       <div class="card-header"><h3 class="card-title">Trade Chart</h3></div>
       <div class="chart-image-wrap" id="chart-wrap">
-        ${locked ? `<div class="blur-content" style="height:200px;display:flex;align-items:center;justify-content:center;"><span style="color:var(--text-muted);">Chart hidden until unlocked</span></div>` : `<img src="${t.chart_image}" alt="Trade Chart" id="chart-img" />`}
+        ${locked ? `<div class="blur-content" style="height:200px;display:flex;align-items:center;justify-content:center;"><span style="color:var(--text-muted);">Chart hidden until unlocked</span></div>` : `<img data-chart-src="${chartImage}" alt="Trade Chart" id="chart-img" onerror="this.style.display='none'" />`}
       </div>
     </div>` : ''}
 
-    ${t.rationale ? `
+    ${rationale ? `
     <!-- Rationale -->
     <div class="card" style="margin-top:var(--space-5);">
       <div class="card-header"><h3 class="card-title">Technical Rationale</h3></div>
-      ${locked ? `<div class="blur-content rationale-box">This analysis is locked. Use a credit or subscribe to view the full reasoning behind this trade setup.</div>` : `<div class="rationale-box">${t.rationale}</div>`}
+      ${locked ? `<div class="blur-content rationale-box">This analysis is locked. Use a credit or subscribe to view the full reasoning behind this trade setup.</div>` : `<div class="rationale-box">${rationale}</div>`}
     </div>` : ''}
 
     ${locked ? `
@@ -287,9 +426,9 @@
     <div class="card" style="margin-top:var(--space-5);text-align:center;padding:var(--space-8);">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" style="margin:0 auto var(--space-4);"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
       <h3 style="font-size:var(--text-xl);margin-bottom:var(--space-3);">Unlock Full Analysis</h3>
-      <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:var(--space-6);">Use 1 credit to unlock entry, stop loss, target, chart and full rationale ‚Äî or subscribe to this trader for unlimited access.</p>
+      <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:var(--space-6);">Use 1 credit to unlock entry, stop loss, target, chart and full rationale ó or subscribe to this trader for unlimited access.</p>
       <div style="display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap;">
-        <button class="btn btn-primary btn-lg" id="unlock-btn-2">üîì Unlock (1 Credit)</button>
+        <button class="btn btn-primary btn-lg" id="unlock-btn-2">Unlock (1 Credit)</button>
         <button class="btn btn-secondary btn-lg" id="subscribe-btn-cta">Subscribe for Unlimited Access</button>
       </div>
     </div>` : ''}
@@ -305,7 +444,7 @@
       </div>
       ${!locked ? `
       <div class="comment-input-row" style="margin-top:var(--space-4);">
-        <input type="text" id="comment-input" class="input" placeholder="Add a comment‚Ä¶" maxlength="500" />
+        <input type="text" id="comment-input" class="input" placeholder="Add a commentÖ" maxlength="500" />
         <button class="btn btn-primary" id="post-comment-btn">Post</button>
       </div>` : `<p style="font-size:.875rem;color:var(--text-muted);margin-top:var(--space-3);">Unlock this trade to participate in the discussion.</p>`}
     </div>`;
@@ -313,12 +452,7 @@
     document.getElementById('trade-content').innerHTML = html;
     document.getElementById('trade-content').classList.remove('hidden');
 
-    // Lightbox for chart
-    const chartImg = document.getElementById('chart-img');
-    if (chartImg) {
-      chartImg.style.cursor = 'zoom-in';
-      chartImg.addEventListener('click', () => { document.getElementById('lightbox-img').src = chartImg.src; document.getElementById('lightbox').classList.remove('hidden'); });
-    }
+    hydrateDetailChartImage();
 
     // Unlock handlers
     const unlockBtn = document.getElementById('unlock-btn');

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+  <script src="../../shared/js/config.js?v=api-host-3"></script>
+  <title>Payment Status - TradeWise</title>
+  <link rel="icon" type="image/svg+xml" href="../../shared/assets/logo.svg" />
+  <style>
+    :root {
+      --bg: #f4f8f6;
+      --surface: #ffffff;
+      --text: #102019;
+      --muted: #65756d;
+      --line: rgba(16, 32, 25, 0.12);
+      --primary: #0f9f77;
+      --danger: #d14343;
+      --shadow: 0 22px 70px rgba(15, 47, 37, 0.12);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg: #050806;
+      --surface: #0c1210;
+      --text: #f3fff9;
+      --muted: #8ba096;
+      --line: rgba(255, 255, 255, 0.12);
+      --shadow: 0 22px 70px rgba(0, 0, 0, 0.36);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 0%, rgba(15, 159, 119, .16), transparent 34%), var(--bg);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .card {
+      width: min(560px, 100%);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 36px;
+      text-align: center;
+    }
+    .mark {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 20px;
+      font-size: 1.45rem;
+      font-weight: 900;
+    }
+    .mark.pending { color: var(--primary); background: rgba(15, 159, 119, .12); }
+    .mark.success { color: #fff; background: var(--primary); }
+    .mark.failure { color: #fff; background: var(--danger); }
+    h1 { margin: 0 0 10px; font-size: clamp(1.8rem, 6vw, 3rem); letter-spacing: 0; }
+    p { margin: 0; color: var(--muted); line-height: 1.7; }
+    .actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+    .btn {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-weight: 900;
+      text-decoration: none;
+      color: var(--text);
+      background: transparent;
+      cursor: pointer;
+    }
+    .btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="mark pending" id="statusMark">...</div>
+    <h1 id="title">Verifying payment</h1>
+    <p id="message">Checking your Cashfree sandbox payment status.</p>
+    <div class="actions" id="actions"></div>
+  </main>
+
+  <script type="module">
+    import Storage from '../js/storage.js';
+
+    const SUPABASE_URL = window.TW_SUPABASE_URL || 'https://rwdwrskkmnsrofxqaljb.supabase.co';
+    const SUPABASE_ANON_KEY = window.TW_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3ZHdyc2trbW5zcm9meHFhbGpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNjgyNjcsImV4cCI6MjA4OTk0NDI2N30.jEYZeWQufFi-YQf_tMw2wyAIhmogP5Q5zGgfFEMZvhA';
+    const FUNCTIONS_URL = `${SUPABASE_URL.replace(/\/$/, '')}/functions/v1`;
+    const API_BASE_URL = (window.TW_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+    const orderId = new URLSearchParams(location.search).get('order_id');
+
+    const mark = document.getElementById('statusMark');
+    const title = document.getElementById('title');
+    const message = document.getElementById('message');
+    const actions = document.getElementById('actions');
+
+    function setState(type, heading, copy, buttons = '') {
+      mark.className = `mark ${type}`;
+      mark.textContent = type === 'success' ? 'OK' : type === 'failure' ? '!' : '...';
+      title.textContent = heading;
+      message.textContent = copy;
+      actions.innerHTML = buttons;
+    }
+
+    function isSuccessfulStatus(data) {
+      return String(data?.status || '').toUpperCase() === 'SUCCESS';
+    }
+
+    async function verifyWithFlask() {
+      const token = Storage.getToken();
+      if (!token) throw new Error('Please log in again to verify this payment.');
+
+      const res = await fetch(`${API_BASE_URL}/payments/verify/${encodeURIComponent(orderId)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || data.message || 'Payment order not found');
+      return data;
+    }
+
+    async function verifyWithSupabase() {
+      const res = await fetch(`${FUNCTIONS_URL}/verify-payment?order_id=${encodeURIComponent(orderId)}`, {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${Storage.getToken() || SUPABASE_ANON_KEY}`,
+        },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Verification failed.');
+      return data;
+    }
+
+    async function verify() {
+      if (!orderId) {
+        setState('failure', 'Missing order', 'The Cashfree return URL did not include an order_id.', '<a class="btn primary" href="feed.html">Back to feed</a>');
+        return;
+      }
+
+      try {
+        let data;
+        if (orderId.startsWith('TW-')) {
+          data = await verifyWithFlask();
+        } else {
+          try {
+            data = await verifyWithSupabase();
+          } catch (supabaseError) {
+            data = await verifyWithFlask();
+          }
+        }
+
+        if (isSuccessfulStatus(data)) {
+          setState(
+            'success',
+            'Subscription active',
+            `You now have access to ${data.mentor_name || 'this Pro-Trader'}'s trades. Redirecting to the trade feed...`,
+            '<a class="btn primary" href="feed.html">Open trade feed</a>',
+          );
+          setTimeout(() => { window.location.href = 'feed.html'; }, 3000);
+        } else {
+          setState(
+            'failure',
+            'Payment not completed',
+            `Cashfree status: ${data.cashfree_status || 'unknown'}. You can retry the payment from subscriptions.`,
+            '<a class="btn primary" href="my-subscriptions.html">Retry payment</a>',
+          );
+        }
+      } catch (error) {
+        setState(
+          'failure',
+          'Unable to verify',
+          error.message || 'Please retry from subscriptions.',
+          '<button class="btn primary" onclick="location.reload()">Check again</button><a class="btn" href="my-subscriptions.html">Back to subscriptions</a>',
+        );
+      }
+    }
+
+    verify();
+  </script>
+</body>
+</html>

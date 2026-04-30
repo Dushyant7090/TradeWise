@@ -119,6 +119,52 @@
   border-color: var(--border-medium);
 }
 
+/* ===== SKELETON LOADERS ===== */
+.tw-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.12);
+  border-radius: 10px;
+}
+
+.tw-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.18) 50%, transparent 100%);
+  animation: twShimmer 1.2s infinite;
+}
+
+.tw-skeleton-line {
+  height: 12px;
+  margin-bottom: 8px;
+}
+
+.tw-skeleton-line:last-child {
+  margin-bottom: 0;
+}
+
+.tw-skeleton-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  background: var(--bg-card);
+}
+
+.tw-skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  margin-right: 10px;
+}
+
+@keyframes twShimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 .card-header {
   display: flex;
   align-items: center;

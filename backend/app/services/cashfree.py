@@ -17,7 +17,7 @@ class CashfreeService:
 
     def _get_headers(self):
         return {
-            "x-api-version": "2023-08-01",
+            "x-api-version": "2025-01-01",
             "x-client-id": current_app.config["CASHFREE_APP_ID"],
             "x-client-secret": current_app.config["CASHFREE_SECRET_KEY"],
             "Content-Type": "application/json",
@@ -37,7 +37,6 @@ class CashfreeService:
             },
             "order_meta": {
                 "return_url": return_url or f"{current_app.config.get('FRONTEND_URL', '')}/payment/callback",
-                "notify_url": f"{current_app.config.get('FRONTEND_URL', '')}/api/webhooks/cashfree/payment",
             },
         }
         try:

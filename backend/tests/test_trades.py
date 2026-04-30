@@ -3,10 +3,16 @@ Tests for Pro Trader Profile and Trades endpoints
 """
 import pytest
 import json
+import uuid
 
 
-def _register_and_login(client, email="trader@example.com"):
+def _unique_email(prefix="trader"):
+    return f"{prefix}.{uuid.uuid4().hex[:10]}@example.com"
+
+
+def _register_and_login(client, email=None):
     """Helper: register and return access token."""
+    email = email or _unique_email("pro")
     client.post(
         "/api/auth/register",
         data=json.dumps({"email": email, "password": "TestPass1", "role": "pro_trader"}),
@@ -76,7 +82,7 @@ class TestProfile:
 
 class TestTrades:
     def _get_token(self, client):
-        return _register_and_login(client, "tradestest@example.com")
+        return _register_and_login(client)
 
     def test_create_trade_success(self, client, db):
         token = self._get_token(client)
@@ -149,6 +155,82 @@ class TestTrades:
             headers={"Authorization": f"Bearer {token}"},
         )
         assert resp.status_code == 400
+
+    def test_create_trade_buy_sl_equal_entry_allowed(self, client, db):
+        token = self._get_token(client)
+        resp = client.post(
+            "/api/pro-trader/trades",
+            data=json.dumps({
+                "symbol": "RELIANCE",
+                "direction": "buy",
+                "entry_price": 2500.0,
+                "stop_loss_price": 2500.0,
+                "target_price": 2700.0,
+                "technical_rationale": "A " * 55,
+            }),
+            content_type="application/json",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert resp.status_code == 201
+
+    def test_create_trade_sell_sl_equal_entry_allowed(self, client, db):
+        token = self._get_token(client)
+        resp = client.post(
+            "/api/pro-trader/trades",
+            data=json.dumps({
+                "symbol": "INFY",
+                "direction": "sell",
+                "entry_price": 3500.0,
+                "stop_loss_price": 3500.0,
+                "target_price": 3400.0,
+                "technical_rationale": "A " * 55,
+            }),
+            content_type="application/json",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert resp.status_code == 201
+
+    def test_upload_trade_chart_requires_file(self, client, db):
+        token = self._get_token(client)
+        resp = client.post(
+            "/api/pro-trader/uploads/chart",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert resp.status_code == 400
+
+    def test_create_trade_invalid_sl_for_sell(self, client, db):
+        token = self._get_token(client)
+        resp = client.post(
+            "/api/pro-trader/trades",
+            data=json.dumps({
+                "symbol": "TCS",
+                "direction": "sell",
+                "entry_price": 3500.0,
+                "stop_loss_price": 3400.0,  # SL below entry for SELL - invalid
+                "target_price": 3300.0,
+                "technical_rationale": "A " * 55,
+            }),
+            content_type="application/json",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert resp.status_code == 400
+
+    def test_create_trade_accepts_comma_formatted_prices(self, client, db):
+        token = self._get_token(client)
+        resp = client.post(
+            "/api/pro-trader/trades",
+            data=json.dumps({
+                "symbol": "NIFTY",
+                "direction": "buy",
+                "entry_price": "2,500.00",
+                "stop_loss_price": "2,400.00",
+                "target_price": "2,700.00",
+                "technical_rationale": "A " * 55,
+            }),
+            content_type="application/json",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert resp.status_code == 201
 
     def test_get_trades(self, client, db):
         token = self._get_token(client)

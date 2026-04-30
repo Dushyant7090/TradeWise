@@ -3,93 +3,52 @@
  */
 
 import Storage from './storage.js';
+import { createHttpClient, HttpClientError } from './http-client.js?v=api-host-4';
 
 // ===== CONFIG =====
 // In a real environment, these would come from environment variables
-const BASE_URL = window.TW_API_BASE_URL || 'http://localhost:5000/api';
-
-// ===== CORE FETCH WRAPPER =====
-async function apiCall(method, endpoint, data = null, opts = {}) {
-  const token = Storage.getToken();
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...opts.headers,
-  };
-
-  // For FormData, don't set Content-Type (let browser set it with boundary)
-  if (data instanceof FormData) {
-    delete headers['Content-Type'];
-  }
-
-  const options = {
-    method,
-    headers,
-    body: data
-      ? data instanceof FormData
-        ? data
-        : JSON.stringify(data)
-      : undefined,
-  };
-
-  try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, options);
-
-    // Handle 401 — try refresh then retry once
-    if (response.status === 401 && !opts._retried) {
-      const refreshed = await tryRefreshToken();
-      if (refreshed) {
-        return apiCall(method, endpoint, data, { ...opts, _retried: true });
-      } else {
-        Storage.clearAll();
-        window.location.href = '/pages/auth.html';
-        return;
-      }
-    }
-
-    // Handle 403
-    if (response.status === 403) {
-      showToast('Access denied. You do not have permission.', 'error');
-      throw new APIError('Access denied', 403);
-    }
-
-    // Handle 500
-    if (response.status >= 500) {
-      showToast('Server error. Please try again later.', 'error');
-      throw new APIError('Server error', response.status);
-    }
-
-    let json;
-    try {
-      json = await response.json();
-    } catch {
-      json = {};
-    }
-
-    if (!response.ok) {
-      const message = json.message || json.error || response.statusText;
-      throw new APIError(message, response.status, json);
-    }
-
-    return json;
-  } catch (err) {
-    if (err instanceof APIError) throw err;
-    if (err.name === 'TypeError') {
-      // Network error
-      throw new APIError('Network error. Check your connection and try again.', 0);
-    }
-    throw err;
-  }
-}
+const FALLBACK_LOCAL_API_BASE = 'http://localhost:5000/api';
+const BASE_URL = (() => {
+  const configured = window.TW_API_BASE_URL || localStorage.getItem('tw_api_base_url') || FALLBACK_LOCAL_API_BASE;
+  return configured.replace(/\/$/, '').replace(/^https?:\/\/10\.25\.183\.119:5000\/api$/i, FALLBACK_LOCAL_API_BASE);
+})();
 
 // ===== API ERROR CLASS =====
-export class APIError extends Error {
+export class APIError extends HttpClientError {
   constructor(message, status, data = null) {
     super(message);
     this.name = 'APIError';
     this.status = status;
     this.data = data;
   }
+}
+
+function resolveCachePolicy(method, endpoint, opts = {}) {
+  if ((method || 'GET').toUpperCase() !== 'GET') return null;
+  if (opts.noCache) return null;
+  if (opts.cachePolicy) return opts.cachePolicy;
+
+  const path = String(endpoint || '').toLowerCase();
+  if (path.startsWith('/auth/')) return null;
+
+  if (path.includes('/dashboard') || path.includes('/profile') || path.includes('/credits')) {
+    return { ttlMs: 45000, staleMs: 90000, swr: true, persist: 'local' };
+  }
+
+  if (
+    path.includes('/feed') ||
+    path.includes('/history') ||
+    path.includes('/subscriptions') ||
+    path.includes('/trades') ||
+    path.includes('/analytics') ||
+    path.includes('/comments') ||
+    path.includes('/notifications') ||
+    path.includes('/pro-traders')
+  ) {
+    return { ttlMs: 15000, staleMs: 45000, swr: true, persist: 'session' };
+  }
+
+  return { ttlMs: 10000, staleMs: 20000, swr: false, persist: null };
 }
 
 // ===== TOKEN REFRESH =====
@@ -117,6 +76,62 @@ async function tryRefreshToken() {
   }
 }
 
+const httpClient = createHttpClient({
+  baseUrl: BASE_URL,
+  storagePrefix: 'tw_shared_api',
+  getToken: () => Storage.getToken(),
+  refreshAuth: tryRefreshToken,
+  onAuthFailure: () => {
+    Storage.clearAll();
+    window.location.href = '/learner/pages/auth.html';
+  },
+  defaultCachePolicy: { ttlMs: 10000, staleMs: 20000, swr: false, persist: null },
+});
+
+// ===== CORE FETCH WRAPPER =====
+async function apiCall(method, endpoint, data = null, opts = {}) {
+  const headers = { ...(opts.headers || {}) };
+  let body;
+
+  if (data !== null && data !== undefined) {
+    if (data instanceof FormData) {
+      body = data;
+    } else {
+      headers['Content-Type'] = 'application/json';
+      body = JSON.stringify(data);
+    }
+  }
+
+  try {
+    return await httpClient.request(endpoint, {
+      method,
+      headers,
+      body,
+      cachePolicy: resolveCachePolicy(method, endpoint, opts),
+      forceRefresh: Boolean(opts.forceRefresh),
+      dedupe: opts.dedupe !== false,
+      invalidateKeys: opts.invalidateKeys,
+    });
+  } catch (err) {
+    if (err instanceof HttpClientError) {
+      if (err.status === 401) {
+        return undefined;
+      }
+      if (err.status === 403) {
+        showToast('Access denied. You do not have permission.', 'error');
+      }
+      if (err.status >= 500) {
+        showToast('Server error. Please try again later.', 'error');
+      }
+      throw new APIError(err.message, err.status, err.data);
+    }
+    if (err && err.name === 'TypeError') {
+      throw new APIError('Network error. Check your connection and try again.', 0);
+    }
+    throw err;
+  }
+}
+
 // ===== TOAST HELPER (lazy reference to avoid circular deps) =====
 function showToast(message, type = 'info') {
   if (window.Toast) window.Toast.show(message, type);
@@ -129,6 +144,12 @@ export const api = {
   put: (endpoint, data, opts) => apiCall('PUT', endpoint, data, opts || {}),
   patch: (endpoint, data, opts) => apiCall('PATCH', endpoint, data, opts || {}),
   delete: (endpoint, opts) => apiCall('DELETE', endpoint, null, opts || {}),
+  prefetch: (endpoint, opts = {}) => httpClient.prefetch(endpoint, {
+    cachePolicy: resolveCachePolicy('GET', endpoint, opts),
+    forceRefresh: false,
+    dedupe: true,
+  }),
+  invalidate: (matcher) => httpClient.invalidate(matcher),
 };
 
 // ===== ENDPOINTS =====
@@ -192,7 +213,7 @@ export const subscribersAPI = {
 // KYC
 export const kycAPI = {
   getStatus: () => api.get('/pro-trader/kyc/status'),
-  uploadDocuments: (formData) => api.post('/pro-trader/kyc/upload-documents', formData),
+  uploadDocuments: (formData) => api.post('/pro-trader/kyc/documents/upload', formData),
   submitReview: () => api.post('/pro-trader/kyc/submit-review'),
   updateBankDetails: (data) => api.put('/pro-trader/bank-details', data),
 };
@@ -200,6 +221,7 @@ export const kycAPI = {
 // Notifications
 export const notificationsAPI = {
   getAll: () => api.get('/pro-trader/notifications'),
+  getUnreadCount: () => api.get('/pro-trader/notifications/unread-count'),
   markRead: (id) => api.put(`/pro-trader/notifications/${id}/read`),
   delete: (id) => api.delete(`/pro-trader/notifications/${id}`),
   clearAll: () => api.post('/pro-trader/notifications/clear-all'),

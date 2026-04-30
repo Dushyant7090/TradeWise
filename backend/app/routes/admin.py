@@ -36,10 +36,13 @@ Endpoints:
 import csv
 import io
 import logging
+import re
 from datetime import datetime, timezone, timedelta
 
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, current_app, jsonify, request, Response
 from flask_jwt_extended import get_jwt_identity
+from sqlalchemy import func, case
+from sqlalchemy.orm import joinedload
 
 from app import db
 from app.middleware import require_admin
@@ -52,10 +55,13 @@ from app.models.report import Report
 from app.models.comment import Comment
 from app.models.payout import Payout
 from app.models.payment import Payment
+from app.models.revenue_split import RevenueSplit
 from app.models.learner_flag import LearnerFlag
+from app.utils.response_cache import cache_response
 
 logger = logging.getLogger(__name__)
 admin_bp = Blueprint("admin", __name__)
+ADMIN_REPLY_PATTERN = re.compile(r"^\[Admin reply:(?P<comment_id>[0-9a-fA-F-]{36})\]\s*(?P<content>[\s\S]*)$")
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -68,11 +74,79 @@ def _paginate(query, page, per_page=20):
     return items, total
 
 
-def _user_summary(user: User) -> dict:
+def _storage_signed_url(bucket: str, path: str, expires_in: int = 3600) -> str:
+    """Create a temporary Supabase Storage URL without requiring the SDK."""
+    supabase_url = current_app.config.get("SUPABASE_URL", "").rstrip("/")
+    service_key = current_app.config.get("SUPABASE_SERVICE_ROLE_KEY", "")
+    if not supabase_url or not service_key or not path:
+        return ""
+
+    try:
+        import requests
+        response = requests.post(
+            f"{supabase_url}/storage/v1/object/sign/{bucket}/{path}",
+            headers={
+                "Authorization": f"Bearer {service_key}",
+                "apikey": service_key,
+                "Content-Type": "application/json",
+            },
+            json={"expiresIn": expires_in},
+            timeout=10,
+        )
+        response.raise_for_status()
+        signed_path = (response.json() or {}).get("signedURL", "")
+        if not signed_path:
+            return ""
+        if signed_path.startswith("http"):
+            return signed_path
+        return f"{supabase_url}/storage/v1{signed_path}"
+    except Exception as exc:
+        logger.warning("Failed to create signed Storage URL for %s/%s: %s", bucket, path, exc)
+        return ""
+
+
+def _admin_kyc_documents(pt: ProTraderProfile) -> list:
+    """Return KYC documents with admin-only view URLs."""
+    docs = pt.kyc_documents or {}
+    if not isinstance(docs, dict):
+        return []
+
+    bucket = current_app.config.get("KYC_DOCUMENTS_BUCKET", "kyc-documents")
+    normalized = []
+    for doc_id, doc in docs.items():
+        if not isinstance(doc, dict):
+            continue
+
+        item = {
+            "id": doc.get("id") or doc_id,
+            "type": doc.get("type") or "document",
+            "filename": doc.get("filename") or "Uploaded document",
+            "content_type": doc.get("content_type") or "application/octet-stream",
+            "uploaded_at": doc.get("uploaded_at"),
+            "storage_path": doc.get("storage_path"),
+            "url": doc.get("url"),
+            "view_url": doc.get("url"),
+        }
+
+        storage_path = doc.get("storage_path")
+        if storage_path:
+            signed_url = _storage_signed_url(bucket=bucket, path=storage_path, expires_in=3600)
+            if signed_url:
+                item["view_url"] = signed_url
+
+        normalized.append(item)
+
+    normalized.sort(key=lambda d: d.get("uploaded_at") or "", reverse=True)
+    return normalized
+
+
+def _user_summary(user: User, learner_profiles_map: dict = None) -> dict:
     """Build a summary dict for a user."""
     profile = user.profile
     pt = user.pro_trader_profile
-    lp = LearnerProfile.query.filter_by(user_id=user.id).first()
+    lp = (learner_profiles_map or {}).get(user.id)
+    if lp is None and learner_profiles_map is None:
+        lp = LearnerProfile.query.filter_by(user_id=user.id).first()
     role = profile.role if profile else "unknown"
     return {
         "id": user.id,
@@ -95,70 +169,102 @@ def _user_summary(user: User) -> dict:
     }
 
 
+def _month_floor(dt: datetime) -> datetime:
+    return dt.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+
+def _add_months(dt: datetime, months: int) -> datetime:
+    month_index = (dt.month - 1) + months
+    year = dt.year + month_index // 12
+    month = (month_index % 12) + 1
+    return dt.replace(year=year, month=month, day=1)
+
+
+def _parse_admin_reply(content: str) -> tuple[str | None, str]:
+    match = ADMIN_REPLY_PATTERN.match(content or "")
+    if not match:
+        return None, content or ""
+    return match.group("comment_id"), match.group("content").strip()
+
+
+def _admin_reply_content(comment_id: str, content: str) -> str:
+    return f"[Admin reply:{comment_id}] {content.strip()}"
+
+
 # ---------------------------------------------------------------------------
 # Stats
 # ---------------------------------------------------------------------------
 
 @admin_bp.route("/stats", methods=["GET"])
 @require_admin
+@cache_response(ttl_seconds=45, key_prefix="admin_stats")
 def get_stats():
-    """Return dashboard summary statistics."""
+    """Return dashboard summary statistics (optimized: 3 queries instead of 9)."""
     now = datetime.now(timezone.utc)
     thirty_days_ago = now - timedelta(days=30)
     start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    platform_fee_percent = float(current_app.config.get("PLATFORM_FEE_PERCENT", 10) or 10)
 
-    total_pro_traders = Profile.query.filter_by(role="pro_trader").count()
-    total_learners = Profile.query.filter_by(role="public_trader").count()
+    # Query 1: Profile counts using conditional aggregation
 
-    # Active users in last 30 days — approximated by recently created users
+    profile_stats = db.session.query(
+        func.coalesce(func.sum(case((Profile.role == "pro_trader", 1), else_=0)), 0).label("total_pro_traders"),
+        func.coalesce(func.sum(case((Profile.role == "public_trader", 1), else_=0)), 0).label("total_learners"),
+    ).first()
+
     active_users = User.query.filter(
         User.created_at >= thirty_days_ago,
         User.is_active == True
     ).count()
 
-    # Revenue this month (successful payments)
-    monthly_revenue = (
-        db.session.query(db.func.sum(Payment.amount))
-        .filter(Payment.status == "success", Payment.created_at >= start_of_month)
-        .scalar() or 0
-    )
+    # Query 2: Revenue + payout aggregates (combines 4 old queries)
+    money_stats = db.session.query(
+        func.coalesce(
+            db.session.query(
+                func.sum(
+                    func.coalesce(
+                        RevenueSplit.admin_amount,
+                        Payment.amount * platform_fee_percent / 100.0,
+                    )
+                )
+            )
+            .select_from(Payment)
+            .outerjoin(RevenueSplit, RevenueSplit.payment_id == Payment.id)
+            .filter(Payment.status == "success", Payment.created_at >= start_of_month)
+            .correlate(None).scalar_subquery(), 0
+        ).label("monthly_revenue"),
+        func.coalesce(
+            db.session.query(func.sum(Payout.amount))
+            .filter(Payout.status.in_(["initiated", "processing"]))
+            .correlate(None).scalar_subquery(), 0
+        ).label("pending_payouts_amount"),
+        func.coalesce(
+            db.session.query(func.count(Payout.id))
+            .filter(Payout.status.in_(["initiated", "processing"]))
+            .correlate(None).scalar_subquery(), 0
+        ).label("pending_payouts_count"),
+        func.coalesce(
+            db.session.query(func.sum(Payout.amount))
+            .filter(Payout.status == "success", Payout.initiated_at >= start_of_month)
+            .correlate(None).scalar_subquery(), 0
+        ).label("paid_payouts_amount"),
+    ).first()
 
-    # Pending payouts
-    pending_payouts_amount = (
-        db.session.query(db.func.sum(Payout.amount))
-        .filter(Payout.status.in_(["initiated", "processing"]))
-        .scalar() or 0
-    )
-    pending_payouts_count = Payout.query.filter(
-        Payout.status.in_(["initiated", "processing"])
-    ).count()
-
-    # Paid payouts this month
-    paid_payouts_amount = (
-        db.session.query(db.func.sum(Payout.amount))
-        .filter(Payout.status == "success", Payout.initiated_at >= start_of_month)
-        .scalar() or 0
-    )
-
-    # Flagged trades this month
+    # Query 3: Counts for flags, KYC, reports
     flagged_trades_month = Trade.query.filter(
         Trade.flag_count > 0, Trade.created_at >= start_of_month
     ).count()
-
-    # Pending KYC
     pending_kyc = ProTraderProfile.query.filter_by(kyc_status="pending").count()
-
-    # Open reports
     open_reports = Report.query.filter_by(status="pending").count()
 
     return jsonify({
-        "total_pro_traders": total_pro_traders,
-        "total_learners": total_learners,
+        "total_pro_traders": int(profile_stats.total_pro_traders),
+        "total_learners": int(profile_stats.total_learners),
         "active_users_30d": active_users,
-        "monthly_revenue": float(monthly_revenue),
-        "pending_payouts_amount": float(pending_payouts_amount),
-        "pending_payouts_count": pending_payouts_count,
-        "paid_payouts_month": float(paid_payouts_amount),
+        "monthly_revenue": float(money_stats.monthly_revenue),
+        "pending_payouts_amount": float(money_stats.pending_payouts_amount),
+        "pending_payouts_count": int(money_stats.pending_payouts_count),
+        "paid_payouts_month": float(money_stats.paid_payouts_amount),
         "flagged_trades_month": flagged_trades_month,
         "pending_kyc": pending_kyc,
         "open_reports": open_reports,
@@ -180,6 +286,10 @@ def list_users():
 
     query = (
         db.session.query(User)
+        .options(
+            joinedload(User.profile),
+            joinedload(User.pro_trader_profile),
+        )
         .join(Profile, Profile.user_id == User.id)
         .order_by(User.created_at.desc())
     )
@@ -193,8 +303,14 @@ def list_users():
         query = query.filter(Profile.role == role)
 
     users, total = _paginate(query, page, per_page)
+    user_ids = [user.id for user in users]
+    learner_profiles_map = {
+        lp.user_id: lp
+        for lp in LearnerProfile.query.filter(LearnerProfile.user_id.in_(user_ids)).all()
+    } if user_ids else {}
+
     return jsonify({
-        "users": [_user_summary(u) for u in users],
+        "users": [_user_summary(u, learner_profiles_map) for u in users],
         "total": total,
         "page": page,
         "per_page": per_page,
@@ -206,10 +322,19 @@ def list_users():
 @require_admin
 def get_user(user_id):
     """Get detailed info for a single user."""
-    user = User.query.get(user_id)
+    user = (
+        db.session.query(User)
+        .options(
+            joinedload(User.profile),
+            joinedload(User.pro_trader_profile),
+        )
+        .filter(User.id == user_id)
+        .first()
+    )
     if not user:
         return jsonify({"error": "User not found"}), 404
-    return jsonify({"user": _user_summary(user)}), 200
+    learner_profile = LearnerProfile.query.filter_by(user_id=user.id).first()
+    return jsonify({"user": _user_summary(user, {user.id: learner_profile} if learner_profile else {})}), 200
 
 
 @admin_bp.route("/users/<user_id>/suspend", methods=["POST"])
@@ -220,7 +345,7 @@ def suspend_user(user_id):
     if user_id == requesting_admin_id:
         return jsonify({"error": "Admins cannot suspend their own account"}), 403
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -247,7 +372,7 @@ def reactivate_user(user_id):
     if user_id == requesting_admin_id:
         return jsonify({"error": "Admins cannot reactivate their own account via this interface"}), 403
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -268,7 +393,7 @@ def ban_user(user_id):
     if user_id == requesting_admin_id:
         return jsonify({"error": "Admins cannot ban their own account"}), 403
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -300,7 +425,11 @@ def list_trades():
     search = request.args.get("search", "").strip()
     flagged_only = request.args.get("flagged_only", "false").lower() == "true"
 
-    query = Trade.query.order_by(Trade.created_at.desc())
+    query = (
+        db.session.query(Trade, Profile.display_name.label("trader_name"))
+        .outerjoin(Profile, Profile.user_id == Trade.trader_id)
+        .order_by(Trade.created_at.desc())
+    )
     if status:
         query = query.filter(Trade.status == status)
     if flagged_only:
@@ -311,11 +440,9 @@ def list_trades():
     trades, total = _paginate(query, page, per_page)
 
     result = []
-    for t in trades:
+    for t, trader_name in trades:
         d = t.to_dict()
-        # Attach trader display name
-        profile = Profile.query.filter_by(user_id=t.trader_id).first()
-        d["trader_name"] = profile.display_name if profile else None
+        d["trader_name"] = trader_name
         result.append(d)
 
     return jsonify({
@@ -331,12 +458,17 @@ def list_trades():
 @require_admin
 def get_trade(trade_id):
     """Get a single trade detail."""
-    trade = Trade.query.get(trade_id)
-    if not trade:
+    row = (
+        db.session.query(Trade, Profile.display_name.label("trader_name"))
+        .outerjoin(Profile, Profile.user_id == Trade.trader_id)
+        .filter(Trade.id == trade_id)
+        .first()
+    )
+    if not row:
         return jsonify({"error": "Trade not found"}), 404
+    trade, trader_name = row
     d = trade.to_dict()
-    profile = Profile.query.filter_by(user_id=trade.trader_id).first()
-    d["trader_name"] = profile.display_name if profile else None
+    d["trader_name"] = trader_name
     return jsonify({"trade": d}), 200
 
 
@@ -344,7 +476,7 @@ def get_trade(trade_id):
 @require_admin
 def admin_flag_trade(trade_id):
     """Admin-flag a trade (increment flag_count)."""
-    trade = Trade.query.get(trade_id)
+    trade = db.session.get(Trade, trade_id)
     if not trade:
         return jsonify({"error": "Trade not found"}), 404
     trade.flag_count = (trade.flag_count or 0) + 1
@@ -356,7 +488,7 @@ def admin_flag_trade(trade_id):
 @require_admin
 def admin_unflag_trade(trade_id):
     """Clear all admin flags on a trade."""
-    trade = Trade.query.get(trade_id)
+    trade = db.session.get(Trade, trade_id)
     if not trade:
         return jsonify({"error": "Trade not found"}), 404
     trade.flag_count = 0
@@ -370,6 +502,7 @@ def admin_unflag_trade(trade_id):
 
 @admin_bp.route("/reports", methods=["GET"])
 @require_admin
+@cache_response(ttl_seconds=10, key_prefix="admin_reports")
 def list_reports():
     """List all reports with optional status filter."""
     page = int(request.args.get("page", 1))
@@ -382,13 +515,22 @@ def list_reports():
 
     reports, total = _paginate(query, page, per_page)
 
+    trade_ids = [r.trade_id for r in reports if r.trade_id]
+    reporter_ids = [r.reporter_id for r in reports if r.reporter_id]
+    trade_symbol_map = {
+        trade.id: trade.symbol
+        for trade in Trade.query.filter(Trade.id.in_(trade_ids)).all()
+    } if trade_ids else {}
+    reporter_name_map = {
+        profile.user_id: profile.display_name
+        for profile in Profile.query.filter(Profile.user_id.in_(reporter_ids)).all()
+    } if reporter_ids else {}
+
     result = []
     for r in reports:
         d = r.to_dict()
-        trade = Trade.query.get(r.trade_id)
-        d["trade_symbol"] = trade.symbol if trade else None
-        reporter_profile = Profile.query.filter_by(user_id=r.reporter_id).first()
-        d["reporter_name"] = reporter_profile.display_name if reporter_profile else None
+        d["trade_symbol"] = trade_symbol_map.get(r.trade_id)
+        d["reporter_name"] = reporter_name_map.get(r.reporter_id)
         result.append(d)
 
     # Also include learner flags
@@ -396,14 +538,24 @@ def list_reports():
     if status:
         lf_query = lf_query.filter(LearnerFlag.status == status)
     learner_flags = lf_query.limit(50).all()
+
+    learner_flag_trade_ids = [lf.trade_id for lf in learner_flags if lf.trade_id]
+    learner_flag_reporter_ids = [lf.learner_id for lf in learner_flags if lf.learner_id]
+    learner_trade_symbol_map = {
+        trade.id: trade.symbol
+        for trade in Trade.query.filter(Trade.id.in_(learner_flag_trade_ids)).all()
+    } if learner_flag_trade_ids else {}
+    learner_reporter_name_map = {
+        profile.user_id: profile.display_name
+        for profile in Profile.query.filter(Profile.user_id.in_(learner_flag_reporter_ids)).all()
+    } if learner_flag_reporter_ids else {}
+
     learner_flag_list = []
     for lf in learner_flags:
         d = lf.to_dict()
         d["type"] = "learner_flag"
-        trade = Trade.query.get(lf.trade_id)
-        d["trade_symbol"] = trade.symbol if trade else None
-        reporter_profile = Profile.query.filter_by(user_id=lf.learner_id).first()
-        d["reporter_name"] = reporter_profile.display_name if reporter_profile else None
+        d["trade_symbol"] = learner_trade_symbol_map.get(lf.trade_id)
+        d["reporter_name"] = learner_reporter_name_map.get(lf.learner_id)
         learner_flag_list.append(d)
 
     return jsonify({
@@ -420,7 +572,7 @@ def list_reports():
 @require_admin
 def resolve_report(report_id):
     """Resolve a report with an admin verdict."""
-    report = Report.query.get(report_id)
+    report = db.session.get(Report, report_id)
     if not report:
         return jsonify({"error": "Report not found"}), 404
     data = request.get_json() or {}
@@ -436,7 +588,7 @@ def resolve_report(report_id):
 @require_admin
 def dismiss_report(report_id):
     """Dismiss a report."""
-    report = Report.query.get(report_id)
+    report = db.session.get(Report, report_id)
     if not report:
         return jsonify({"error": "Report not found"}), 404
     data = request.get_json() or {}
@@ -454,6 +606,7 @@ def dismiss_report(report_id):
 
 @admin_bp.route("/payouts", methods=["GET"])
 @require_admin
+@cache_response(ttl_seconds=10, key_prefix="admin_payouts")
 def list_payouts():
     """List all payouts with optional status filter."""
     page = int(request.args.get("page", 1))
@@ -462,8 +615,13 @@ def list_payouts():
     search = request.args.get("search", "").strip()
 
     query = (
-        db.session.query(Payout)
+        db.session.query(
+            Payout,
+            Profile.display_name.label("trader_name"),
+            User.email.label("trader_email"),
+        )
         .join(Profile, Profile.user_id == Payout.trader_id, isouter=True)
+        .join(User, User.id == Payout.trader_id, isouter=True)
         .order_by(Payout.initiated_at.desc())
     )
     if status:
@@ -474,12 +632,10 @@ def list_payouts():
     payouts, total = _paginate(query, page, per_page)
 
     result = []
-    for p in payouts:
+    for p, trader_name, trader_email in payouts:
         d = p.to_dict()
-        profile = Profile.query.filter_by(user_id=p.trader_id).first()
-        d["trader_name"] = profile.display_name if profile else None
-        user = User.query.get(p.trader_id)
-        d["trader_email"] = user.email if user else None
+        d["trader_name"] = trader_name
+        d["trader_email"] = trader_email
         result.append(d)
 
     return jsonify({
@@ -495,7 +651,7 @@ def list_payouts():
 @require_admin
 def mark_payout_paid(payout_id):
     """Mark a payout as successfully paid."""
-    payout = Payout.query.get(payout_id)
+    payout = db.session.get(Payout, payout_id)
     if not payout:
         return jsonify({"error": "Payout not found"}), 404
     payout.status = "success"
@@ -508,7 +664,7 @@ def mark_payout_paid(payout_id):
 @require_admin
 def mark_payout_unpaid(payout_id):
     """Revert a payout back to initiated (pending) status."""
-    payout = Payout.query.get(payout_id)
+    payout = db.session.get(Payout, payout_id)
     if not payout:
         return jsonify({"error": "Payout not found"}), 404
     payout.status = "initiated"
@@ -523,6 +679,7 @@ def mark_payout_unpaid(payout_id):
 
 @admin_bp.route("/comments", methods=["GET"])
 @require_admin
+@cache_response(ttl_seconds=10, key_prefix="admin_comments")
 def list_comments():
     """List all comments with optional trade/user filter."""
     page = int(request.args.get("page", 1))
@@ -530,7 +687,7 @@ def list_comments():
     trade_id = request.args.get("trade_id", "").strip()
     user_id = request.args.get("user_id", "").strip()
 
-    query = Comment.query.order_by(Comment.created_at.desc())
+    query = Comment.query.filter(~Comment.content.like("[Admin reply:%")).order_by(Comment.created_at.desc())
     if trade_id:
         query = query.filter(Comment.trade_id == trade_id)
     if user_id:
@@ -538,13 +695,49 @@ def list_comments():
 
     comments, total = _paginate(query, page, per_page)
 
+    user_ids = [c.user_id for c in comments if c.user_id]
+    trade_ids = [c.trade_id for c in comments if c.trade_id]
+    comment_ids = [c.id for c in comments]
+    profile_name_map = {
+        p.user_id: p.display_name
+        for p in Profile.query.filter(Profile.user_id.in_(user_ids)).all()
+    } if user_ids else {}
+    trade_symbol_map = {
+        t.id: t.symbol
+        for t in Trade.query.filter(Trade.id.in_(trade_ids)).all()
+    } if trade_ids else {}
+    admin_replies = {}
+    if comment_ids and trade_ids:
+        reply_rows = (
+            Comment.query
+            .filter(Comment.trade_id.in_(trade_ids), Comment.content.like("[Admin reply:%"))
+            .order_by(Comment.created_at.desc())
+            .all()
+        )
+        reply_user_ids = [reply.user_id for reply in reply_rows if reply.user_id]
+        reply_author_map = {
+            p.user_id: p.display_name
+            for p in Profile.query.filter(Profile.user_id.in_(reply_user_ids)).all()
+        } if reply_user_ids else {}
+        for reply in reply_rows:
+            parent_id, reply_text = _parse_admin_reply(reply.content)
+            if parent_id not in comment_ids or parent_id in admin_replies:
+                continue
+            admin_replies[parent_id] = {
+                "id": reply.id,
+                "content": reply_text,
+                "author_name": reply_author_map.get(reply.user_id) or "Admin",
+                "created_at": reply.created_at.isoformat() if reply.created_at else None,
+                "updated_at": reply.updated_at.isoformat() if reply.updated_at else None,
+            }
+
     result = []
     for c in comments:
         d = c.to_dict()
-        profile = Profile.query.filter_by(user_id=c.user_id).first()
-        d["author_name"] = profile.display_name if profile else None
-        trade = Trade.query.get(c.trade_id)
-        d["trade_symbol"] = trade.symbol if trade else None
+        d["author_name"] = profile_name_map.get(c.user_id)
+        d["trade_symbol"] = trade_symbol_map.get(c.trade_id)
+        d["admin_reply"] = admin_replies.get(c.id)
+        d["has_admin_reply"] = c.id in admin_replies
         result.append(d)
 
     return jsonify({
@@ -559,34 +752,54 @@ def list_comments():
 @admin_bp.route("/comments/<comment_id>/reply", methods=["POST"])
 @require_admin
 def admin_reply_comment(comment_id):
-    """Post an admin reply to a comment thread."""
-    parent = Comment.query.get(comment_id)
+    """Post or update an admin reply to a comment thread."""
+    parent = db.session.get(Comment, comment_id)
     if not parent:
         return jsonify({"error": "Comment not found"}), 404
+    reply_target_id, _ = _parse_admin_reply(parent.content)
+    if reply_target_id:
+        return jsonify({"error": "Cannot reply to an admin reply"}), 400
 
     data = request.get_json() or {}
     content = data.get("content", "").strip()
     if not content:
         return jsonify({"error": "Reply content is required"}), 400
+    if len(content) > 2000:
+        return jsonify({"error": "Reply too long (max 2000 chars)"}), 400
 
     admin_id = get_jwt_identity()
-    reply = Comment(
-        trade_id=parent.trade_id,
-        user_id=admin_id,
-        content=f"[Admin] {content}",
+    existing_reply = (
+        Comment.query
+        .filter(Comment.trade_id == parent.trade_id, Comment.content.like(f"[Admin reply:{parent.id}]%"))
+        .order_by(Comment.created_at.desc())
+        .first()
     )
-    db.session.add(reply)
+    if existing_reply:
+        existing_reply.user_id = admin_id
+        existing_reply.content = _admin_reply_content(parent.id, content)
+        existing_reply.updated_at = datetime.now(timezone.utc)
+        reply = existing_reply
+    else:
+        reply = Comment(
+            trade_id=parent.trade_id,
+            user_id=admin_id,
+            content=_admin_reply_content(parent.id, content),
+        )
+        db.session.add(reply)
     db.session.commit()
-    return jsonify({"message": "Reply posted", "comment": reply.to_dict()}), 201
+    reply_dict = reply.to_dict()
+    reply_dict["content"] = content
+    return jsonify({"message": "Reply saved", "comment": reply_dict}), 200 if existing_reply else 201
 
 
 @admin_bp.route("/comments/<comment_id>", methods=["DELETE"])
 @require_admin
 def delete_comment(comment_id):
     """Delete a comment."""
-    comment = Comment.query.get(comment_id)
+    comment = db.session.get(Comment, comment_id)
     if not comment:
         return jsonify({"error": "Comment not found"}), 404
+    Comment.query.filter(Comment.content.like(f"[Admin reply:{comment.id}]%")).delete(synchronize_session=False)
     db.session.delete(comment)
     db.session.commit()
     return jsonify({"message": "Comment deleted"}), 200
@@ -598,13 +811,22 @@ def delete_comment(comment_id):
 
 @admin_bp.route("/kyc", methods=["GET"])
 @require_admin
+@cache_response(ttl_seconds=10, key_prefix="admin_kyc")
 def list_kyc():
     """List KYC submissions, filterable by status."""
     status = request.args.get("status", "pending").strip()
     page = int(request.args.get("page", 1))
     per_page = min(int(request.args.get("per_page", 20)), 100)
 
-    query = ProTraderProfile.query
+    query = (
+        db.session.query(
+            ProTraderProfile,
+            User.email.label("email"),
+            Profile.display_name.label("display_name"),
+        )
+        .outerjoin(User, User.id == ProTraderProfile.user_id)
+        .outerjoin(Profile, Profile.user_id == ProTraderProfile.user_id)
+    )
     if status:
         query = query.filter(ProTraderProfile.kyc_status == status)
     query = query.order_by(ProTraderProfile.created_at.desc())
@@ -612,13 +834,13 @@ def list_kyc():
     profiles, total = _paginate(query, page, per_page)
 
     result = []
-    for pt in profiles:
+    for pt, email, display_name in profiles:
         d = pt.to_dict()
-        user = User.query.get(pt.user_id)
-        profile = Profile.query.filter_by(user_id=pt.user_id).first()
-        d["email"] = user.email if user else None
-        d["display_name"] = profile.display_name if profile else None
-        d["document_count"] = len(pt.kyc_documents or {})
+        documents = _admin_kyc_documents(pt)
+        d["email"] = email
+        d["display_name"] = display_name
+        d["documents"] = documents
+        d["document_count"] = len(documents)
         result.append(d)
 
     return jsonify({
@@ -633,27 +855,36 @@ def list_kyc():
 @admin_bp.route("/kyc/<user_id>/approve", methods=["POST"])
 @require_admin
 def approve_kyc(user_id):
-    """Approve KYC for a pro trader."""
+    """Approve KYC for a pro trader — transitions to VERIFIED state."""
     pt = ProTraderProfile.query.filter_by(user_id=user_id).first()
     if not pt:
         return jsonify({"error": "Pro trader profile not found"}), 404
     pt.kyc_status = "verified"
+    pt.is_review_pending = False
+    # Ensure onboarding is at least step 3 (admin verification implies full onboarding)
+    if pt.onboarding_step < 3:
+        pt.onboarding_step = 3
     profile = Profile.query.filter_by(user_id=user_id).first()
     if profile:
         profile.is_verified = True
     db.session.commit()
-    return jsonify({"message": "KYC approved", "kyc_status": "verified"}), 200
+    return jsonify({"message": "KYC approved — trader is now VERIFIED", "kyc_status": "verified"}), 200
 
 
 @admin_bp.route("/kyc/<user_id>/reject", methods=["POST"])
 @require_admin
 def reject_kyc(user_id):
-    """Reject KYC for a pro trader."""
+    """Reject KYC for a pro trader — returns to EXPLORER state."""
     pt = ProTraderProfile.query.filter_by(user_id=user_id).first()
     if not pt:
         return jsonify({"error": "Pro trader profile not found"}), 404
     data = request.get_json() or {}
     pt.kyc_status = "rejected"
+    pt.is_review_pending = False
+    # Keep is_verified = false (already the case, but be explicit)
+    profile = Profile.query.filter_by(user_id=user_id).first()
+    if profile:
+        profile.is_verified = False
     db.session.commit()
     return jsonify({"message": "KYC rejected", "kyc_status": "rejected"}), 200
 
@@ -664,30 +895,48 @@ def reject_kyc(user_id):
 
 @admin_bp.route("/analytics/revenue", methods=["GET"])
 @require_admin
+@cache_response(ttl_seconds=15, key_prefix="admin_analytics_revenue")
 def analytics_revenue():
-    """Monthly revenue for the last 12 months."""
+    """Monthly platform revenue for the last 12 months."""
     now = datetime.now(timezone.utc)
+    month_zero = _month_floor(now)
+    first_month = _add_months(month_zero, -11)
+    end_month = _add_months(month_zero, 1)
+    platform_fee_percent = float(current_app.config.get("PLATFORM_FEE_PERCENT", 10) or 10)
+
+    rows = (
+        db.session.query(
+            func.extract("year", Payment.created_at).label("year"),
+            func.extract("month", Payment.created_at).label("month"),
+            func.coalesce(
+                func.sum(
+                    func.coalesce(
+                        RevenueSplit.admin_amount,
+                        Payment.amount * platform_fee_percent / 100.0,
+                    )
+                ),
+                0,
+            ).label("revenue"),
+        )
+        .select_from(Payment)
+        .outerjoin(RevenueSplit, RevenueSplit.payment_id == Payment.id)
+        .filter(
+            Payment.status == "success",
+            Payment.created_at >= first_month,
+            Payment.created_at < end_month,
+        )
+        .group_by(func.extract("year", Payment.created_at), func.extract("month", Payment.created_at))
+        .all()
+    )
+    revenue_map = {
+        (int(row.year), int(row.month)): float(row.revenue or 0)
+        for row in rows
+    }
+
     months = []
     for i in range(11, -1, -1):
-        # Calculate month offset properly using calendar arithmetic
-        target_month = now.month - i
-        target_year = now.year + (target_month - 1) // 12
-        target_month = ((target_month - 1) % 12) + 1
-        month_start = datetime(target_year, target_month, 1, tzinfo=timezone.utc)
-        # Next month start
-        if target_month == 12:
-            month_end = datetime(target_year + 1, 1, 1, tzinfo=timezone.utc)
-        else:
-            month_end = datetime(target_year, target_month + 1, 1, tzinfo=timezone.utc)
-        total = (
-            db.session.query(db.func.sum(Payment.amount))
-            .filter(
-                Payment.status == "success",
-                Payment.created_at >= month_start,
-                Payment.created_at < month_end,
-            )
-            .scalar() or 0
-        )
+        month_start = _add_months(month_zero, -i)
+        total = revenue_map.get((month_start.year, month_start.month), 0.0)
         months.append({
             "month": month_start.strftime("%b %Y"),
             "revenue": float(total),
@@ -697,16 +946,35 @@ def analytics_revenue():
 
 @admin_bp.route("/analytics/users", methods=["GET"])
 @require_admin
+@cache_response(ttl_seconds=15, key_prefix="admin_analytics_users")
 def analytics_users():
     """Weekly user registrations for the last 12 weeks."""
     now = datetime.now(timezone.utc)
+    week_zero = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+    first_week = week_zero - timedelta(weeks=11)
+    week_end = week_zero + timedelta(weeks=1)
+
+    rows = (
+        db.session.query(
+            func.date_trunc("week", User.created_at).label("week_start"),
+            func.count(User.id).label("users"),
+        )
+        .filter(User.created_at >= first_week, User.created_at < week_end)
+        .group_by(func.date_trunc("week", User.created_at))
+        .all()
+    )
+    count_map = {}
+    for row in rows:
+        bucket = row.week_start
+        if bucket and getattr(bucket, "tzinfo", None) is None:
+            bucket = bucket.replace(tzinfo=timezone.utc)
+        if bucket:
+            count_map[bucket.date()] = int(row.users or 0)
+
     weeks = []
     for i in range(11, -1, -1):
-        week_start = now - timedelta(weeks=i + 1)
-        week_end = now - timedelta(weeks=i)
-        count = User.query.filter(
-            User.created_at >= week_start, User.created_at < week_end
-        ).count()
+        week_start = week_zero - timedelta(weeks=i)
+        count = count_map.get(week_start.date(), 0)
         weeks.append({
             "week": week_start.strftime("%d %b"),
             "users": count,
@@ -716,19 +984,54 @@ def analytics_users():
 
 @admin_bp.route("/analytics/flags", methods=["GET"])
 @require_admin
+@cache_response(ttl_seconds=15, key_prefix="admin_analytics_flags")
 def analytics_flags():
     """Weekly flag/report counts for the last 12 weeks."""
     now = datetime.now(timezone.utc)
+    week_zero = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+    first_week = week_zero - timedelta(weeks=11)
+    week_end = week_zero + timedelta(weeks=1)
+
+    report_rows = (
+        db.session.query(
+            func.date_trunc("week", Report.created_at).label("week_start"),
+            func.count(Report.id).label("total"),
+        )
+        .filter(Report.created_at >= first_week, Report.created_at < week_end)
+        .group_by(func.date_trunc("week", Report.created_at))
+        .all()
+    )
+    learner_rows = (
+        db.session.query(
+            func.date_trunc("week", LearnerFlag.created_at).label("week_start"),
+            func.count(LearnerFlag.id).label("total"),
+        )
+        .filter(LearnerFlag.created_at >= first_week, LearnerFlag.created_at < week_end)
+        .group_by(func.date_trunc("week", LearnerFlag.created_at))
+        .all()
+    )
+
+    report_map = {}
+    for row in report_rows:
+        bucket = row.week_start
+        if bucket and getattr(bucket, "tzinfo", None) is None:
+            bucket = bucket.replace(tzinfo=timezone.utc)
+        if bucket:
+            report_map[bucket.date()] = int(row.total or 0)
+
+    learner_map = {}
+    for row in learner_rows:
+        bucket = row.week_start
+        if bucket and getattr(bucket, "tzinfo", None) is None:
+            bucket = bucket.replace(tzinfo=timezone.utc)
+        if bucket:
+            learner_map[bucket.date()] = int(row.total or 0)
+
     weeks = []
     for i in range(11, -1, -1):
-        week_start = now - timedelta(weeks=i + 1)
-        week_end = now - timedelta(weeks=i)
-        report_count = Report.query.filter(
-            Report.created_at >= week_start, Report.created_at < week_end
-        ).count()
-        learner_flag_count = LearnerFlag.query.filter(
-            LearnerFlag.created_at >= week_start, LearnerFlag.created_at < week_end
-        ).count()
+        week_start = week_zero - timedelta(weeks=i)
+        report_count = report_map.get(week_start.date(), 0)
+        learner_flag_count = learner_map.get(week_start.date(), 0)
         weeks.append({
             "week": week_start.strftime("%d %b"),
             "reports": report_count,
@@ -740,30 +1043,37 @@ def analytics_flags():
 
 @admin_bp.route("/analytics/payouts", methods=["GET"])
 @require_admin
+@cache_response(ttl_seconds=15, key_prefix="admin_analytics_payouts")
 def analytics_payouts():
     """Monthly payout totals for the last 12 months."""
     now = datetime.now(timezone.utc)
+    month_zero = _month_floor(now)
+    first_month = _add_months(month_zero, -11)
+    end_month = _add_months(month_zero, 1)
+
+    rows = (
+        db.session.query(
+            func.extract("year", Payout.initiated_at).label("year"),
+            func.extract("month", Payout.initiated_at).label("month"),
+            func.coalesce(func.sum(Payout.amount), 0).label("payouts"),
+        )
+        .filter(
+            Payout.status == "success",
+            Payout.initiated_at >= first_month,
+            Payout.initiated_at < end_month,
+        )
+        .group_by(func.extract("year", Payout.initiated_at), func.extract("month", Payout.initiated_at))
+        .all()
+    )
+    payout_map = {
+        (int(row.year), int(row.month)): float(row.payouts or 0)
+        for row in rows
+    }
+
     months = []
     for i in range(11, -1, -1):
-        # Calculate month offset properly using calendar arithmetic
-        target_month = now.month - i
-        target_year = now.year + (target_month - 1) // 12
-        target_month = ((target_month - 1) % 12) + 1
-        month_start = datetime(target_year, target_month, 1, tzinfo=timezone.utc)
-        # Next month start
-        if target_month == 12:
-            month_end = datetime(target_year + 1, 1, 1, tzinfo=timezone.utc)
-        else:
-            month_end = datetime(target_year, target_month + 1, 1, tzinfo=timezone.utc)
-        total = (
-            db.session.query(db.func.sum(Payout.amount))
-            .filter(
-                Payout.status == "success",
-                Payout.initiated_at >= month_start,
-                Payout.initiated_at < month_end,
-            )
-            .scalar() or 0
-        )
+        month_start = _add_months(month_zero, -i)
+        total = payout_map.get((month_start.year, month_start.month), 0.0)
         months.append({
             "month": month_start.strftime("%b %Y"),
             "payouts": float(total),
@@ -851,7 +1161,7 @@ def export_payouts():
     rows = []
     for p in payouts:
         profile = Profile.query.filter_by(user_id=p.trader_id).first()
-        user = User.query.get(p.trader_id)
+        user = db.session.get(User, p.trader_id)
         rows.append([
             p.id, p.trader_id,
             profile.display_name if profile else "",
@@ -874,7 +1184,7 @@ def export_reports():
     ]
     rows = []
     for r in reports:
-        trade = Trade.query.get(r.trade_id)
+        trade = db.session.get(Trade, r.trade_id)
         reporter = Profile.query.filter_by(user_id=r.reporter_id).first()
         rows.append([
             r.id, r.trade_id,

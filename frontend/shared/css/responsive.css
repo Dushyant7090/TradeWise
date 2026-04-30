@@ -82,6 +82,17 @@
     grid-column: span 1;
   }
 
+  .profile-summary-head,
+  .profile-summary-identity,
+  .password-collapsed {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .profile-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
   /* Role select */
   .role-cards {
     grid-template-columns: 1fr;

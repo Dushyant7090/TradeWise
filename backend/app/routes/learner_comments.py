@@ -6,6 +6,7 @@ Learner Comments routes (reuses existing comments table)
 - DELETE /api/learner/trades/{id}/comments/{comment_id}
 """
 import logging
+import re
 from datetime import datetime, timezone
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity
@@ -20,6 +21,14 @@ from app.models.subscription import Subscription
 
 logger = logging.getLogger(__name__)
 learner_comments_bp = Blueprint("learner_comments", __name__)
+ADMIN_REPLY_PATTERN = re.compile(r"^\[Admin reply:[0-9a-fA-F-]{36}\]\s*(?P<content>[\s\S]*)$")
+
+
+def _display_comment_content(content: str) -> str:
+    match = ADMIN_REPLY_PATTERN.match(content or "")
+    if not match:
+        return content or ""
+    return f"[Admin] {match.group('content').strip()}"
 
 
 def _can_access_trade(user_id: str, trade: Trade) -> bool:
@@ -47,7 +56,7 @@ def get_comments(trade_id):
     page = int(request.args.get("page", 1))
     per_page = min(int(request.args.get("per_page", 20)), 100)
 
-    trade = Trade.query.get(trade_id)
+    trade = db.session.get(Trade, trade_id)
     if not trade:
         return jsonify({"error": "Trade not found"}), 404
 
@@ -57,6 +66,7 @@ def get_comments(trade_id):
     comments = []
     for c in paginated.items:
         comment_dict = c.to_dict()
+        comment_dict["content"] = _display_comment_content(comment_dict.get("content"))
         prof = Profile.query.filter_by(user_id=c.user_id).first()
         comment_dict["author"] = prof.display_name if prof else "Unknown"
         comment_dict["avatar_url"] = prof.avatar_url if prof else None
@@ -77,7 +87,7 @@ def post_comment(trade_id):
     """Post a comment on a trade (must be unlocked or subscribed)."""
     user_id = get_jwt_identity()
 
-    trade = Trade.query.get(trade_id)
+    trade = db.session.get(Trade, trade_id)
     if not trade:
         return jsonify({"error": "Trade not found"}), 404
 

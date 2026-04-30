@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Trade Feed</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise — Trade Feed</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -18,16 +21,64 @@
 <div class="app-layout">
 
   <aside class="sidebar" id="sidebar" aria-label="Main navigation">
-    <a href="dashboard.html" class="sidebar-logo"><span>Trade<span style="color:var(--color-primary)">Wise</span></span></a>
+    <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+      <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+      <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
+    </a>
     <nav class="sidebar-nav">
-      <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
-      <a href="feed.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Trade Feed</a>
-      <a href="my-history.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>My History</a>
-      <a href="my-subscriptions.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Subscriptions</a>
-      <a href="notifications.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
-      <a href="profile-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
-      <a href="account-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Settings</a>
+      <div class="nav-section">
+        <div class="nav-section-label">Overview</div>
+        <a href="dashboard.html" class="nav-link" data-page="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Discover</div>
+        <a href="feed.html" class="nav-link active" data-page="feed">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Trade Feed
+        </a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">My Learning</div>
+        <a href="my-history.html" class="nav-link" data-page="history">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          My History
+        </a>
+        <a href="my-subscriptions.html" class="nav-link" data-page="subscriptions">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Subscriptions
+        </a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Account</div>
+        <a href="notifications.html" class="nav-link" data-page="notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          Notifications
+          <span class="notif-badge hidden" id="sidebar-notif-badge" style="position:static;margin-left:auto;">0</span>
+        </a>
+        <a href="profile-settings.html" class="nav-link" data-page="profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Profile
+        </a>
+        <a href="account-settings.html" class="nav-link" data-page="account">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          Settings
+        </a>
+      </div>
     </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user">
+        <div class="avatar-placeholder" id="sidebar-avatar">L</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="sidebar-username">Learner</div>
+          <div class="sidebar-user-role">Public Trader</div>
+        </div>
+      </div>
+    </div>
+
   </aside>
   <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 
@@ -159,11 +210,30 @@
 
 <script type="module">
   import Auth from '../js/auth.js';
-  import { learnerFeedAPI, learnerCreditsAPI, learnerSubscriptionsAPI, paymentsAPI } from '../js/api.js';
-  import { timeAgo, getInitials, debounce } from '../js/utils.js';
-  import Realtime from '../js/realtime.js';
+import { learnerFeedAPI, learnerCreditsAPI, learnerSubscriptionsAPI, paymentsAPI } from '../js/api.js?v=api-host-3';
+import { timeAgo, getInitials, debounce } from '../js/utils.js';
+import Realtime from '../js/realtime.js';
+import { initLearnerSidebarProfile } from '../js/sidebar-profile.js';
 
-  if (!Auth.requireAuth()) throw new Error('Not authenticated');
+if (!Auth.requireAuth()) throw new Error('Not authenticated');
+initLearnerSidebarProfile();
+
+      const profile = Auth.getLearnerProfile() || {};
+      const user = Auth.getCurrentUser() || {};
+      const name = profile.display_name || user.email?.split('@')[0] || 'Learner';
+      const sbName = document.getElementById('sidebar-username');
+      if (sbName) sbName.textContent = name;
+      const sbAvatar = document.getElementById('sidebar-avatar');
+      if (sbAvatar) {
+        const avatarUrl = profile.avatar_url || profile.profile_image;
+        const initFn = (typeof getInitials === 'function') ? getInitials : (n) => (n||'L').charAt(0).toUpperCase();
+        if (avatarUrl) {
+          sbAvatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.onerror=null; this.parentElement.textContent='${initFn(name)}';">`;
+        } else {
+          sbAvatar.textContent = initFn(name);
+        }
+      }
+
 
   window.Toast = {
     show(msg, type='info') {
@@ -213,7 +283,7 @@
 
   async function loadFeed() {
     const grid = document.getElementById('feed-grid');
-    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="spinner spinner-lg" style="margin:0 auto;"></div></div>';
+    grid.innerHTML = '<div class="tw-skeleton-card" style="padding:16px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><span class="tw-skeleton tw-skeleton-avatar"></span><div style="flex:1;"><span class="tw-skeleton tw-skeleton-line" style="width:80px;height:14px;display:block;"></span></div></div><span class="tw-skeleton tw-skeleton-line" style="width:60px;height:18px;display:block;margin-bottom:8px;"></span><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;"><span class="tw-skeleton tw-skeleton-line" style="height:36px;"></span><span class="tw-skeleton tw-skeleton-line" style="height:36px;"></span><span class="tw-skeleton tw-skeleton-line" style="height:36px;"></span></div></div><div class="tw-skeleton-card" style="padding:16px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><span class="tw-skeleton tw-skeleton-avatar"></span><div style="flex:1;"><span class="tw-skeleton tw-skeleton-line" style="width:90px;height:14px;display:block;"></span></div></div><span class="tw-skeleton tw-skeleton-line" style="width:70px;height:18px;display:block;margin-bottom:8px;"></span><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;"><span class="tw-skeleton tw-skeleton-line" style="height:36px;"></span><span class="tw-skeleton tw-skeleton-line" style="height:36px;"></span><span class="tw-skeleton tw-skeleton-line" style="height:36px;"></span></div></div><div class="tw-skeleton-card" style="padding:16px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><span class="tw-skeleton tw-skeleton-avatar"></span><div style="flex:1;"><span class="tw-skeleton tw-skeleton-line" style="width:75px;height:14px;display:block;"></span></div></div><span class="tw-skeleton tw-skeleton-line" style="width:65px;height:18px;display:block;margin-bottom:8px;"></span><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;"><span class="tw-skeleton tw-skeleton-line" style="height:36px;"></span><span class="tw-skeleton tw-skeleton-line" style="height:36px;"></span><span class="tw-skeleton tw-skeleton-line" style="height:36px;"></span></div></div>';
     try {
       const data = await learnerFeedAPI.getFeed(getParams());
       const trades = data.data || data.trades || [];
@@ -233,7 +303,15 @@
   }
 
   function tradeCard(t) {
-    const locked = !t.is_unlocked;
+    const hasSubscription = t.has_subscription === true;
+    const isUnlocked = t.is_unlocked === true;
+    const accessible = isUnlocked || hasSubscription;
+    const locked = !accessible;
+    const accessBadge = hasSubscription
+      ? '<span class="badge-unlocked">✓ Subscribed</span>'
+      : isUnlocked
+        ? '<span class="badge-unlocked">✓ Unlocked</span>'
+        : '<span class="badge-locked">🔒 Locked</span>';
     const accuracy = t.pro_trader?.accuracy_score ?? t.accuracy_score ?? 0;
     const accClass = accuracy >= 70 ? 'accuracy-high' : accuracy >= 50 ? 'accuracy-medium' : 'accuracy-low';
     const initials = getInitials(t.pro_trader?.display_name || 'T');
@@ -241,7 +319,9 @@
     <div class="trade-card ${locked?'locked':''}" data-id="${t.id}" data-trader-id="${t.pro_trader_id||t.pro_trader?.id||''}" data-trader-name="${t.pro_trader?.display_name||''}" data-trader-price="${t.pro_trader?.subscription_price||499}">
       <div class="trade-card-header">
         <div class="trader-mini">
-          <div class="trader-mini-avatar">${initials}</div>
+          <div class="trader-mini-avatar">
+            ${t.pro_trader?.profile_image || t.pro_trader?.avatar_url ? `<img src="${t.pro_trader?.profile_image || t.pro_trader?.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.onerror=null; this.parentElement.textContent='${initials}';">` : initials}
+          </div>
           <div>
             <div class="trader-mini-name">${t.pro_trader?.display_name||'Pro Trader'}</div>
             <div class="trader-mini-accuracy">Accuracy: <span class="accuracy-value">${accuracy}%</span></div>
@@ -249,7 +329,7 @@
         </div>
         <div style="display:flex;align-items:center;gap:var(--space-2);">
           <span class="trade-status status-${t.status||'active'}">${(t.status||'active').replace('_',' ')}</span>
-          ${locked ? '<span class="badge-locked">🔒 Locked</span>' : '<span class="badge-unlocked">✓ Unlocked</span>'}
+          ${accessBadge}
         </div>
       </div>
       <div class="trade-card-body">

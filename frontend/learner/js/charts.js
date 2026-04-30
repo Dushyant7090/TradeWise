@@ -13,43 +13,66 @@ const COLORS = {
   warningLight: 'rgba(245, 158, 11, 0.15)',
   info: '#3B82F6',
   infoLight: 'rgba(59, 130, 246, 0.15)',
-  gridLine: 'rgba(255, 255, 255, 0.05)',
-  text: '#737373',
 };
 
-const sharedDefaults = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      labels: {
-        color: COLORS.text,
-        font: { family: 'Inter', size: 12 },
-        usePointStyle: true,
-        pointStyleWidth: 10,
+function getCssVar(name, fallback) {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return value || fallback;
+}
+
+function getThemeTokens() {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  return {
+    text: getCssVar('--text-muted', '#737373'),
+    textPrimary: getCssVar('--text-primary', '#FFFFFF'),
+    textSecondary: getCssVar('--text-secondary', '#A3A3A3'),
+    gridLine: getCssVar('--border-subtle', isLight ? 'rgba(15, 23, 42, 0.12)' : 'rgba(255, 255, 255, 0.08)'),
+    tooltipBg: isLight ? '#ffffff' : '#111827',
+    tooltipBorder: getCssVar('--border-medium', isLight ? 'rgba(15, 23, 42, 0.18)' : 'rgba(255, 255, 255, 0.15)'),
+    doughnutBorder: isLight ? '#f8fafc' : '#0a0a0a',
+  };
+}
+
+function getSharedDefaults(theme) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: theme.text,
+          font: { family: 'Inter', size: 12 },
+          usePointStyle: true,
+          pointStyleWidth: 10,
+        },
+      },
+      tooltip: {
+        backgroundColor: theme.tooltipBg,
+        borderColor: theme.tooltipBorder,
+        borderWidth: 1,
+        titleColor: theme.textPrimary,
+        bodyColor: theme.textSecondary,
+        padding: 12,
+        cornerRadius: 8,
       },
     },
-    tooltip: {
-      backgroundColor: '#1a1a1a',
-      borderColor: 'rgba(255,255,255,0.1)',
-      borderWidth: 1,
-      titleColor: '#fff',
-      bodyColor: '#A3A3A3',
-      padding: 12,
-      cornerRadius: 8,
-    },
-  },
-};
+  };
+}
 
-const axisDefaults = {
-  grid: { color: COLORS.gridLine },
-  ticks: { color: COLORS.text, font: { family: 'Inter', size: 11 } },
-};
+function getAxisDefaults(theme) {
+  return {
+    grid: { color: theme.gridLine },
+    ticks: { color: theme.text, font: { family: 'Inter', size: 11 } },
+  };
+}
 
 // ===== CREDITS OVER TIME (LINE) =====
 export function createCreditsChart(canvasId, data) {
   const ctx = document.getElementById(canvasId);
   if (!ctx || !window.Chart) return null;
+  const theme = getThemeTokens();
+  const sharedDefaults = getSharedDefaults(theme);
+  const axisDefaults = getAxisDefaults(theme);
   return new Chart(ctx, {
     type: 'line',
     data: {
@@ -82,6 +105,8 @@ export function createCreditsChart(canvasId, data) {
 export function createMarketDistributionChart(canvasId, data) {
   const ctx = document.getElementById(canvasId);
   if (!ctx || !window.Chart) return null;
+  const theme = getThemeTokens();
+  const sharedDefaults = getSharedDefaults(theme);
   const labels = data?.labels || [];
   const values = data?.values || [];
   const palette = [COLORS.primary, COLORS.info, COLORS.warning, COLORS.danger, '#8B5CF6', '#EC4899'];
@@ -92,7 +117,7 @@ export function createMarketDistributionChart(canvasId, data) {
       datasets: [{
         data: values,
         backgroundColor: palette.slice(0, labels.length),
-        borderColor: '#0a0a0a',
+        borderColor: theme.doughnutBorder,
         borderWidth: 3,
         hoverOffset: 6,
       }],
@@ -122,6 +147,9 @@ export function createMarketDistributionChart(canvasId, data) {
 export function createWinLossChart(canvasId, data) {
   const ctx = document.getElementById(canvasId);
   if (!ctx || !window.Chart) return null;
+  const theme = getThemeTokens();
+  const sharedDefaults = getSharedDefaults(theme);
+  const axisDefaults = getAxisDefaults(theme);
   return new Chart(ctx, {
     type: 'bar',
     data: {
@@ -159,6 +187,9 @@ export function createWinLossChart(canvasId, data) {
 export function createLearningProgressChart(canvasId, data) {
   const ctx = document.getElementById(canvasId);
   if (!ctx || !window.Chart) return null;
+  const theme = getThemeTokens();
+  const sharedDefaults = getSharedDefaults(theme);
+  const axisDefaults = getAxisDefaults(theme);
   return new Chart(ctx, {
     type: 'line',
     data: {
@@ -190,6 +221,9 @@ export function createLearningProgressChart(canvasId, data) {
 export function createMonthlyUnlocksChart(canvasId, data) {
   const ctx = document.getElementById(canvasId);
   if (!ctx || !window.Chart) return null;
+  const theme = getThemeTokens();
+  const sharedDefaults = getSharedDefaults(theme);
+  const axisDefaults = getAxisDefaults(theme);
   return new Chart(ctx, {
     type: 'bar',
     data: {

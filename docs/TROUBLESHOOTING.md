@@ -526,9 +526,9 @@ pytest tests/ -v
 
 ### Tests fail with database errors
 
-**Cause:** SQLite in-memory database not being reset between tests.
+**Cause:** PostgreSQL test database is unreachable, misconfigured, or shared across test runs.
 
-**Fix:** The `conftest.py` uses `scope="function"` for the `db` fixture, which resets after each test. If tests are sharing state, ensure each test uses the `db` fixture:
+**Fix:** Ensure `TEST_DATABASE_URL` (recommended) or `DATABASE_URL` points to a reachable PostgreSQL database. Keep `db` fixture usage in every stateful test so setup/teardown runs consistently:
 
 ```python
 def test_something(client, db):  # Always include `db` fixture
@@ -545,7 +545,9 @@ def test_something(client, db):  # Always include `db` fixture
 ```python
 class TestingConfig(BaseConfig):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    SQLALCHEMY_DATABASE_URI = _resolve_postgres_database_url(
+        "TEST_DATABASE_URL", fallback_env="DATABASE_URL"
+    )
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=60)
     # JWT_SECRET_KEY inherited from BaseConfig
 ```
@@ -617,4 +619,4 @@ try {
 2. Open browser **DevTools → Network tab** and inspect failed requests
 3. Check **Supabase logs**: Your Supabase project → **Logs** → **API**
 4. Ensure all environment variables are set (no empty values in `.env`)
-5. Try a fresh start: delete the SQLite file (if using SQLite), restart the server, and clear browser localStorage
+5. Restart the backend, verify PostgreSQL connectivity (`DATABASE_URL` / `TEST_DATABASE_URL`), and clear browser localStorage

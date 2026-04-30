@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Notification Preferences</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise � Notification Preferences</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -16,7 +19,10 @@
 <div class="app-layout">
 
   <aside class="sidebar" id="sidebar">
-    <a href="dashboard.html" class="sidebar-logo"><span>Trade<span style="color:var(--color-primary)">Wise</span></span></a>
+    <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+      <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+      <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
+    </a>
     <nav class="sidebar-nav">
       <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
       <a href="feed.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Trade Feed</a>
@@ -37,7 +43,7 @@
         <h1 class="topbar-title">Notification Preferences</h1>
       </div>
       <div class="topbar-right">
-        <a href="notifications.html" class="btn btn-secondary btn-sm">← Notifications</a>
+        <a href="notifications.html" class="btn btn-secondary btn-sm">? Notifications</a>
         <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
       </div>
     </header>
@@ -52,7 +58,7 @@
 
       <!-- Trade Notifications -->
       <div class="pref-section">
-        <div class="pref-section-title">📈 Trade Notifications</div>
+        <div class="pref-section-title">?? Trade Notifications</div>
         <div class="pref-row">
           <div>
             <div class="pref-label">New trade posted</div>
@@ -87,7 +93,7 @@
 
       <!-- Subscription Notifications -->
       <div class="pref-section">
-        <div class="pref-section-title">💳 Subscription Notifications</div>
+        <div class="pref-section-title">?? Subscription Notifications</div>
         <div class="pref-row">
           <div>
             <div class="pref-label">Subscription expiring</div>
@@ -108,21 +114,11 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
-        <div class="pref-row">
-          <div>
-            <div class="pref-label">Auto-renew reminder</div>
-            <div class="pref-hint">Notify before an auto-renew charge</div>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="pref-autorenew" />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
       </div>
 
       <!-- Community Notifications -->
       <div class="pref-section">
-        <div class="pref-section-title">💬 Community Notifications</div>
+        <div class="pref-section-title">?? Community Notifications</div>
         <div class="pref-row">
           <div>
             <div class="pref-label">Comment reply</div>
@@ -147,7 +143,7 @@
 
       <!-- System Notifications -->
       <div class="pref-section">
-        <div class="pref-section-title">🔔 System Notifications</div>
+        <div class="pref-section-title">?? System Notifications</div>
         <div class="pref-row">
           <div>
             <div class="pref-label">Security alerts</div>
@@ -182,7 +178,7 @@
 
       <!-- Delivery Methods -->
       <div class="pref-section">
-        <div class="pref-section-title">📬 Delivery Methods</div>
+        <div class="pref-section-title">?? Delivery Methods</div>
         <div class="pref-row">
           <div>
             <div class="pref-label">In-app notifications</div>
@@ -216,13 +212,15 @@
 <div id="toast-container" class="toast-container"></div>
 
 <script type="module">
-  import Auth from '../js/auth.js';
-  import { learnerNotificationsAPI } from '../js/api.js';
+import Auth from '../js/auth.js';
+import { learnerNotificationsAPI } from '../js/api.js?v=api-host-3';
+import { initLearnerSidebarProfile } from '../js/sidebar-profile.js';
 
-  if (!Auth.requireAuth()) throw new Error('Not authenticated');
+if (!Auth.requireAuth()) throw new Error('Not authenticated');
+initLearnerSidebarProfile();
 
   window.Toast = {
-    show(msg,type='info'){const c=document.getElementById('toast-container'),t=document.createElement('div');t.className=`toast toast-${type}`;t.innerHTML=`<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;c.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));const d=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);};t.querySelector('.toast-dismiss').addEventListener('click',d);setTimeout(d,5000);}
+    show(msg,type='info'){const c=document.getElementById('toast-container'),t=document.createElement('div');t.className=`toast toast-${type}`;t.innerHTML=`<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">�</button>`;c.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));const d=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);};t.querySelector('.toast-dismiss').addEventListener('click',d);setTimeout(d,5000);}
   };
 
   const hamburger=document.getElementById('hamburger'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
@@ -236,7 +234,6 @@
     trade_closed:   'pref-trade-closed',
     sub_expiring:   'pref-sub-expire',
     payment:        'pref-payment',
-    auto_renew:     'pref-autorenew',
     comment_reply:  'pref-comment',
     flag_update:    'pref-flag',
     platform_updates: 'pref-updates',
@@ -268,7 +265,7 @@
 
     try {
       await learnerNotificationsAPI.updatePreferences(payload);
-      prefAlert.textContent = '✓ Preferences saved!';
+      prefAlert.textContent = '? Preferences saved!';
       prefAlert.className = 'alert alert-success';
       prefAlert.classList.remove('hidden');
       Toast.show('Notification preferences saved!', 'success');

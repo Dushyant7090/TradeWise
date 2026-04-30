@@ -13,6 +13,9 @@ const Realtime = {
    * @param {string} anonKey - Supabase anon key
    */
   init(url, anonKey) {
+    if (!url && !anonKey) {
+      return;
+    }
     if (!url || !anonKey || !url.startsWith('https://') || anonKey.length < 20) {
       console.warn('Realtime: Valid Supabase credentials required. Realtime disabled.');
       return;

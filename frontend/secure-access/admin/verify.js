@@ -3,6 +3,16 @@
   'use strict';
 
   var VALID_KEY = 'TW_ADM_2024_X9K';
+  var frontendAnchor = '/frontend/';
+  var pathname = window.location.pathname;
+  var anchorIndex = pathname.indexOf(frontendAnchor);
+  var FRONTEND_BASE = anchorIndex === -1
+    ? ''
+    : pathname.slice(0, anchorIndex + frontendAnchor.length - 1);
+
+  function frontendPath(pathFromFrontendRoot) {
+    return FRONTEND_BASE + pathFromFrontendRoot;
+  }
 
   // Hide the entire document immediately to prevent any content or style flash.
   document.documentElement.style.visibility = 'hidden';
@@ -12,7 +22,7 @@
 
   if (supplied !== VALID_KEY) {
     // Wrong or missing key — silently redirect to 404, never reveal this path.
-    window.location.replace('/frontend/404.html');
+    window.location.replace(frontendPath('/404.html'));
     return; // visibility stays hidden; navigation will complete
   }
 

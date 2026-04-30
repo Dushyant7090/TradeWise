@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Active Trades</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-4"></script>
+<title>TradeWise - Active Trades</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -11,11 +14,15 @@
   <link rel="stylesheet" href="../../shared/css/components.css" />
   <link rel="stylesheet" href="../../shared/css/pages.css" />
   <link rel="stylesheet" href="../../shared/css/responsive.css" />
+  <link rel="stylesheet" href="../css/theme.css?v=theme-sync-4" />
 </head>
 <body>
   <div class="app-layout">
     <aside class="sidebar" id="sidebar" aria-label="Main navigation">
-      <a href="dashboard.html" class="sidebar-logo"><span>TradeWise Pro</span></a>
+      <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+        <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+        <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
+      </a>
             <nav class="sidebar-nav">
         <div class="nav-section">
           <div class="nav-section-label">Overview</div>
@@ -60,6 +67,15 @@
           </a>
         </div>
       </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="avatar-placeholder" id="sidebar-avatar" aria-hidden="true">P</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebar-user-name">Pro Trader</div>
+            <div class="sidebar-user-role">Pro Trader</div>
+          </div>
+        </div>
+      </div>
     </aside>
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 
@@ -114,15 +130,15 @@
     <div class="modal">
       <div class="modal-header">
         <h2 class="modal-title" id="close-modal-title">Close Trade</h2>
-        <button class="modal-close" id="close-modal-btn" aria-label="Close">×</button>
+        <button class="modal-close" id="close-modal-btn" aria-label="Close">x</button>
       </div>
       <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">Select the outcome for this trade.</p>
       <div class="form-group">
         <label class="form-label" for="close-outcome">Outcome <span class="required">*</span></label>
         <select id="close-outcome" class="input">
-          <option value="">— Select outcome —</option>
-          <option value="target_hit">✅ Target Hit (Win)</option>
-          <option value="sl_hit">❌ Stop-Loss Hit (Loss)</option>
+          <option value="">- Select outcome -</option>
+          <option value="target_hit">Target Hit (Win)</option>
+          <option value="sl_hit">Stop-Loss Hit (Loss)</option>
         </select>
       </div>
       <div class="modal-footer">
@@ -135,15 +151,20 @@
     </div>
   </div>
 
+  <div id="chart-lightbox" class="chart-lightbox hidden" role="dialog" aria-modal="true" aria-label="Expanded chart image">
+    <button class="chart-lightbox-close" id="chart-lightbox-close" aria-label="Close chart">x</button>
+    <img id="chart-lightbox-img" src="" alt="Expanded trade chart" />
+  </div>
+
   <div id="toast-container" class="toast-container"></div>
 
   <script type="module">
-    import Auth from '../js/auth.js';
-    import { tradesAPI } from '../js/api.js';
+    import Auth from '../js/auth.js?v=role-fix-1';
+    import { tradesAPI } from '../js/api.js?v=api-host-4';
     import { timeAgo, formatPrice, debounce } from '../js/utils.js';
     import Realtime from '../js/realtime.js';
     import Storage from '../js/storage.js';
-    import App from '../js/main.js';
+    import App from '../js/main.js?v=sidebar-kyc-1';
 
     if (!Auth.requireAuth()) throw new Error('Not authenticated');
 
@@ -152,7 +173,7 @@
         const c = document.getElementById('toast-container');
         const t = document.createElement('div');
         t.className = `toast toast-${type}`;
-        t.innerHTML = `<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;
+        t.innerHTML = `<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">x</button>`;
         c.appendChild(t);
         requestAnimationFrame(() => t.classList.add('show'));
         const d = () => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); };
@@ -176,6 +197,47 @@
     let allTrades = [];
     let currentFilter = 'all';
     let closingTradeId = null;
+    const TRADES_PAGE_SIZE = 15;
+    let visibleTradeCount = TRADES_PAGE_SIZE;
+    const chartObjectUrls = new Map();
+    const expandedTradeIds = new Set();
+    let chartFileDialogOpen = false;
+    let chartFileDialogTimer = null;
+
+    function resolveApiUrl(path) {
+      if (!path) return '';
+      if (/^https?:\/\//i.test(path) || path.startsWith('blob:') || path.startsWith('data:')) return path;
+      const base = (window.TW_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+      return `${base}${path.startsWith('/api/') ? path.slice(4) : path}`;
+    }
+
+    function getChartSource(t) {
+      return t.chart_proxy_url || t.chart_image_url || '';
+    }
+
+    function openChartLightbox(src, alt) {
+      const lightbox = document.getElementById('chart-lightbox');
+      const image = document.getElementById('chart-lightbox-img');
+      if (!lightbox || !image || !src) return;
+      image.src = src;
+      image.alt = alt || 'Expanded trade chart';
+      lightbox.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeChartLightbox() {
+      const lightbox = document.getElementById('chart-lightbox');
+      const image = document.getElementById('chart-lightbox-img');
+      if (!lightbox || !image) return;
+      lightbox.classList.add('hidden');
+      image.removeAttribute('src');
+      document.body.style.overflow = '';
+    }
+
+    function revokeChartObjectUrls() {
+      chartObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+      chartObjectUrls.clear();
+    }
 
     // Load trades
     async function loadTrades() {
@@ -200,6 +262,7 @@
     function renderTrades() {
       const trades = filterTrades();
       const grid = document.getElementById('trades-grid');
+      revokeChartObjectUrls();
       if (trades.length === 0) {
         grid.innerHTML = `<div class="empty-state">
           <div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
@@ -209,8 +272,25 @@
         </div>`;
         return;
       }
-      grid.innerHTML = trades.map(t => tradeCard(t)).join('');
+
+      const visible = trades.slice(0, visibleTradeCount);
+      const hasMore = trades.length > visibleTradeCount;
+
+      grid.innerHTML = visible.map(t => tradeCard(t)).join('') +
+        (hasMore ? `<div style="grid-column:1/-1;text-align:center;padding:var(--space-4);">
+          <button class="btn btn-secondary btn-sm" id="load-more-trades">Load More (${trades.length - visibleTradeCount} remaining)</button>
+        </div>` : '');
       attachCardEvents();
+      hydrateChartImages();
+
+      // Load more handler
+      const loadMoreBtn = document.getElementById('load-more-trades');
+      if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', () => {
+          visibleTradeCount += TRADES_PAGE_SIZE;
+          renderTrades();
+        });
+      }
     }
 
     function tradeCard(t) {
@@ -218,18 +298,20 @@
       const statusBadge = {
         active: 'badge-success', target_hit: 'badge-info', sl_hit: 'badge-danger'
       }[t.status] || 'badge-neutral';
-      const flagWarning = t.flag_count >= 10 ? `<span class="badge badge-danger" title="Flagged">⚠ ${t.flag_count} flags</span>` : '';
+      const flagWarning = t.flag_count >= 10 ? `<span class="badge badge-danger" title="Flagged">Flagged ${t.flag_count} times</span>` : '';
+      const isExpanded = expandedTradeIds.has(String(t.id));
+      const chartInputId = `chart-upload-${escapeHTML(t.id)}`;
 
-      return `<div class="trade-card" id="trade-${t.id}">
-        <div class="trade-card-header" data-id="${t.id}" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-${t.id}">
+      return `<div class="trade-card ${isExpanded ? 'expanded' : ''}" id="trade-${t.id}">
+        <div class="trade-card-header" data-id="${t.id}" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-controls="expand-${t.id}">
           <div class="trade-card-main">
             <div class="trade-symbol">${t.symbol}</div>
             <span class="badge badge-${isBuy ? 'buy' : 'sell'}">${(t.direction || '').toUpperCase()}</span>
             <div class="trade-prices">
-              <div class="trade-price-item"><div class="trade-price-label">Entry</div><div class="trade-price-value">₹${formatPrice(t.entry_price)}</div></div>
-              <div class="trade-price-item"><div class="trade-price-label">SL</div><div class="trade-price-value" style="color: var(--color-danger)">₹${formatPrice(t.stop_loss_price)}</div></div>
-              <div class="trade-price-item"><div class="trade-price-label">Target</div><div class="trade-price-value" style="color: var(--color-success)">₹${formatPrice(t.target_price)}</div></div>
-              <div class="trade-price-item"><div class="trade-price-label">RRR</div><div class="trade-price-value">${t.rrr ? t.rrr.toFixed(2) : '—'}</div></div>
+              <div class="trade-price-item"><div class="trade-price-label">Entry</div><div class="trade-price-value">Rs ${formatPrice(t.entry_price)}</div></div>
+              <div class="trade-price-item"><div class="trade-price-label">SL</div><div class="trade-price-value" style="color: var(--color-danger)">Rs ${formatPrice(t.stop_loss_price)}</div></div>
+              <div class="trade-price-item"><div class="trade-price-label">Target</div><div class="trade-price-value" style="color: var(--color-success)">Rs ${formatPrice(t.target_price)}</div></div>
+              <div class="trade-price-item"><div class="trade-price-label">RRR</div><div class="trade-price-value">${t.rrr ? t.rrr.toFixed(2) : '-'}</div></div>
             </div>
             <span class="badge ${statusBadge}">${(t.status || 'active').replace('_', ' ')}</span>
             ${flagWarning}
@@ -240,18 +322,68 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="expand-icon" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
         </div>
-        <div class="trade-card-expand" id="expand-${t.id}" aria-hidden="true">
-          ${t.chart_image_url ? `<img src="${t.chart_image_url}" alt="Chart for ${t.symbol}" class="trade-chart-image" loading="lazy" />` : ''}
+        <div class="trade-card-expand" id="expand-${t.id}" aria-hidden="${!isExpanded}">
+          ${t.chart_image_url ? `<div class="trade-chart-frame" data-chart-frame="${escapeHTML(t.id)}">
+              <div class="trade-chart-loading">Loading chart...</div>
+              <img data-chart-src="${escapeHTML(getChartSource(t))}" alt="Chart for ${escapeHTML(t.symbol)}" class="trade-chart-image" loading="lazy" tabindex="0" />
+            </div>` : `
+            <form class="chart-upload-form" data-trade="${escapeHTML(t.id)}" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;">
+              <input id="${chartInputId}" name="chart_image" type="file" class="input chart-upload-input" accept="image/jpeg,image/png,image/gif,image/webp" aria-label="Upload chart for ${escapeHTML(t.symbol)}" />
+              <button type="submit" class="btn btn-secondary btn-sm">Add Chart</button>
+            </form>
+          `}
           <div class="trade-rationale">${escapeHTML(t.technical_rationale)}</div>
           <div style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">
-            <span>👁 ${t.view_count || 0} views</span>
-            <span>🔓 ${t.unlock_count || 0} unlocks</span>
+            <span>${t.view_count || 0} views</span>
+            <span>${t.unlock_count || 0} unlocks</span>
           </div>
           <div class="comments-section" id="comments-${t.id}">
             <p style="font-size: 0.875rem; color: var(--text-muted);">Loading comments...</p>
           </div>
         </div>
       </div>`;
+    }
+
+    async function hydrateChartImages() {
+      const images = Array.from(document.querySelectorAll('img[data-chart-src]'));
+      await Promise.all(images.map(async (img) => {
+        const rawSrc = img.dataset.chartSrc;
+        const frame = img.closest('.trade-chart-frame');
+        const loading = frame?.querySelector('.trade-chart-loading');
+        const token = Storage.getToken();
+        const resolvedSrc = resolveApiUrl(rawSrc);
+
+        try {
+          const needsAuth = rawSrc.startsWith('/api/') || resolvedSrc.includes('/api/pro-trader/');
+          const response = await fetch(resolvedSrc, {
+            headers: token && needsAuth ? { Authorization: `Bearer ${token}` } : {},
+          });
+          if (!response.ok) throw new Error(`Chart request failed (${response.status})`);
+
+          const blob = await response.blob();
+          if (!blob.type.startsWith('image/')) throw new Error('Chart response was not an image');
+
+          const objectUrl = URL.createObjectURL(blob);
+          chartObjectUrls.set(`${img.alt}-${Date.now()}-${Math.random()}`, objectUrl);
+          img.src = objectUrl;
+          img.removeAttribute('data-chart-src');
+          img.classList.add('is-loaded');
+          img.addEventListener('click', () => openChartLightbox(img.src, img.alt));
+          img.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              openChartLightbox(img.src, img.alt);
+            }
+          });
+          if (loading) loading.remove();
+        } catch (err) {
+          if (loading) {
+            loading.textContent = 'Chart image could not be loaded. Try re-uploading it.';
+            loading.classList.add('is-error');
+          }
+          console.warn('Unable to load trade chart image:', err);
+        }
+      }));
     }
 
     function attachCardEvents() {
@@ -265,6 +397,8 @@
           const isExpanded = card.classList.toggle('expanded');
           expand.setAttribute('aria-hidden', !isExpanded);
           header.setAttribute('aria-expanded', isExpanded);
+          if (isExpanded) expandedTradeIds.add(String(id));
+          else expandedTradeIds.delete(String(id));
           if (isExpanded) loadComments(id);
         });
         header.addEventListener('keydown', (e) => {
@@ -279,6 +413,47 @@
           closingTradeId = btn.dataset.id;
           document.getElementById('close-outcome').value = '';
           document.getElementById('close-modal').classList.add('active');
+        });
+      });
+
+      document.querySelectorAll('.chart-upload-form').forEach(form => {
+        form.addEventListener('click', (e) => e.stopPropagation());
+        const input = form.querySelector('.chart-upload-input');
+        const rememberExpanded = () => expandedTradeIds.add(String(form.dataset.trade));
+        const holdFileDialogOpen = () => {
+          rememberExpanded();
+          chartFileDialogOpen = true;
+          if (chartFileDialogTimer) clearTimeout(chartFileDialogTimer);
+          chartFileDialogTimer = setTimeout(() => { chartFileDialogOpen = false; }, 8000);
+        };
+        input?.addEventListener('pointerdown', holdFileDialogOpen);
+        input?.addEventListener('click', holdFileDialogOpen);
+        input?.addEventListener('focus', rememberExpanded);
+        input?.addEventListener('change', () => {
+          rememberExpanded();
+          if (chartFileDialogTimer) clearTimeout(chartFileDialogTimer);
+          chartFileDialogTimer = setTimeout(() => { chartFileDialogOpen = false; }, 1500);
+        });
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const file = input?.files?.[0];
+          if (!file) {
+            window.Toast.show('Please choose a chart image first.', 'warning');
+            return;
+          }
+          const body = new FormData();
+          body.append('file', file);
+          const button = form.querySelector('button[type="submit"]');
+          button.disabled = true;
+          try {
+            await tradesAPI.updateChart(form.dataset.trade, body);
+            expandedTradeIds.add(String(form.dataset.trade));
+            window.Toast.show('Chart added to trade.', 'success');
+            await loadTrades();
+          } catch (err) {
+            window.Toast.show(err.message || 'Failed to upload chart.', 'error');
+            button.disabled = false;
+          }
         });
       });
     }
@@ -357,12 +532,24 @@
         document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
         currentFilter = chip.dataset.filter;
+        visibleTradeCount = TRADES_PAGE_SIZE;
         renderTrades();
       });
     });
 
     // Search
-    document.getElementById('search-input').addEventListener('input', debounce(renderTrades, 200));
+    document.getElementById('search-input').addEventListener('input', debounce(() => {
+      visibleTradeCount = TRADES_PAGE_SIZE;
+      renderTrades();
+    }, 200));
+
+    document.getElementById('chart-lightbox')?.addEventListener('click', (event) => {
+      if (event.target.id === 'chart-lightbox') closeChartLightbox();
+    });
+    document.getElementById('chart-lightbox-close')?.addEventListener('click', closeChartLightbox);
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeChartLightbox();
+    });
 
     // Realtime
     const user = Storage.getUser();
@@ -372,6 +559,21 @@
         onUpdate: () => loadTrades(),
       });
     }
+
+    // Lightweight polling: auto-refresh every 30s if page is visible
+    // This catches status changes from other devices/tabs
+    let pollTimer = null;
+    function startPolling() {
+      pollTimer = setInterval(() => {
+        if (!document.hidden && !chartFileDialogOpen && expandedTradeIds.size === 0) loadTrades();
+      }, 30000);
+    }
+    startPolling();
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && !chartFileDialogOpen && expandedTradeIds.size === 0 && allTrades.some(t => t.status === 'active')) {
+        loadTrades(); // immediate refresh when tab becomes visible
+      }
+    });
 
     loadTrades();
   </script>

@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TradeWise — Master the Markets with Verified Trade Analysis</title>
+    
+  <script src="./shared/js/theme.js?v=global-theme-1"></script>
+<title>TradeWise — Master the Markets with Verified Trade Analysis</title>
     <meta name="description"
         content="Stop following signals blindly. Access high-quality trade ideas from vetted Pro-Traders on Indian Equity Markets (NSE/BSE), complete with technical rationale and chart evidence.">
     <meta property="og:title" content="TradeWise — Master the Markets with Verified Trade Analysis">
@@ -23,7 +25,7 @@
     <!-- ===== NAVBAR ===== -->
     <nav class="navbar" id="navbar">
         <div class="nav-brand">
-            <img src="shared/assets/logo.svg" alt="TradeWise" class="logo-icon">
+            <img src="logo.svg" alt="TradeWise" class="logo-icon">
             <span>TradeWise</span>
         </div>
         <ul class="nav-links" id="navLinks">
@@ -31,6 +33,29 @@
             <li><a href="#how-it-works">How It Works</a></li>
             <li><a href="#features">Features</a></li>
             <li><a href="#trust">Trust &amp; Security</a></li>
+            <li>
+                <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light mode"
+                    title="Switch theme">
+                    <svg class="theme-icon theme-icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        aria-hidden="true">
+                        <circle cx="12" cy="12" r="4" />
+                        <path d="M12 2v2" />
+                        <path d="M12 20v2" />
+                        <path d="m4.93 4.93 1.41 1.41" />
+                        <path d="m17.66 17.66 1.41 1.41" />
+                        <path d="M2 12h2" />
+                        <path d="M20 12h2" />
+                        <path d="m6.34 17.66-1.41 1.41" />
+                        <path d="m19.07 4.93-1.41 1.41" />
+                    </svg>
+                    <svg class="theme-icon theme-icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        aria-hidden="true">
+                        <path d="M12 3a6 6 0 0 0 9 7.2A9 9 0 1 1 12 3Z" />
+                    </svg>
+                </button>
+            </li>
             <li><a href="pages/role-selection.html" class="nav-signin-btn">Get Started</a></li>
         </ul>
 
@@ -272,7 +297,7 @@
                             </div>
                         </div>
                     </div>
-                    <a href="learner/pages/auth.html" class="hiw-cta btn-primary">Get Started Free</a>
+                    <a href="pages/role-selection.html" class="hiw-cta btn-primary">Get Started Free</a>
                 </div>
 
                 <!-- Divider -->
@@ -323,7 +348,7 @@
                             </div>
                         </div>
                     </div>
-                    <a href="pro-trader/pages/register.html" class="hiw-cta btn-secondary">Apply as Mentor</a>
+                    <a href="pages/role-selection.html" class="hiw-cta btn-secondary">Apply as Mentor</a>
                 </div>
             </div>
         </div>
@@ -537,7 +562,7 @@
                 <h2>Ready to Trade <span class="gradient">Smarter?</span></h2>
                 <p>Join thousands of traders learning from the best verified mentors on Indian equity markets.</p>
                 <div class="cta-buttons">
-                    <a href="learner/pages/auth.html" class="btn-primary cta-main-btn">
+                    <a href="pages/role-selection.html" class="btn-primary cta-main-btn">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
@@ -557,7 +582,7 @@
             <div class="footer-main">
                 <div class="footer-brand-col">
                     <div class="footer-brand">
-                        <img src="shared/assets/logo.svg" alt="TradeWise" class="logo-icon">
+                        <img src="logo.svg" alt="TradeWise" class="logo-icon">
                         <span>TradeWise</span>
                     </div>
                     <p class="footer-tagline">Master the markets with verified trade analysis from India's best

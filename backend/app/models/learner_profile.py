@@ -36,6 +36,12 @@ class LearnerProfile(db.Model):
     user = db.relationship("User", foreign_keys=[user_id])
 
     VALID_EXPERIENCE_LEVELS = ["beginner", "intermediate", "advanced"]
+    VALID_LEARNING_GOALS = [
+        "learn_basics",
+        "improve_consistency",
+        "build_system",
+        "diversify",
+    ]
 
     def to_dict(self):
         return {

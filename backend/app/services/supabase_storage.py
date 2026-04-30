@@ -26,13 +26,19 @@ class SupabaseStorageService:
         """
         client = self._get_client()
         try:
-            result = client.storage.from_(bucket).upload(
+            # Upload file
+            client.storage.from_(bucket).upload(
                 path=path,
                 file=file_data,
                 file_options={"content-type": content_type, "upsert": "true"},
             )
-            # Get public URL
-            public_url = client.storage.from_(bucket).get_public_url(path)
+            logger.info(f"File uploaded successfully to {bucket}/{path}")
+            
+            # Always construct the full public URL directly (Supabase SDK may return relative paths)
+            base_url = current_app.config.get("SUPABASE_URL", "").rstrip("/")
+            public_url = f"{base_url}/storage/v1/object/public/{bucket}/{path}"
+            
+            logger.info(f"Returning public URL: {public_url}")
             return public_url
         except Exception as e:
             logger.error(f"Supabase storage upload error: {e}")

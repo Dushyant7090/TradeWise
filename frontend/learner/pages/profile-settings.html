@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Profile Settings</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise — Profile Settings</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -15,18 +18,65 @@
 <body>
 <div class="app-layout">
 
-  <aside class="sidebar" id="sidebar">
-    <a href="dashboard.html" class="sidebar-logo"><span>Trade<span style="color:var(--color-primary)">Wise</span></span></a>
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+      <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+      <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
+    </a>
     <nav class="sidebar-nav">
-      <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
-      <a href="feed.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Trade Feed</a>
-      <a href="my-history.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>My History</a>
-      <a href="my-subscriptions.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Subscriptions</a>
-      <a href="notifications.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</a>
-      <a href="profile-settings.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+      <div class="nav-section">
+        <div class="nav-section-label">Overview</div>
+        <a href="dashboard.html" class="nav-link" data-page="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Discover</div>
+        <a href="feed.html" class="nav-link" data-page="feed">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Trade Feed
+        </a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">My Learning</div>
+        <a href="my-history.html" class="nav-link" data-page="history">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          My History
+        </a>
+        <a href="my-subscriptions.html" class="nav-link" data-page="subscriptions">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Subscriptions
+        </a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Account</div>
+        <a href="notifications.html" class="nav-link" data-page="notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          Notifications
+          <span class="notif-badge hidden" id="sidebar-notif-badge" style="position:static;margin-left:auto;">0</span>
+        </a>
+        <a href="profile-settings.html" class="nav-link active" data-page="profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Profile
+        </a>
+        <a href="account-settings.html" class="nav-link" data-page="account">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          Settings
+        </a>
+      </div>
     </nav>
-      <a href="account-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Settings</a>
-    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user">
+        <div class="avatar-placeholder" id="sidebar-avatar">L</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="sidebar-username">Learner</div>
+          <div class="sidebar-user-role">Public Trader</div>
+        </div>
+      </div>
+    </div>
+
   </aside>
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
@@ -34,7 +84,7 @@
     <header class="topbar">
       <div class="topbar-left">
         <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
-        <h1 class="topbar-title">Profile Settings</h1>
+        <h1 class="topbar-title">Profile</h1>
       </div>
       <div class="topbar-right">
         <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
@@ -43,10 +93,49 @@
 
     <main class="page-content" style="max-width:680px;">
       <div class="page-header">
-        <h2 class="page-title">Profile Settings</h2>
-        <p class="page-subtitle">Manage your learning profile, interests and goals</p>
+        <h2 class="page-title">Your Profile</h2>
+        <p class="page-subtitle">Review your saved learner information</p>
       </div>
 
+      <div id="profile-alert" class="alert hidden"></div>
+
+      <div class="card" id="profile-summary-card" style="margin-bottom:var(--space-5);">
+        <div class="card-header" style="align-items:center;justify-content:space-between;">
+          <h3 class="card-title">Saved Information</h3>
+          <button class="btn btn-primary btn-sm" id="edit-profile-btn" type="button">Edit Profile</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-5);margin-bottom:var(--space-5);">
+          <div class="avatar-placeholder avatar-lg" id="summary-avatar">L</div>
+          <div>
+            <h3 id="summary-name" style="font-size:var(--text-xl);font-weight:800;margin-bottom:4px;">Learner</h3>
+            <p id="summary-email" style="font-size:.875rem;color:var(--text-muted);margin:0;"></p>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--space-4);">
+          <div>
+            <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);letter-spacing:.08em;margin-bottom:6px;">Bio</div>
+            <p id="summary-bio" style="font-size:.9rem;color:var(--text-secondary);line-height:1.6;margin:0;">Not saved yet</p>
+          </div>
+          <div>
+            <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);letter-spacing:.08em;margin-bottom:6px;">Experience</div>
+            <p id="summary-experience" style="font-size:.9rem;color:var(--text-primary);font-weight:700;margin:0;">Not saved yet</p>
+          </div>
+          <div>
+            <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);letter-spacing:.08em;margin-bottom:6px;">Learning Goal</div>
+            <p id="summary-goal" style="font-size:.9rem;color:var(--text-primary);font-weight:700;margin:0;">Not saved yet</p>
+          </div>
+        </div>
+        <div style="margin-top:var(--space-5);">
+          <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);letter-spacing:.08em;margin-bottom:var(--space-3);">Market Interests</div>
+          <div id="summary-interests" style="display:flex;flex-wrap:wrap;gap:var(--space-2);"></div>
+        </div>
+        <div style="margin-top:var(--space-5);">
+          <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);letter-spacing:.08em;margin-bottom:var(--space-3);">Favourite Pro Traders</div>
+          <div id="summary-fav-traders" style="display:flex;flex-direction:column;gap:var(--space-2);"></div>
+        </div>
+      </div>
+
+      <div id="profile-edit-section" class="hidden">
       <!-- Avatar -->
       <div class="card" style="margin-bottom:var(--space-5);">
         <div class="card-header"><h3 class="card-title">Profile Picture</h3></div>
@@ -60,13 +149,11 @@
           </div>
           <div>
             <p style="font-size:.875rem;color:var(--text-secondary);">Upload a photo to personalise your profile.</p>
-            <p style="font-size:.75rem;color:var(--text-muted);">JPG, PNG or GIF · Max 5MB</p>
+            <p style="font-size:.75rem;color:var(--text-muted);">JPG, PNG or WebP - Max 5MB</p>
             <div id="avatar-status" class="hidden" style="margin-top:.5rem;font-size:.75rem;"></div>
           </div>
         </div>
       </div>
-
-      <div id="profile-alert" class="alert hidden"></div>
 
       <!-- Profile form -->
       <div class="card" style="margin-bottom:var(--space-5);">
@@ -97,6 +184,7 @@
             <span class="btn-text">Save Profile</span>
             <div class="btn-spinner spinner" aria-hidden="true"></div>
           </button>
+          <button type="button" class="btn btn-secondary" id="cancel-profile-edit-btn" style="margin-left:var(--space-2);">Cancel</button>
         </form>
       </div>
 
@@ -122,6 +210,7 @@
         </div>
         <a href="my-subscriptions.html?tab=discover" class="btn btn-secondary btn-sm">+ Add from Discover Traders</a>
       </div>
+      </div>
     </main>
   </div>
 </div>
@@ -129,11 +218,30 @@
 <div id="toast-container" class="toast-container"></div>
 
 <script type="module">
-  import Auth from '../js/auth.js';
-  import { learnerProfileAPI } from '../js/api.js';
-  import { validateFileSize, validateFileType, getInitials, MARKETS } from '../js/utils.js';
+import Auth from '../js/auth.js';
+import { learnerProfileAPI } from '../js/api.js?v=api-host-3';
+import { validateFileSize, validateFileType, getInitials, MARKETS } from '../js/utils.js';
+import { initLearnerSidebarProfile } from '../js/sidebar-profile.js';
 
-  if (!Auth.requireAuth()) throw new Error('Not authenticated');
+if (!Auth.requireAuth()) throw new Error('Not authenticated');
+initLearnerSidebarProfile();
+
+      const sidebarProfile = Auth.getLearnerProfile() || {};
+      const user = Auth.getCurrentUser() || {};
+      const name = sidebarProfile.display_name || user.email?.split('@')[0] || 'Learner';
+      const sbName = document.getElementById('sidebar-username');
+      if (sbName) sbName.textContent = name;
+      const sbAvatar = document.getElementById('sidebar-avatar');
+      if (sbAvatar) {
+        const avatarUrl = sidebarProfile.avatar_url || sidebarProfile.profile_image;
+        const initFn = (typeof getInitials === 'function') ? getInitials : (n) => (n||'L').charAt(0).toUpperCase();
+        if (avatarUrl) {
+          sbAvatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.onerror=null; this.parentElement.textContent='${initFn(name)}';">`;
+        } else {
+          sbAvatar.textContent = initFn(name);
+        }
+      }
+
 
   window.Toast = {
     show(msg,type='info'){const c=document.getElementById('toast-container'),t=document.createElement('div');t.className=`toast toast-${type}`;t.innerHTML=`<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;c.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));const d=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);};t.querySelector('.toast-dismiss').addEventListener('click',d);setTimeout(d,5000);}
@@ -147,6 +255,58 @@
   const INTERESTS = MARKETS;
   let selectedInterests = [];
   let profile = null;
+  const summaryCard = document.getElementById('profile-summary-card');
+  const editSection = document.getElementById('profile-edit-section');
+  const experienceLabels = {
+    beginner: 'Beginner (< 1 year)',
+    intermediate: 'Intermediate (1-3 years)',
+    advanced: 'Advanced (3+ years)',
+  };
+  const goalLabels = {
+    learn_basics: 'Learn the Basics',
+    improve_consistency: 'Improve Consistency',
+    build_system: 'Build My Own System',
+    diversify: 'Diversify Knowledge',
+  };
+
+  function setEditMode(isEditing) {
+    summaryCard.classList.toggle('hidden', isEditing);
+    editSection.classList.toggle('hidden', !isEditing);
+  }
+
+  function renderEmpty(el, text) {
+    el.innerHTML = `<p style="font-size:.875rem;color:var(--text-muted);margin:0;">${text}</p>`;
+  }
+
+  function renderSummary(p) {
+    const user = Auth.getCurrentUser() || {};
+    const name = p.display_name || user.email?.split('@')[0] || 'Learner';
+    const avatar = document.getElementById('summary-avatar');
+    document.getElementById('summary-name').textContent = name;
+    document.getElementById('summary-email').textContent = user.email || '';
+    document.getElementById('summary-bio').textContent = p.bio || 'Not saved yet';
+    document.getElementById('summary-experience').textContent = experienceLabels[p.experience_level] || 'Not saved yet';
+    document.getElementById('summary-goal').textContent = goalLabels[p.learning_goal] || 'Not saved yet';
+
+    avatar.textContent = getInitials(name);
+    if (p.avatar_url) {
+      avatar.innerHTML = `<img src="${p.avatar_url}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+    }
+
+    const interestsWrap = document.getElementById('summary-interests');
+    const interests = Array.isArray(p.interests) ? p.interests : [];
+    if (!interests.length) renderEmpty(interestsWrap, 'No interests saved yet.');
+    else {
+      interestsWrap.innerHTML = interests.map(item => `<span class="interest-tag selected" style="cursor:default;">${item}</span>`).join('');
+    }
+
+    const favWrap = document.getElementById('summary-fav-traders');
+    const favs = Array.isArray(p.favorite_traders) ? p.favorite_traders : [];
+    if (!favs.length) renderEmpty(favWrap, 'No favourite traders yet.');
+    else {
+      favWrap.innerHTML = favs.map(tid => `<div style="font-size:.875rem;font-weight:600;color:var(--text-primary);">${tid}</div>`).join('');
+    }
+  }
 
   // Build interests grid
   const igrid = document.getElementById('interests-grid');
@@ -186,6 +346,7 @@
 
       // Favourite traders
       renderFavTraders(p.favorite_traders || []);
+      renderSummary(p);
     } catch (err) {
       const alert = document.getElementById('profile-alert');
       alert.textContent = err.message || 'Failed to load profile.';
@@ -206,24 +367,30 @@
       btn.addEventListener('click', async () => {
         if (!profile) return;
         const newFavs = (profile.favorite_traders || []).filter(t => t !== btn.dataset.tid);
-        try { await learnerProfileAPI.updateProfile({ favorite_traders: newFavs }); profile.favorite_traders = newFavs; renderFavTraders(newFavs); Toast.show('Removed from favourites.', 'success'); } catch (err) { Toast.show(err.message||'Failed.', 'error'); }
+        try { await learnerProfileAPI.updateProfile({ favorite_traders: newFavs }); profile.favorite_traders = newFavs; renderFavTraders(newFavs); renderSummary(profile); Toast.show('Removed from favourites.', 'success'); } catch (err) { Toast.show(err.message||'Failed.', 'error'); }
       });
     });
   }
+
+  document.getElementById('edit-profile-btn').addEventListener('click', () => setEditMode(true));
+  document.getElementById('cancel-profile-edit-btn').addEventListener('click', () => setEditMode(false));
 
   // Avatar upload
   document.getElementById('avatar-input').addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const sizeErr = validateFileSize(file, 5);
-    const typeErr = validateFileType(file, ['image/jpeg','image/png','image/gif','image/webp']);
+    const typeErr = validateFileType(file, ['image/jpeg','image/png','image/webp']);
     if (sizeErr || typeErr) { Toast.show(sizeErr || typeErr, 'error'); return; }
     const status = document.getElementById('avatar-status');
     status.textContent = 'Uploading…'; status.className = ''; status.classList.remove('hidden');
     const fd = new FormData(); fd.append('image', file);
     try {
       const res = await learnerProfileAPI.uploadPicture(fd);
-      if (res.avatar_url) document.getElementById('profile-avatar').innerHTML = `<img src="${res.avatar_url}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+      if (res.avatar_url) {
+        document.getElementById('profile-avatar').innerHTML = `<img src="${res.avatar_url}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+        if (profile) { profile.avatar_url = res.avatar_url; renderSummary(profile); }
+      }
       status.textContent = '✓ Photo updated!';
       status.style.color = 'var(--color-success)';
       Toast.show('Profile picture updated!', 'success');
@@ -241,6 +408,8 @@
         experience_level: document.getElementById('experience-level').value,
         learning_goal: document.getElementById('learning-goal').value,
       });
+      await loadProfile();
+      setEditMode(false);
       Toast.show('Profile saved!', 'success');
     } catch (err) { Toast.show(err.message||'Failed to save.', 'error'); }
     finally { btn.classList.remove('loading'); btn.disabled = false; }
@@ -253,6 +422,8 @@
     btn.classList.add('loading'); btn.disabled = true;
     try {
       await learnerProfileAPI.updateProfile({ interests: selectedInterests });
+      if (profile) { profile.interests = [...selectedInterests]; renderSummary(profile); }
+      setEditMode(false);
       Toast.show('Interests saved!', 'success');
     } catch (err) { Toast.show(err.message||'Failed.', 'error'); }
     finally { btn.classList.remove('loading'); btn.disabled = false; }

@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Notifications</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise — Notifications</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -17,7 +20,10 @@
 <div class="app-layout">
 
   <aside class="sidebar" id="sidebar">
-    <a href="dashboard.html" class="sidebar-logo"><span>Trade<span style="color:var(--color-primary)">Wise</span></span></a>
+    <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+      <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+      <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
+    </a>
     <nav class="sidebar-nav">
       <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
       <a href="feed.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Trade Feed</a>
@@ -25,9 +31,19 @@
       <a href="my-subscriptions.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Subscriptions</a>
       <a href="notifications.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications<span class="notif-badge hidden" id="sidebar-badge" style="position:static;margin-left:auto;">0</span></a>
       <a href="profile-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    <a href="account-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Settings</a>
     </nav>
-      <a href="account-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Settings</a>
-    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user">
+        <div class="avatar-placeholder" id="sidebar-avatar">L</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="sidebar-username">Learner</div>
+          <div class="sidebar-user-role">Public Trader</div>
+        </div>
+      </div>
+    </div>
+
   </aside>
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
@@ -75,12 +91,31 @@
 <div id="toast-container" class="toast-container"></div>
 
 <script type="module">
-  import Auth from '../js/auth.js';
-  import { learnerNotificationsAPI } from '../js/api.js';
-  import { timeAgo } from '../js/utils.js';
-  import Realtime from '../js/realtime.js';
+import Auth from '../js/auth.js';
+import { learnerNotificationsAPI } from '../js/api.js?v=api-host-3';
+import { timeAgo } from '../js/utils.js';
+import Realtime from '../js/realtime.js';
+import { initLearnerSidebarProfile } from '../js/sidebar-profile.js';
 
-  if (!Auth.requireAuth()) throw new Error('Not authenticated');
+if (!Auth.requireAuth()) throw new Error('Not authenticated');
+initLearnerSidebarProfile();
+
+      const profile = Auth.getLearnerProfile() || {};
+      const user = Auth.getCurrentUser() || {};
+      const name = profile.display_name || user.email?.split('@')[0] || 'Learner';
+      const sbName = document.getElementById('sidebar-username');
+      if (sbName) sbName.textContent = name;
+      const sbAvatar = document.getElementById('sidebar-avatar');
+      if (sbAvatar) {
+        const avatarUrl = profile.avatar_url || profile.profile_image;
+        const initFn = (typeof getInitials === 'function') ? getInitials : (n) => (n||'L').charAt(0).toUpperCase();
+        if (avatarUrl) {
+          sbAvatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.onerror=null; this.parentElement.textContent='${initFn(name)}';">`;
+        } else {
+          sbAvatar.textContent = initFn(name);
+        }
+      }
+
 
   window.Toast = {
     show(msg,type='info'){const c=document.getElementById('toast-container'),t=document.createElement('div');t.className=`toast toast-${type}`;t.innerHTML=`<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;c.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));const d=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);};t.querySelector('.toast-dismiss').addEventListener('click',d);setTimeout(d,5000);}
@@ -111,14 +146,14 @@
     const list = document.getElementById('notif-list');
     list.innerHTML = '<div class="spinner spinner-lg" style="margin:var(--space-8) auto;"></div>';
     try {
-      let params = `?page=${currentPage}&limit=20`;
+      let params = `?page=${currentPage}&per_page=20`;
       if (currentFilter !== 'all') params += `&type=${currentFilter}`;
-      if (currentFilter === 'unread') { params = `?page=${currentPage}&limit=20&read=false`; }
+      if (currentFilter === 'unread') { params = `?page=${currentPage}&per_page=20&unread_only=true`; }
 
       const data = await learnerNotificationsAPI.getAll(params);
-      const notifs = data.data || [];
+      const notifs = data.notifications || data.data || [];
       const unreadCount = data.unread_count || notifs.filter(n=>!n.is_read).length;
-      totalPages = data.total_pages || 1;
+      totalPages = data.pages || data.total_pages || 1;
 
       document.getElementById('notif-summary').textContent = `${data.total || notifs.length} notifications · ${unreadCount} unread`;
       updateBadges(unreadCount);
@@ -220,7 +255,7 @@
   // Mark all
   document.getElementById('mark-all-btn').addEventListener('click', async () => {
     try {
-      await learnerNotificationsAPI.clearAll(); // or markAllRead endpoint
+      await learnerNotificationsAPI.markAllRead();
       Toast.show('All notifications marked as read.', 'success');
       loadNotifications();
     } catch (err) { Toast.show(err.message||'Failed.', 'error'); }
@@ -237,11 +272,11 @@
   });
 
   // Realtime
-  const user = Auth.getCurrentUser();
-  if (user?.id) {
+  const rtUser = Auth.getCurrentUser();
+  if (rtUser?.id) {
     const sbUrl=window.TW_SUPABASE_URL||'',sbKey=window.TW_SUPABASE_ANON_KEY||'';
     Realtime.init(sbUrl, sbKey);
-    Realtime.subscribeToNotifications(user.id, {
+    Realtime.subscribeToNotifications(rtUser.id, {
       onInsert(n) {
         Toast.show(n.title || 'New notification', 'info');
         loadNotifications();

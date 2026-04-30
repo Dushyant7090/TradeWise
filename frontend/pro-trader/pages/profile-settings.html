@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Profile Settings</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise - Profile Settings</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -11,11 +14,15 @@
   <link rel="stylesheet" href="../../shared/css/components.css" />
   <link rel="stylesheet" href="../../shared/css/pages.css" />
   <link rel="stylesheet" href="../../shared/css/responsive.css" />
+  <link rel="stylesheet" href="../css/theme.css?v=theme-sync-4" />
 </head>
 <body>
   <div class="app-layout">
     <aside class="sidebar" id="sidebar" aria-label="Main navigation">
-      <a href="dashboard.html" class="sidebar-logo"><span>TradeWise Pro</span></a>
+      <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+        <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+        <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
+      </a>
             <nav class="sidebar-nav">
         <div class="nav-section">
           <div class="nav-section-label">Overview</div>
@@ -60,6 +67,15 @@
           </a>
         </div>
       </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="avatar-placeholder" id="sidebar-avatar" aria-hidden="true">P</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebar-user-name">Pro Trader</div>
+            <div class="sidebar-user-role">Pro Trader</div>
+          </div>
+        </div>
+      </div>
     </aside>
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 
@@ -86,16 +102,57 @@
 
         <div id="profile-alert" class="alert hidden" role="alert" aria-live="polite"></div>
 
+        <div class="card profile-summary-card" id="profile-summary-card">
+          <div class="profile-summary-head">
+            <div class="profile-summary-identity">
+              <div id="summary-avatar" class="avatar-placeholder avatar-xl">P</div>
+              <div>
+                <div class="profile-summary-name" id="summary-name">Pro Trader</div>
+                <div class="profile-summary-subtitle">Saved public pro-trader information</div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="edit-profile-btn" type="button">Edit Profile</button>
+          </div>
+
+          <div class="profile-summary-grid">
+            <div class="profile-summary-item">
+              <div class="profile-summary-label">Experience</div>
+              <div class="profile-summary-value" id="summary-experience">Not saved yet</div>
+            </div>
+            <div class="profile-summary-item">
+              <div class="profile-summary-label">Trading Style</div>
+              <div class="profile-summary-value" id="summary-style">Not saved yet</div>
+            </div>
+            <div class="profile-summary-item">
+              <div class="profile-summary-label">Portfolio</div>
+              <div class="profile-summary-value" id="summary-portfolio">Not saved yet</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:var(--space-5);">
+            <div class="profile-summary-label">Bio</div>
+            <p class="profile-summary-bio" id="summary-bio">Not saved yet</p>
+          </div>
+
+          <div>
+            <div class="profile-summary-label">Specializations</div>
+            <div class="profile-chip-list" id="summary-specializations">
+              <span class="profile-empty-text">No specializations saved yet.</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="profile-edit-section" class="hidden">
         <!-- Avatar Section -->
         <div class="profile-avatar-section">
           <div id="avatar-preview" class="avatar-placeholder avatar-xl">P</div>
           <div>
-            <h3 id="display-name-heading" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">—</h3>
+            <h3 id="display-name-heading" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">-</h3>
             <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Profile Picture</p>
             <div style="display: flex; gap: 0.75rem;">
               <label class="btn btn-secondary btn-sm" for="avatar-upload" style="cursor: pointer;" aria-label="Upload profile picture">
                 Change Photo
-                <input type="file" id="avatar-upload" accept="image/jpeg,image/png" style="display:none" aria-hidden="true" />
+                <input type="file" id="avatar-upload" name="profile_picture" accept="image/jpeg,image/png" style="display:none" aria-hidden="true" />
               </label>
             </div>
           </div>
@@ -119,7 +176,7 @@
             <div class="form-group">
               <label class="form-label" for="trading-style">Trading Style <span class="required">*</span></label>
               <select id="trading-style" name="trading_style" class="input">
-                <option value="">— Select style —</option>
+                <option value="">- Select style -</option>
                 <option value="day_trading">Day Trading</option>
                 <option value="swing_trading">Swing Trading</option>
                 <option value="position_trading">Position Trading</option>
@@ -136,6 +193,7 @@
 
             <div class="form-group">
               <label class="form-label">Specializations</label>
+              <span class="form-hint">Select one or more markets you cover.</span>
               <div class="checkbox-group" id="specializations">
                 <label class="checkbox-item"><input type="checkbox" value="nifty50" /> <span class="checkbox-label">Nifty 50</span></label>
                 <label class="checkbox-item"><input type="checkbox" value="banknifty" /> <span class="checkbox-label">Bank Nifty</span></label>
@@ -156,7 +214,7 @@
             </div>
           </div>
 
-          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+          <div class="profile-form-actions">
             <button type="submit" class="btn btn-primary btn-lg" id="save-profile-btn">
               <span class="btn-text">Save Changes</span>
               <div class="btn-spinner spinner" aria-hidden="true"></div>
@@ -164,6 +222,7 @@
             <button type="button" class="btn btn-secondary btn-lg" id="cancel-btn">Cancel</button>
           </div>
         </form>
+        </div>
       </main>
     </div>
   </div>
@@ -172,15 +231,97 @@
 
   <script type="module">
     import Auth from '../js/auth.js';
-    import { profileAPI } from '../js/api.js';
+    import { profileAPI } from '../js/api.js?v=api-host-3';
     import { validateRequired, validateURL, validateFileSize, validateFileType } from '../js/utils.js';
     import Storage from '../js/storage.js';
-    import App from '../js/main.js';
+    import App from '../js/main.js?v=sidebar-kyc-1';
 
     if (!Auth.requireAuth()) throw new Error('Not authenticated');
-    window.Toast = { show(m, t = 'info') { const c = document.getElementById('toast-container'); const el = document.createElement('div'); el.className = `toast toast-${t}`; el.innerHTML = `<div class="toast-content"><div class="toast-message">${m}</div></div><button class="toast-dismiss">×</button>`; c.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); const d = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }; el.querySelector('.toast-dismiss').addEventListener('click', d); setTimeout(d, 4000); } };
+    window.Toast = { show(m, t = 'info') { const c = document.getElementById('toast-container'); const el = document.createElement('div'); el.className = `toast toast-${t}`; el.innerHTML = `<div class="toast-content"><div class="toast-message">${m}</div></div><button class="toast-dismiss">x</button>`; c.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); const d = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }; el.querySelector('.toast-dismiss').addEventListener('click', d); setTimeout(d, 4000); } };
     App.init();
-document.getElementById('cancel-btn').addEventListener('click', () => window.location.href = 'dashboard.html');
+
+    let currentProfile = null;
+    const profileSummaryCard = document.getElementById('profile-summary-card');
+    const profileEditSection = document.getElementById('profile-edit-section');
+    const styleLabels = {
+      intraday: 'Intraday',
+      day_trading: 'Day Trading',
+      swing: 'Swing Trading',
+      swing_trading: 'Swing Trading',
+      positional: 'Position Trading',
+      position_trading: 'Position Trading',
+      scalping: 'Scalping',
+    };
+    const specializationLabels = {
+      nifty50: 'Nifty 50',
+      banknifty: 'Bank Nifty',
+      crypto: 'Crypto',
+      forex: 'Forex',
+      commodities: 'Commodities',
+      midcap: 'Mid Cap',
+    };
+
+    function escapeHTML(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function setEditMode(isEditing) {
+      profileSummaryCard.classList.toggle('hidden', isEditing);
+      profileEditSection.classList.toggle('hidden', !isEditing);
+      if (!isEditing && currentProfile) populateForm(currentProfile);
+    }
+
+    function normalizeSpecializations(value) {
+      if (Array.isArray(value)) return value.map(String).map(v => v.trim()).filter(Boolean);
+      if (!value) return [];
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) return parsed.map(String).map(v => v.trim()).filter(Boolean);
+      } catch {}
+      return String(value).split(',').map(v => v.trim()).filter(Boolean);
+    }
+
+    function displayValue(value, fallback = 'Not saved yet') {
+      return value === null || value === undefined || value === '' ? fallback : value;
+    }
+
+    function renderAvatar(targetId, profile) {
+      const el = document.getElementById(targetId);
+      if (!el) return;
+      const imageUrl = profile.profile_picture_url || profile.avatar_url;
+      const name = profile.display_name || 'Pro Trader';
+      if (imageUrl) {
+        el.outerHTML = `<img src="${escapeHTML(imageUrl)}" id="${targetId}" class="avatar-xl" alt="Profile picture" style="border-radius:50%;width:80px;height:80px;object-fit:cover" />`;
+      } else {
+        el.outerHTML = `<div id="${targetId}" class="avatar-placeholder avatar-xl">${name[0].toUpperCase()}</div>`;
+      }
+    }
+
+    function renderSummary(profile) {
+      const specs = normalizeSpecializations(profile.specializations);
+      document.getElementById('summary-name').textContent = displayValue(profile.display_name, 'Pro Trader');
+      document.getElementById('summary-experience').textContent = profile.years_of_experience !== null && profile.years_of_experience !== undefined
+        ? `${profile.years_of_experience} years`
+        : 'Not saved yet';
+      document.getElementById('summary-style').textContent = styleLabels[profile.trading_style] || displayValue(profile.trading_style);
+      document.getElementById('summary-portfolio').innerHTML = profile.external_portfolio_url
+        ? `<a href="${escapeHTML(profile.external_portfolio_url)}" target="_blank" rel="noopener">Open portfolio</a>`
+        : 'Not saved yet';
+      document.getElementById('summary-bio').textContent = displayValue(profile.bio);
+      const specsWrap = document.getElementById('summary-specializations');
+      specsWrap.innerHTML = specs.length
+        ? specs.map(spec => `<span class="profile-chip">${specializationLabels[spec] || spec}</span>`).join('')
+        : '<span class="profile-empty-text">No specializations saved yet.</span>';
+      renderAvatar('summary-avatar', profile);
+    }
+
+    document.getElementById('edit-profile-btn').addEventListener('click', () => setEditMode(true));
+    document.getElementById('cancel-btn').addEventListener('click', () => setEditMode(false));
 
     // Bio character counter
     document.getElementById('bio').addEventListener('input', (e) => {
@@ -207,13 +348,12 @@ document.getElementById('cancel-btn').addEventListener('click', () => window.loc
     // Load profile
     async function loadProfile() {
       try {
-        const cached = Storage.getProProfile();
-        if (cached) populateForm(cached);
-
         const data = await profileAPI.getProfile();
         const profile = data.profile || data;
         Storage.setProProfile(profile);
+        currentProfile = profile;
         populateForm(profile);
+        renderSummary(profile);
       } catch (err) {
         console.error('Failed to load profile:', err);
       }
@@ -228,25 +368,23 @@ document.getElementById('cancel-btn').addEventListener('click', () => window.loc
       document.getElementById('display-name-heading').textContent = profile.display_name || 'Pro Trader';
 
       const styleSelect = document.getElementById('trading-style');
-      if (profile.trading_style) styleSelect.value = profile.trading_style;
+      const styleValue = profile.trading_style === 'intraday'
+        ? 'day_trading'
+        : profile.trading_style === 'swing'
+          ? 'swing_trading'
+          : profile.trading_style === 'positional'
+            ? 'position_trading'
+            : profile.trading_style;
+      styleSelect.value = styleValue || '';
 
       // Specializations
-      if (profile.specializations) {
-        const specs = Array.isArray(profile.specializations)
-          ? profile.specializations
-          : (profile.specializations || '').split(',');
-        document.querySelectorAll('#specializations input[type="checkbox"]').forEach(cb => {
-          cb.checked = specs.includes(cb.value);
-        });
-      }
+      const specs = normalizeSpecializations(profile.specializations);
+      document.querySelectorAll('#specializations input[type="checkbox"]').forEach(cb => {
+        cb.checked = specs.includes(cb.value);
+      });
 
       // Avatar
-      if (profile.profile_picture_url) {
-        const preview = document.getElementById('avatar-preview');
-        if (preview) {
-          preview.outerHTML = `<img src="${profile.profile_picture_url}" id="avatar-preview" class="avatar-xl" alt="Profile picture" style="border-radius:50%;width:80px;height:80px;object-fit:cover" />`;
-        }
-      }
+      renderAvatar('avatar-preview', profile);
     }
 
     // Submit
@@ -287,10 +425,14 @@ document.getElementById('cancel-btn').addEventListener('click', () => window.loc
       const btn = document.getElementById('save-profile-btn');
       btn.classList.add('loading');
       try {
-        await profileAPI.updateProfile(payload);
-        const updated = { ...Storage.getProProfile(), ...payload };
+        const response = await profileAPI.updateProfile(payload);
+        const responseProfile = response.profile || response;
+        const updated = { ...Storage.getProProfile(), ...payload, ...responseProfile };
         Storage.setProProfile(updated);
+        currentProfile = updated;
         document.getElementById('display-name-heading').textContent = displayName;
+        renderSummary(updated);
+        setEditMode(false);
         alertEl.textContent = 'Profile updated successfully!';
         alertEl.className = 'alert alert-success';
         alertEl.classList.remove('hidden');

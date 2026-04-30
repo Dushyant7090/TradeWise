@@ -1,17 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TradeWise — Join as Pro Trader</title>
+    
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise - Join as Pro Trader</title>
     <meta name="description"
-        content="Apply as a Pro Trader on TradeWise — share your expertise, post verified trade ideas, and earn through subscriptions.">
+        content="Apply as a Pro Trader on TradeWise - share your expertise, post verified trade ideas, and earn through subscriptions.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="../../shared/css/auth.css">
+    <link rel="stylesheet" href="../css/theme.css?v=theme-sync-4" />
 </head>
 
 <body>
@@ -61,7 +65,7 @@
                     <div class="form-group">
                         <label for="signup-password">Password</label>
                         <div class="password-wrapper">
-                            <input type="password" id="signup-password" placeholder="••••••••" required minlength="8"
+                            <input type="password" id="signup-password" placeholder="--------" required minlength="8"
                                 autocomplete="new-password">
                             <button type="button" class="password-toggle" data-target="signup-password"
                                 aria-label="Toggle password visibility">
@@ -86,6 +90,30 @@
                                 <div class="strength-fill" id="strength-fill"></div>
                             </div>
                             <span class="strength-hint" id="strength-hint"></span>
+                        </div>
+                    </div>
+                    <div class="captcha-card" data-captcha="pro-signup">
+                        <div class="captcha-row">
+                            <div>
+                                <span class="captcha-label">Security check</span>
+                                <strong id="signup-captcha-question">Loading...</strong>
+                            </div>
+                            <button type="button" class="captcha-refresh" id="signup-captcha-refresh"
+                                aria-label="Refresh captcha">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    aria-hidden="true">
+                                    <path d="M21 12a9 9 0 0 1-15.5 6.3" />
+                                    <path d="M3 12A9 9 0 0 1 18.5 5.7" />
+                                    <path d="M18 2v4h4" />
+                                    <path d="M6 22v-4H2" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="captcha-answer-row">
+                            <input type="text" id="signup-captcha-answer" inputmode="numeric" autocomplete="off"
+                                placeholder="Type answer here" aria-label="Security check answer">
+                            <span class="captcha-status" id="signup-captcha-status" aria-live="polite"></span>
                         </div>
                     </div>
                     <button type="submit" class="auth-submit-btn" id="signup-submit">
@@ -124,7 +152,7 @@
                             <a href="#" class="forgot-link" id="forgot-password-link">Forgot your password?</a>
                         </div>
                         <div class="password-wrapper">
-                            <input type="password" id="login-password" placeholder="••••••••" required
+                            <input type="password" id="login-password" placeholder="--------" required
                                 autocomplete="current-password">
                             <button type="button" class="password-toggle" data-target="login-password"
                                 aria-label="Toggle password visibility">
@@ -142,6 +170,30 @@
                                     <line x1="1" y1="1" x2="23" y2="23" />
                                 </svg>
                             </button>
+                        </div>
+                    </div>
+                    <div class="captcha-card" data-captcha="pro-login">
+                        <div class="captcha-row">
+                            <div>
+                                <span class="captcha-label">Security check</span>
+                                <strong id="login-captcha-question">Loading...</strong>
+                            </div>
+                            <button type="button" class="captcha-refresh" id="login-captcha-refresh"
+                                aria-label="Refresh captcha">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    aria-hidden="true">
+                                    <path d="M21 12a9 9 0 0 1-15.5 6.3" />
+                                    <path d="M3 12A9 9 0 0 1 18.5 5.7" />
+                                    <path d="M18 2v4h4" />
+                                    <path d="M6 22v-4H2" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="captcha-answer-row">
+                            <input type="text" id="login-captcha-answer" inputmode="numeric" autocomplete="off"
+                                placeholder="Type answer here" aria-label="Security check answer">
+                            <span class="captcha-status" id="login-captcha-status" aria-live="polite"></span>
                         </div>
                     </div>
                     <button type="submit" class="auth-submit-btn" id="login-submit">
@@ -195,12 +247,21 @@
         (function () {
             'use strict';
 
-            var API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                ? 'http://localhost:5000/api'
-                : '/api';
+            var API_BASE = window.TW_API_BASE_URL || (
+                (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                    ? 'http://localhost:5000/api'
+                    : '/api'
+            );
 
             var TOKEN_KEY = 'tw_jwt_token';
+            var REFRESH_KEY = 'tw_refresh_token';
             var USER_KEY = 'tw_user_data';
+            var PRO_PROFILE_KEY = 'tw_pro_profile';
+            var LEARNER_PROFILE_KEY = 'tw_learner_profile';
+            var LEARNER_DASHBOARD_KEY = 'tw_learner_dashboard';
+            var LEARNER_FEED_KEY = 'tw_learner_feed';
+            var PRO_DASHBOARD_KEY = 'tw_dashboard_metrics';
+            var ONBOARDING_KEY = 'tw_onboarding_state';
 
             /* ---- helpers ---- */
             function setView(id) {
@@ -222,6 +283,104 @@
                 btn.querySelector('.btn-loader').style.display = loading ? 'inline-flex' : 'none';
                 btn.disabled = loading;
             }
+
+            function clearSession() {
+                [
+                    TOKEN_KEY,
+                    REFRESH_KEY,
+                    USER_KEY,
+                    PRO_PROFILE_KEY,
+                    LEARNER_PROFILE_KEY,
+                    LEARNER_DASHBOARD_KEY,
+                    LEARNER_FEED_KEY,
+                    PRO_DASHBOARD_KEY,
+                    ONBOARDING_KEY
+                ].forEach(function (key) { localStorage.removeItem(key); });
+            }
+
+            function storeSession(data) {
+                clearSession();
+                var token = data.token || data.access_token;
+                if (token) localStorage.setItem(TOKEN_KEY, token);
+                if (data.refresh_token) localStorage.setItem(REFRESH_KEY, data.refresh_token);
+                var profile = data.profile || {};
+                var user = Object.assign({}, data.user || {}, {
+                    role: profile.role,
+                    display_name: profile.display_name,
+                    avatar_url: profile.avatar_url,
+                    profile_id: profile.id
+                });
+                localStorage.setItem(USER_KEY, JSON.stringify(user));
+                if (profile.role === 'pro_trader') {
+                    localStorage.setItem(PRO_PROFILE_KEY, JSON.stringify({ data: profile, timestamp: Date.now() }));
+                }
+                return { token: token, profile: profile, user: user };
+            }
+
+            function routeByRole(session) {
+                var role = (session.profile.role || session.user.role || '').toLowerCase();
+                if (role === 'public_trader' || role === 'learner') {
+                    window.location.href = '/learner/pages/dashboard.html';
+                    return true;
+                }
+                if (role && role !== 'pro_trader') {
+                    clearSession();
+                    showMsg('login-message', 'This account cannot use the Pro Trader dashboard.', true);
+                    return true;
+                }
+                return false;
+            }
+
+            function initMathCaptcha(config) {
+                var question = document.getElementById(config.questionId);
+                var input = document.getElementById(config.inputId);
+                var refresh = document.getElementById(config.refreshId);
+                var status = document.getElementById(config.statusId);
+                var submit = document.getElementById(config.submitId);
+                var expected = 0;
+
+                function makeChallenge() {
+                    var a = Math.floor(Math.random() * 8) + 3;
+                    var b = Math.floor(Math.random() * 7) + 2;
+                    expected = a + b;
+                    question.textContent = a + ' + ' + b + ' = ?';
+                    input.value = '';
+                    status.textContent = 'Enter answer';
+                    status.classList.remove('valid');
+                    submit.disabled = true;
+                    submit.classList.remove('ready');
+                }
+
+                function validate() {
+                    var isValid = Number(input.value.trim()) === expected;
+                    status.textContent = isValid ? 'Verified' : 'Enter answer';
+                    status.classList.toggle('valid', isValid);
+                    submit.disabled = !isValid;
+                    submit.classList.toggle('ready', isValid);
+                    return isValid;
+                }
+
+                input.addEventListener('input', validate);
+                refresh.addEventListener('click', makeChallenge);
+                makeChallenge();
+                return { validate: validate, reset: makeChallenge };
+            }
+
+            var signupCaptcha = initMathCaptcha({
+                questionId: 'signup-captcha-question',
+                inputId: 'signup-captcha-answer',
+                refreshId: 'signup-captcha-refresh',
+                statusId: 'signup-captcha-status',
+                submitId: 'signup-submit'
+            });
+
+            var loginCaptcha = initMathCaptcha({
+                questionId: 'login-captcha-question',
+                inputId: 'login-captcha-answer',
+                refreshId: 'login-captcha-refresh',
+                statusId: 'login-captcha-status',
+                submitId: 'login-submit'
+            });
 
             /* ---- toggle links ---- */
             document.querySelectorAll('.auth-toggle-link').forEach(function (link) {
@@ -291,6 +450,10 @@
                     valid = false;
                 }
                 if (!valid) return;
+                if (!signupCaptcha.validate()) {
+                    showMsg('signup-message', 'Complete the security check before creating an account.', true);
+                    return;
+                }
 
                 setLoading('signup-submit', true);
 
@@ -298,7 +461,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email, password: password, display_name: name, role: 'pro_trader' })
-                    // Note: the backend validates role — only 'public_trader' and 'pro_trader' are accepted
+                    // Note: the backend validates role - only 'public_trader' and 'pro_trader' are accepted
                 })
                 .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
                 .then(function (result) {
@@ -307,13 +470,8 @@
                         showMsg('signup-message', result.data.error || 'Registration failed. Please try again.', true);
                         return;
                     }
-                    if (result.data.token || result.data.access_token) {
-                        localStorage.setItem(TOKEN_KEY, result.data.token || result.data.access_token);
-                    }
-                    if (result.data.user) {
-                        localStorage.setItem(USER_KEY, JSON.stringify(result.data.user));
-                    }
-                    showMsg('signup-message', 'Account created! Redirecting to KYC setup…', false);
+                    var session = storeSession(result.data);
+                    showMsg('signup-message', 'Account created! Setting up your profile-', false);
                     setTimeout(function () {
                         window.location.href = 'kyc-setup.html';
                     }, 1200);
@@ -334,6 +492,10 @@
                     showMsg('login-message', 'Email and password are required.', true);
                     return;
                 }
+                if (!loginCaptcha.validate()) {
+                    showMsg('login-message', 'Complete the security check before logging in.', true);
+                    return;
+                }
 
                 setLoading('login-submit', true);
 
@@ -349,13 +511,24 @@
                         showMsg('login-message', result.data.error || 'Login failed. Check your credentials.', true);
                         return;
                     }
-                    if (result.data.token || result.data.access_token) {
-                        localStorage.setItem(TOKEN_KEY, result.data.token || result.data.access_token);
-                    }
-                    if (result.data.user) {
-                        localStorage.setItem(USER_KEY, JSON.stringify(result.data.user));
-                    }
-                    window.location.href = 'dashboard.html';
+                    var session = storeSession(result.data);
+                    if (routeByRole(session)) return;
+                    // Check onboarding state to decide where to send the user
+                    var token = session.token;
+                    fetch(API_BASE + '/pro-trader/onboarding-state', {
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    })
+                    .then(function(r) { return r.ok ? r.json() : null; })
+                    .then(function(state) {
+                        if (state && state.onboarding_step === 0) {
+                            window.location.href = 'kyc-setup.html';
+                        } else {
+                            window.location.href = 'dashboard.html';
+                        }
+                    })
+                    .catch(function() {
+                        window.location.href = 'dashboard.html';
+                    });
                 })
                 .catch(function () {
                     setLoading('login-submit', false);

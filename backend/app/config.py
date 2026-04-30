@@ -2,7 +2,54 @@
 TradeWise Backend - Configuration
 """
 import os
+from typing import Optional
 from datetime import timedelta
+
+
+def _resolve_postgres_database_url(primary_env: str, fallback_env: Optional[str] = None) -> str:
+    """Resolve and validate a PostgreSQL-only database URL."""
+    database_url = os.getenv(primary_env, "").strip()
+    if not database_url and fallback_env:
+        database_url = os.getenv(fallback_env, "").strip()
+
+    if not database_url:
+        required = primary_env if not fallback_env else f"{primary_env} or {fallback_env}"
+        raise RuntimeError(
+            f"{required} must be set to a Supabase/PostgreSQL connection string."
+        )
+
+    normalized = database_url.lower()
+    if not normalized.startswith(("postgresql://", "postgresql+psycopg2://")):
+        raise RuntimeError(
+            "DATABASE_URL must use PostgreSQL. SQLite and other database engines are not supported."
+        )
+
+    return database_url
+
+
+def _resolve_testing_database_url() -> str:
+    """Resolve test database URL and enforce hard safety checks."""
+    test_database_url = _resolve_postgres_database_url("TEST_DATABASE_URL")
+    primary_database_url = os.getenv("DATABASE_URL", "").strip()
+
+    if primary_database_url and primary_database_url == test_database_url:
+        raise RuntimeError(
+            "TEST_DATABASE_URL must be different from DATABASE_URL. "
+            "Refusing to run tests against the non-isolated primary database."
+        )
+
+    return test_database_url
+
+
+def _resolve_testing_schema() -> str:
+    """Require an isolated schema name for each test run/worker."""
+    schema_name = os.getenv("TEST_DATABASE_SCHEMA", "").strip()
+    if not schema_name:
+        raise RuntimeError(
+            "TEST_DATABASE_SCHEMA must be set for testing config. "
+            "Use an isolated temporary schema (for example: pytest_gw0_ab12cd)."
+        )
+    return schema_name
 
 
 class BaseConfig:
@@ -11,7 +58,7 @@ class BaseConfig:
     TESTING = False
 
     # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///tradewise.db")
+    SQLALCHEMY_DATABASE_URI = _resolve_postgres_database_url("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_pre_ping": True,
@@ -42,6 +89,9 @@ class BaseConfig:
     SUPABASE_URL = os.getenv("SUPABASE_URL", "")
     SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "")
     SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+    PROFILE_PICTURES_BUCKET = os.getenv("PROFILE_PICTURES_BUCKET", "profile-pictures")
+    TRADE_CHARTS_BUCKET = os.getenv("TRADE_CHARTS_BUCKET", "chart-images")
+    KYC_DOCUMENTS_BUCKET = os.getenv("KYC_DOCUMENTS_BUCKET", "kyc-documents")
 
     # Cashfree
     CASHFREE_APP_ID = os.getenv("CASHFREE_APP_ID", "")
@@ -63,7 +113,10 @@ class BaseConfig:
     FLAG_ACCURACY_PENALTY = float(os.getenv("FLAG_ACCURACY_PENALTY", 5.0))
 
     # Frontend
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    FRONTEND_URL = os.getenv(
+        "FRONTEND_URL",
+        "http://localhost:5500,http://127.0.0.1:5500,http://localhost:3000,http://127.0.0.1:3000",
+    )
 
     # Redis/Celery
     REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
@@ -81,8 +134,29 @@ class DevelopmentConfig(BaseConfig):
 class TestingConfig(BaseConfig):
     TESTING = True
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    # Values are resolved lazily via apply_testing_config_overrides to avoid
+    # forcing test-only env vars during normal app startup.
+    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_URL", os.getenv("DATABASE_URL", ""))
+    TEST_DATABASE_SCHEMA = os.getenv("TEST_DATABASE_SCHEMA", "")
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        **BaseConfig.SQLALCHEMY_ENGINE_OPTIONS,
+    }
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=60)
+
+
+def apply_testing_config_overrides(target_config: dict) -> None:
+    """Apply strict testing DB/schema constraints only for testing mode."""
+    test_database_url = _resolve_testing_database_url()
+    test_database_schema = _resolve_testing_schema()
+
+    target_config["SQLALCHEMY_DATABASE_URI"] = test_database_url
+    target_config["TEST_DATABASE_SCHEMA"] = test_database_schema
+
+    engine_options = dict(BaseConfig.SQLALCHEMY_ENGINE_OPTIONS)
+    connect_args = dict(engine_options.get("connect_args") or {})
+    connect_args["options"] = f"-csearch_path={test_database_schema},public"
+    engine_options["connect_args"] = connect_args
+    target_config["SQLALCHEMY_ENGINE_OPTIONS"] = engine_options
 
 
 class ProductionConfig(BaseConfig):

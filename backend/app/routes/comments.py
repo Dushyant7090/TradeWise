@@ -6,6 +6,7 @@ Comments routes
 - DELETE /api/pro-trader/trades/{id}/comments/{comment_id}
 """
 import logging
+import re
 from datetime import datetime, timezone
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity
@@ -17,6 +18,14 @@ from app.models.trade import Trade
 
 logger = logging.getLogger(__name__)
 comments_bp = Blueprint("comments", __name__)
+ADMIN_REPLY_PATTERN = re.compile(r"^\[Admin reply:[0-9a-fA-F-]{36}\]\s*(?P<content>[\s\S]*)$")
+
+
+def _display_comment_content(content: str) -> str:
+    match = ADMIN_REPLY_PATTERN.match(content or "")
+    if not match:
+        return content or ""
+    return f"[Admin] {match.group('content').strip()}"
 
 
 @comments_bp.route("/trades/<trade_id>/comments", methods=["GET"])
@@ -26,7 +35,7 @@ def get_comments(trade_id):
     page = int(request.args.get("page", 1))
     per_page = min(int(request.args.get("per_page", 20)), 100)
 
-    trade = Trade.query.get(trade_id)
+    trade = db.session.get(Trade, trade_id)
     if not trade:
         return jsonify({"error": "Trade not found"}), 404
 
@@ -36,6 +45,7 @@ def get_comments(trade_id):
     comments = []
     for c in paginated.items:
         comment_dict = c.to_dict()
+        comment_dict["content"] = _display_comment_content(comment_dict.get("content"))
         if c.user:
             from app.models.profile import Profile
             prof = Profile.query.filter_by(user_id=c.user_id).first()
@@ -57,7 +67,7 @@ def post_comment(trade_id):
     """Post a comment on a trade."""
     user_id = get_jwt_identity()
 
-    trade = Trade.query.get(trade_id)
+    trade = db.session.get(Trade, trade_id)
     if not trade:
         return jsonify({"error": "Trade not found"}), 404
 
@@ -114,7 +124,7 @@ def delete_comment(trade_id, comment_id):
 
     if comment.user_id != user_id:
         # Allow the trade owner to also delete comments
-        trade = Trade.query.get(trade_id)
+        trade = db.session.get(Trade, trade_id)
         if not trade or trade.trader_id != user_id:
             return jsonify({"error": "You can only delete your own comments"}), 403
 

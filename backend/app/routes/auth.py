@@ -263,7 +263,7 @@ def google_auth():
 def setup_2fa():
     """Set up 2FA: generate TOTP secret and QR code."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -296,7 +296,7 @@ def setup_2fa():
 def verify_2fa():
     """Verify TOTP code and enable 2FA."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -323,7 +323,7 @@ def verify_2fa():
 def disable_2fa():
     """Disable 2FA."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -347,7 +347,7 @@ def disable_2fa():
 def change_password():
     """Change the authenticated user's password."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
@@ -372,6 +372,27 @@ def change_password():
     db.session.commit()
 
     return jsonify({"message": "Password changed successfully"}), 200
+
+
+@auth_bp.route("/login-activity", methods=["GET"])
+@jwt_required()
+def get_login_activity():
+    """Get login activity logs."""
+    user_id = get_jwt_identity()
+    page = int(request.args.get("page", 1))
+    per_page = min(int(request.args.get("per_page", 20)), 100)
+
+    query = LoginActivity.query.filter_by(user_id=user_id).order_by(LoginActivity.created_at.desc())
+    paginated = query.paginate(page=page, per_page=per_page, error_out=False)
+
+    return jsonify({
+        "data": [a.to_dict() for a in paginated.items],
+        "activities": [a.to_dict() for a in paginated.items],
+        "total": paginated.total,
+        "page": page,
+        "per_page": per_page,
+        "pages": paginated.pages,
+    }), 200
 
 
 

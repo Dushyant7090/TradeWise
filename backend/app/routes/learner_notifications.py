@@ -26,12 +26,18 @@ def get_notifications():
     """Get all notifications for the learner."""
     user_id = get_jwt_identity()
     page = int(request.args.get("page", 1))
-    per_page = min(int(request.args.get("per_page", 20)), 100)
-    unread_only = request.args.get("unread_only", "false").lower() == "true"
+    per_page = min(int(request.args.get("per_page", request.args.get("limit", 20))), 100)
+    unread_only = (
+        request.args.get("unread_only", "false").lower() == "true"
+        or request.args.get("read", "").lower() == "false"
+    )
+    notification_type = request.args.get("type", "").strip()
 
     query = LearnerNotification.query.filter_by(learner_id=user_id)
     if unread_only:
         query = query.filter_by(is_read=False)
+    if notification_type:
+        query = query.filter_by(type=notification_type)
     query = query.order_by(LearnerNotification.created_at.desc())
     paginated = query.paginate(page=page, per_page=per_page, error_out=False)
 
@@ -41,12 +47,23 @@ def get_notifications():
 
     return jsonify({
         "notifications": [n.to_dict() for n in paginated.items],
+        "data": [n.to_dict() for n in paginated.items],
         "unread_count": unread_count,
         "total": paginated.total,
         "page": page,
         "per_page": per_page,
         "pages": paginated.pages,
+        "total_pages": paginated.pages,
     }), 200
+
+
+@learner_notifications_bp.route("/notifications/unread-count", methods=["GET"])
+@require_auth
+def get_unread_count():
+    """Lightweight endpoint: return only the unread notification count."""
+    user_id = get_jwt_identity()
+    count = LearnerNotification.query.filter_by(learner_id=user_id, is_read=False).count()
+    return jsonify({"unread_count": count}), 200
 
 
 @learner_notifications_bp.route("/notifications/<notification_id>/read", methods=["PUT"])
@@ -95,6 +112,21 @@ def clear_all_notifications():
     db.session.commit()
 
     return jsonify({"message": f"Cleared {deleted} notifications"}), 200
+
+
+@learner_notifications_bp.route("/notifications/mark-all-read", methods=["POST"])
+@require_auth
+def mark_all_notifications_read():
+    """Mark every unread notification as read for the learner."""
+    user_id = get_jwt_identity()
+
+    updated = LearnerNotification.query.filter_by(
+        learner_id=user_id,
+        is_read=False,
+    ).update({"is_read": True})
+    db.session.commit()
+
+    return jsonify({"message": f"Marked {updated} notifications as read"}), 200
 
 
 @learner_notifications_bp.route("/notification-preferences", methods=["GET"])

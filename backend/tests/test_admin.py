@@ -3,6 +3,10 @@ Tests for admin routes — focusing on permission and self-protection guards.
 """
 import json
 import pytest
+from datetime import datetime, timezone
+
+from app.models.payment import Payment
+from app.models.revenue_split import RevenueSplit
 from tests.conftest import create_test_user
 
 
@@ -40,6 +44,72 @@ class TestAdminAuth:
         token = _login(client, "admin_stats@example.com")
         resp = client.get("/api/admin/stats", headers=_admin_headers(token))
         assert resp.status_code == 200
+
+    def test_stats_monthly_revenue_uses_admin_split(self, client, db):
+        admin = create_test_user(db, email="admin_revenue@example.com", role="admin")
+        learner = create_test_user(db, email="learner_revenue@example.com", role="public_trader")
+        trader = create_test_user(db, email="trader_revenue@example.com", role="pro_trader")
+        now = datetime.now(timezone.utc)
+
+        payment = Payment(
+            subscriber_id=learner.id,
+            trader_id=trader.id,
+            amount=1000,
+            currency="INR",
+            status="success",
+            created_at=now,
+            completed_at=now,
+        )
+        db.session.add(payment)
+        db.session.flush()
+        db.session.add(RevenueSplit(
+            payment_id=payment.id,
+            trader_id=trader.id,
+            pro_trader_amount=900,
+            admin_amount=100,
+            split_percentage_pro=90,
+            split_percentage_admin=10,
+        ))
+        db.session.commit()
+
+        token = _login(client, admin.email)
+        resp = client.get("/api/admin/stats", headers=_admin_headers(token))
+        assert resp.status_code == 200
+        assert resp.get_json()["monthly_revenue"] == 100.0
+
+    def test_revenue_analytics_uses_admin_split(self, client, db):
+        admin = create_test_user(db, email="admin_revenue_chart@example.com", role="admin")
+        learner = create_test_user(db, email="learner_revenue_chart@example.com", role="public_trader")
+        trader = create_test_user(db, email="trader_revenue_chart@example.com", role="pro_trader")
+        now = datetime.now(timezone.utc)
+
+        payment = Payment(
+            subscriber_id=learner.id,
+            trader_id=trader.id,
+            amount=1000,
+            currency="INR",
+            status="success",
+            created_at=now,
+            completed_at=now,
+        )
+        db.session.add(payment)
+        db.session.flush()
+        db.session.add(RevenueSplit(
+            payment_id=payment.id,
+            trader_id=trader.id,
+            pro_trader_amount=900,
+            admin_amount=100,
+            split_percentage_pro=90,
+            split_percentage_admin=10,
+        ))
+        db.session.commit()
+
+        token = _login(client, admin.email)
+        resp = client.get("/api/admin/analytics/revenue", headers=_admin_headers(token))
+        assert resp.status_code == 200
+        current_month = now.strftime("%b %Y")
+        month_row = next(row for row in resp.get_json()["data"] if row["month"] == current_month)
+        assert month_row["revenue"] == 100.0
 
 
 class TestAdminSelfProtection:

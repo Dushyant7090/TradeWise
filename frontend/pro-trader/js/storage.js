@@ -8,6 +8,7 @@ const STORAGE_KEYS = {
   USER_DATA: 'tw_user_data',
   PRO_PROFILE: 'tw_pro_profile',
   DASHBOARD_METRICS: 'tw_dashboard_metrics',
+  ONBOARDING_STATE: 'tw_onboarding_state',
   NOTIF_PREFS: 'tw_notif_prefs',
   CACHE_TTL: 'tw_cache_ttl_',
 };
@@ -67,6 +68,15 @@ const Storage = {
 
   getDashboardMetrics() {
     return this._getCached(STORAGE_KEYS.DASHBOARD_METRICS);
+  },
+
+  // ===== ONBOARDING STATE =====
+  setOnboardingState(state) {
+    this._setCached(STORAGE_KEYS.ONBOARDING_STATE, state);
+  },
+
+  getOnboardingState() {
+    return this._getCached(STORAGE_KEYS.ONBOARDING_STATE);
   },
 
   // ===== NOTIFICATION PREFERENCES =====

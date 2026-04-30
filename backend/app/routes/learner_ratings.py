@@ -4,6 +4,7 @@ Learner Trade Ratings routes
 - PUT  /api/learner/trades/{id}/rate
 """
 import logging
+from datetime import datetime, timezone
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity
 
@@ -11,6 +12,7 @@ from app import db
 from app.middleware import require_auth
 from app.models.learner_trade_rating import LearnerTradeRating
 from app.models.learner_trade_unlock import LearnerUnlockedTrade
+from app.models.subscription import Subscription
 from app.models.trade import Trade
 
 logger = logging.getLogger(__name__)
@@ -26,19 +28,25 @@ def _validate_rating(rating):
 @learner_ratings_bp.route("/trades/<trade_id>/rate", methods=["POST"])
 @require_auth
 def rate_trade(trade_id):
-    """Submit a rating for a trade (must be unlocked first)."""
+    """Submit a rating for a trade (must be unlocked or covered by subscription)."""
     user_id = get_jwt_identity()
 
-    trade = Trade.query.get(trade_id)
+    trade = db.session.get(Trade, trade_id)
     if not trade:
         return jsonify({"error": "Trade not found"}), 404
 
-    # Must have unlocked the trade
+    # Must have access through either a credit unlock or an active subscription.
     unlock = LearnerUnlockedTrade.query.filter_by(
         learner_id=user_id, trade_id=trade_id
     ).first()
-    if not unlock:
-        return jsonify({"error": "You must unlock this trade before rating it"}), 403
+    has_subscription = Subscription.query.filter(
+        Subscription.subscriber_id == user_id,
+        Subscription.trader_id == trade.trader_id,
+        Subscription.status == "active",
+        Subscription.ends_at > datetime.now(timezone.utc),
+    ).first()
+    if not (unlock or has_subscription):
+        return jsonify({"error": "You must unlock this trade or subscribe before rating it"}), 403
 
     # Check for existing rating
     existing = LearnerTradeRating.query.filter_by(

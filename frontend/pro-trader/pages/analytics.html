@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Analytics</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise - Analytics</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -11,12 +14,16 @@
   <link rel="stylesheet" href="../../shared/css/components.css" />
   <link rel="stylesheet" href="../../shared/css/pages.css" />
   <link rel="stylesheet" href="../../shared/css/responsive.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link rel="stylesheet" href="../css/theme.css?v=theme-sync-4" />
+  <script src="../../shared/vendor/chart.umd.js" defer></script>
 </head>
 <body>
   <div class="app-layout">
     <aside class="sidebar" id="sidebar" aria-label="Main navigation">
-      <a href="dashboard.html" class="sidebar-logo"><span>TradeWise Pro</span></a>
+      <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+        <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+        <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
+      </a>
             <nav class="sidebar-nav">
         <div class="nav-section">
           <div class="nav-section-label">Overview</div>
@@ -61,6 +68,15 @@
           </a>
         </div>
       </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="avatar-placeholder" id="sidebar-avatar" aria-hidden="true">P</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebar-user-name">Pro Trader</div>
+            <div class="sidebar-user-role">Pro Trader</div>
+          </div>
+        </div>
+      </div>
     </aside>
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 
@@ -90,7 +106,7 @@
           <!-- Accuracy Score -->
           <div class="analytics-score-card">
             <div class="score-circle high" id="score-circle" aria-label="Accuracy score">
-              <span id="accuracy-pct">—</span>
+              <span id="accuracy-pct"><span class="tw-skeleton tw-skeleton-line" style="width:40px;height:24px;display:inline-block;"></span></span>
             </div>
             <div class="card-title">Accuracy Score</div>
             <div class="metric-trend" id="accuracy-trend" aria-live="polite"></div>
@@ -98,25 +114,25 @@
           <!-- Win / Loss -->
           <div class="metric-card">
             <div class="metric-label">Total Trades</div>
-            <div class="metric-value" id="total-trades">—</div>
+            <div class="metric-value" id="total-trades"><span class="tw-skeleton tw-skeleton-line" style="width:40px;height:28px;display:inline-block;"></span></div>
             <div style="display:flex; gap: 1.5rem; margin-top: 0.5rem;">
-              <div><div class="metric-label">Wins</div><div style="font-weight:700; color: var(--color-success);" id="wins">—</div></div>
-              <div><div class="metric-label">Losses</div><div style="font-weight:700; color: var(--color-danger);" id="losses">—</div></div>
+              <div><div class="metric-label">Wins</div><div style="font-weight:700; color: var(--color-success);" id="wins"><span class="tw-skeleton tw-skeleton-line" style="width:30px;height:20px;display:inline-block;"></span></div></div>
+              <div><div class="metric-label">Losses</div><div style="font-weight:700; color: var(--color-danger);" id="losses"><span class="tw-skeleton tw-skeleton-line" style="width:30px;height:20px;display:inline-block;"></span></div></div>
             </div>
           </div>
           <!-- RRR -->
           <div class="metric-card">
             <div class="metric-label">Avg RRR</div>
-            <div class="metric-value" id="avg-rrr">—</div>
+            <div class="metric-value" id="avg-rrr"><span class="tw-skeleton tw-skeleton-line" style="width:50px;height:28px;display:inline-block;"></span></div>
             <div style="display:flex; gap: 1.5rem; margin-top: 0.5rem;">
-              <div><div class="metric-label">Best</div><div style="font-weight:700; color: var(--color-success);" id="best-rrr">—</div></div>
-              <div><div class="metric-label">Worst</div><div style="font-weight:700; color: var(--color-danger);" id="worst-rrr">—</div></div>
+              <div><div class="metric-label">Best</div><div style="font-weight:700; color: var(--color-success);" id="best-rrr"><span class="tw-skeleton tw-skeleton-line" style="width:30px;height:20px;display:inline-block;"></span></div></div>
+              <div><div class="metric-label">Worst</div><div style="font-weight:700; color: var(--color-danger);" id="worst-rrr"><span class="tw-skeleton tw-skeleton-line" style="width:30px;height:20px;display:inline-block;"></span></div></div>
             </div>
           </div>
           <!-- Rank -->
           <div class="metric-card">
             <div class="metric-label">Leaderboard Rank</div>
-            <div class="metric-value" id="leaderboard-rank">—</div>
+            <div class="metric-value" id="leaderboard-rank"><span class="tw-skeleton tw-skeleton-line" style="width:40px;height:28px;display:inline-block;"></span></div>
             <div class="metric-trend" id="rank-trend" aria-live="polite"></div>
           </div>
         </div>
@@ -178,10 +194,10 @@
 
   <script type="module">
     import Auth from '../js/auth.js';
-    import { analyticsAPI } from '../js/api.js';
+    import { analyticsAPI } from '../js/api.js?v=api-host-3';
     import { formatPercent, formatCurrency } from '../js/utils.js';
-    import { createAccuracyChart, createWinLossChart, createEarningsChart, createRRRChart } from '../js/charts.js';
-    import App from '../js/main.js';
+    import { createAccuracyChart, createWinLossChart, createEarningsChart, createRRRChart } from '../js/charts.js?v=charts-fix-1';
+    import App from '../js/main.js?v=sidebar-kyc-1';
 
     if (!Auth.requireAuth()) throw new Error('Not authenticated');
 
@@ -190,7 +206,7 @@
         const c = document.getElementById('toast-container');
         const t = document.createElement('div');
         t.className = `toast toast-${type}`;
-        t.innerHTML = `<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;
+        t.innerHTML = `<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">x</button>`;
         c.appendChild(t);
         requestAnimationFrame(() => t.classList.add('show'));
         const d = () => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); };
@@ -202,8 +218,9 @@
     App.init();
 async function loadAnalytics() {
       try {
-        const [perfData, wlData, rrrData, monthlyData] = await Promise.allSettled([
+        const [perfData, trendData, wlData, rrrData, monthlyData] = await Promise.allSettled([
           analyticsAPI.getAccuracy(),
+          analyticsAPI.getPerformanceChart(),
           analyticsAPI.getWinLoss(),
           analyticsAPI.getRRR(),
           analyticsAPI.getMonthlyStats(),
@@ -214,17 +231,26 @@ async function loadAnalytics() {
           const d = perfData.value;
           const score = d.accuracy_score ?? d.accuracy ?? 0;
           document.getElementById('accuracy-pct').textContent = formatPercent(score);
+          const rank = d.leaderboard_rank ?? d.rank ?? null;
+          document.getElementById('leaderboard-rank').textContent = rank ? `#${rank}` : 'Unranked';
+          document.getElementById('rank-trend').textContent = rank ? 'Based on verified performance' : 'Rank appears after more closed trades';
           const circle = document.getElementById('score-circle');
           circle.className = 'score-circle ' + (score >= 70 ? 'high' : score >= 50 ? 'medium' : 'low');
 
-          // Accuracy trend chart data from performance-chart endpoint
-          const chartData = d.trend || d.chart_data;
-          if (chartData) {
-            createAccuracyChart('accuracy-chart', {
-              labels: chartData.map(c => c.month || c.label),
-              values: chartData.map(c => c.accuracy || c.value),
-            });
-          }
+        }
+
+        // Accuracy trend
+        if (trendData.status === 'fulfilled') {
+          const chartData = trendData.value.chart_data || trendData.value.trend || trendData.value || [];
+          createAccuracyChart('accuracy-chart', {
+            labels: chartData.map(c => c.month || c.label),
+            values: chartData.map(c => c.accuracy ?? c.value ?? 0),
+            currentValue: perfData.status === 'fulfilled'
+              ? (perfData.value.accuracy_score ?? perfData.value.accuracy ?? 0)
+              : 0,
+          });
+        } else {
+          createAccuracyChart('accuracy-chart', { labels: [], values: [] });
         }
 
         // Win / Loss
@@ -242,9 +268,9 @@ async function loadAnalytics() {
         // RRR
         if (rrrData.status === 'fulfilled') {
           const d = rrrData.value;
-          document.getElementById('avg-rrr').textContent = d.average_rrr?.toFixed(2) ?? '—';
-          document.getElementById('best-rrr').textContent = d.best_rrr?.toFixed(2) ?? '—';
-          document.getElementById('worst-rrr').textContent = d.worst_rrr?.toFixed(2) ?? '—';
+          document.getElementById('avg-rrr').textContent = d.average_rrr?.toFixed(2) ?? '-';
+          document.getElementById('best-rrr').textContent = d.best_rrr?.toFixed(2) ?? '-';
+          document.getElementById('worst-rrr').textContent = d.worst_rrr?.toFixed(2) ?? '-';
           if (d.distribution) {
             createRRRChart('rrr-chart', d.distribution);
           }
@@ -254,7 +280,7 @@ async function loadAnalytics() {
         if (monthlyData.status === 'fulfilled') {
           const rows = monthlyData.value.data || monthlyData.value || [];
           const labels = rows.map(r => r.month || r.label);
-          const earnings = rows.map(r => r.earnings || r.revenue || 0);
+          const earnings = rows.map(r => Number(r.earnings ?? r.revenue ?? r.monthly_earnings ?? 0));
           createEarningsChart('earnings-chart', { labels, earnings });
 
           // Table
@@ -262,7 +288,8 @@ async function loadAnalytics() {
           if (rows.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No data yet</td></tr>';
           } else {
-            tbody.innerHTML = rows.map(r => {
+            const tableRows = [...rows].reverse();
+            tbody.innerHTML = tableRows.map(r => {
               const total = r.total_trades ?? 0;
               const wins = r.wins ?? r.winning_trades ?? 0;
               const losses = r.losses ?? r.losing_trades ?? (total - wins);

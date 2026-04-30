@@ -170,11 +170,21 @@ export function calculateRRR(direction, entry, stopLoss, target) {
   const e = parseFloat(entry);
   const sl = parseFloat(stopLoss);
   const tp = parseFloat(target);
+  const dir = (direction || '').toLowerCase();
   if (isNaN(e) || isNaN(sl) || isNaN(tp)) return null;
-  if (e === sl) return null;
 
-  const risk = Math.abs(e - sl);
-  const reward = Math.abs(tp - e);
+  let risk;
+  let reward;
+  if (dir === 'buy') {
+    risk = e - sl;
+    reward = tp - e;
+  } else if (dir === 'sell') {
+    risk = sl - e;
+    reward = e - tp;
+  } else {
+    return null;
+  }
+
   if (risk === 0) return null;
 
   return parseFloat((reward / risk).toFixed(2));

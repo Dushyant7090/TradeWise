@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise â€” Account Settings</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise — Account Settings</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -16,7 +19,10 @@
 <div class="app-layout">
 
   <aside class="sidebar" id="sidebar">
-    <a href="dashboard.html" class="sidebar-logo"><span>Trade<span style="color:var(--color-primary)">Wise</span></span></a>
+    <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+      <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+      <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
+    </a>
     <nav class="sidebar-nav">
       <a href="dashboard.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
       <a href="feed.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Trade Feed</a>
@@ -26,6 +32,17 @@
       <a href="profile-settings.html" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
       <a href="account-settings.html" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Settings</a>
     </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user">
+        <div class="avatar-placeholder" id="sidebar-avatar">L</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="sidebar-username">Learner</div>
+          <div class="sidebar-user-role">Public Trader</div>
+        </div>
+      </div>
+    </div>
+
   </aside>
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
@@ -46,11 +63,29 @@
         <p class="page-subtitle">Manage your security, authentication and account</p>
       </div>
 
+      <!-- Theme Settings -->
+      <div class="card" style="margin-bottom:var(--space-5);">
+        <div class="card-header"><h3 class="card-title">App Appearance</h3></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-4);">
+          <div>
+            <p style="font-weight:500;margin-bottom:4px;">App Theme</p>
+            <p style="font-size:.875rem;color:var(--text-muted);">Switch between dark and light themes</p>
+          </div>
+          <button class="btn btn-secondary" id="theme-toggle-btn">Switch Theme</button>
+        </div>
+      </div>
+
       <!-- Change Password -->
       <div class="card" style="margin-bottom:var(--space-5);">
-        <div class="card-header"><h3 class="card-title">Change Password</h3></div>
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">Change Password</h3>
+            <p style="font-size:.875rem;color:var(--text-muted);margin-top:4px;">Update your password only when you need to rotate account access.</p>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm" id="show-pw-form-btn">Update Password</button>
+        </div>
         <div id="pw-alert" class="alert hidden" style="margin-bottom:1rem;"></div>
-        <form id="pw-form">
+        <form id="pw-form" class="hidden">
           <div class="form-group">
             <label class="form-label" for="current-pw">Current Password <span class="required">*</span></label>
             <input type="password" id="current-pw" class="input" placeholder="Your current password" />
@@ -66,10 +101,13 @@
             <input type="password" id="confirm-pw" class="input" placeholder="Repeat new password" />
             <span class="form-error" id="confirm-pw-error"></span>
           </div>
-          <button type="submit" class="btn btn-primary" id="pw-btn">
-            <span class="btn-text">Update Password</span>
-            <div class="btn-spinner spinner" aria-hidden="true"></div>
-          </button>
+          <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;">
+            <button type="submit" class="btn btn-primary" id="pw-btn">
+              <span class="btn-text">Save New Password</span>
+              <div class="btn-spinner spinner" aria-hidden="true"></div>
+            </button>
+            <button type="button" class="btn btn-secondary" id="cancel-pw-btn">Cancel</button>
+          </div>
         </form>
       </div>
 
@@ -102,7 +140,7 @@
           </div>
         </div>
         <div id="twofa-enabled-area" class="hidden">
-          <div class="alert alert-success" style="margin-bottom:1rem;">âœ“ Two-factor authentication is enabled</div>
+          <div class="alert alert-success" style="margin-bottom:1rem;">? Two-factor authentication is enabled</div>
           <button class="btn btn-danger btn-sm" id="disable-twofa-btn">Disable 2FA</button>
         </div>
         <button class="btn btn-secondary" id="setup-twofa-btn">Setup 2FA</button>
@@ -138,13 +176,33 @@
 
 <script type="module">
   import Auth from '../js/auth.js';
-  import { authAPI, learnerCreditsAPI } from '../js/api.js';
+  import { authAPI, learnerCreditsAPI } from '../js/api.js?v=api-host-3';
   import { validatePassword, formatDateTime } from '../js/utils.js';
+  import { bindThemeToggle } from '../js/theme.js?v=learner-theme-3';
+  import { initLearnerSidebarProfile } from '../js/sidebar-profile.js';
 
   if (!Auth.requireAuth()) throw new Error('Not authenticated');
+  initLearnerSidebarProfile();
+
+      const profile = Auth.getLearnerProfile() || {};
+      const user = Auth.getCurrentUser() || {};
+      const name = profile.display_name || user.email?.split('@')[0] || 'Learner';
+      const sbName = document.getElementById('sidebar-username');
+      if (sbName) sbName.textContent = name;
+      const sbAvatar = document.getElementById('sidebar-avatar');
+      if (sbAvatar) {
+        const avatarUrl = profile.avatar_url || profile.profile_image;
+        const initFn = (typeof getInitials === 'function') ? getInitials : (n) => (n||'L').charAt(0).toUpperCase();
+        if (avatarUrl) {
+          sbAvatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.onerror=null; this.parentElement.textContent='${initFn(name)}';">`;
+        } else {
+          sbAvatar.textContent = initFn(name);
+        }
+      }
+
 
   window.Toast = {
-    show(msg,type='info'){const c=document.getElementById('toast-container'),t=document.createElement('div');t.className=`toast toast-${type}`;t.innerHTML=`<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">Ã—</button>`;c.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));const d=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);};t.querySelector('.toast-dismiss').addEventListener('click',d);setTimeout(d,5000);}
+    show(msg,type='info'){const c=document.getElementById('toast-container'),t=document.createElement('div');t.className=`toast toast-${type}`;t.innerHTML=`<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;c.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));const d=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);};t.querySelector('.toast-dismiss').addEventListener('click',d);setTimeout(d,5000);}
   };
 
   const hamburger=document.getElementById('hamburger'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay');
@@ -153,13 +211,49 @@
   document.getElementById('logout-btn').addEventListener('click',()=>Auth.logout());
 
   // ===== CHANGE PASSWORD =====
+  const pwForm = document.getElementById('pw-form');
+  const showPwFormBtn = document.getElementById('show-pw-form-btn');
+  const cancelPwBtn = document.getElementById('cancel-pw-btn');
+  const pwAlert = document.getElementById('pw-alert');
+
+  function clearPasswordErrors() {
+    ['current-pw-error', 'new-pw-error', 'confirm-pw-error'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '';
+    });
+  }
+
+  function setPasswordFormVisible(show) {
+    pwForm.classList.toggle('hidden', !show);
+    showPwFormBtn.classList.toggle('hidden', show);
+    if (!show) {
+      pwForm.reset();
+      clearPasswordErrors();
+    }
+  }
+
+  showPwFormBtn.addEventListener('click', () => {
+    pwAlert.classList.add('hidden');
+    setPasswordFormVisible(true);
+    document.getElementById('current-pw').focus();
+  });
+
+  cancelPwBtn.addEventListener('click', () => {
+    pwAlert.classList.add('hidden');
+    setPasswordFormVisible(false);
+  });
+
+  pwForm.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', clearPasswordErrors);
+  });
+
   document.getElementById('pw-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const pwAlert = document.getElementById('pw-alert');
     const currentPw = document.getElementById('current-pw').value;
     const newPw = document.getElementById('new-pw').value;
     const confirmPw = document.getElementById('confirm-pw').value;
     let valid = true;
+    clearPasswordErrors();
     if (!currentPw) { document.getElementById('current-pw-error').textContent='Required.'; valid=false; }
     const newErr = validatePassword(newPw); if (newErr) { document.getElementById('new-pw-error').textContent=newErr; valid=false; }
     if (newPw !== confirmPw) { document.getElementById('confirm-pw-error').textContent='Passwords do not match.'; valid=false; }
@@ -170,10 +264,10 @@
     pwAlert.classList.add('hidden');
     try {
       await authAPI.changePassword({ current_password: currentPw, new_password: newPw });
-      pwAlert.textContent = 'âœ“ Password updated successfully!';
+      pwAlert.textContent = '? Password updated successfully!';
       pwAlert.className = 'alert alert-success';
       pwAlert.classList.remove('hidden');
-      document.getElementById('pw-form').reset();
+      setPasswordFormVisible(false);
     } catch (err) {
       pwAlert.textContent = err.message || 'Failed to update password.';
       pwAlert.className = 'alert alert-error';
@@ -236,20 +330,55 @@
   });
 
   // ===== LOGIN ACTIVITY =====
+  function parseUserAgent(userAgent = '') {
+    const ua = String(userAgent || '');
+    const lower = ua.toLowerCase();
+    let client = 'Unknown client';
+    let os = 'Unknown device';
+    let kind = 'user';
+
+    if (lower.includes('python-requests')) { client = 'Python Requests'; kind = 'automated'; }
+    else if (lower.includes('python-urllib')) { client = 'Python urllib'; kind = 'automated'; }
+    else if (lower.includes('postman')) { client = 'Postman'; kind = 'automated'; }
+    else if (lower.includes('edg/')) client = 'Microsoft Edge';
+    else if (lower.includes('chrome/')) client = 'Google Chrome';
+    else if (lower.includes('firefox/')) client = 'Firefox';
+    else if (lower.includes('safari/')) client = 'Safari';
+    else if (ua) client = ua.split(' ')[0];
+
+    if (lower.includes('windows nt 10')) os = 'Windows 10 desktop';
+    else if (lower.includes('windows nt 11')) os = 'Windows 11 desktop';
+    else if (lower.includes('win64') || lower.includes('windows')) os = 'Windows desktop';
+    else if (lower.includes('android')) os = 'Android device';
+    else if (lower.includes('iphone')) os = 'iPhone';
+    else if (lower.includes('mac os x')) os = 'macOS device';
+    else if (lower.includes('linux')) os = 'Linux device';
+    else if (kind === 'automated') os = 'Backend/API request';
+
+    return { client, os, kind };
+  }
+
   async function loadLoginActivity() {
     const el = document.getElementById('login-activity');
     try {
-      const data = await import('../js/api.js').then(m => m.api.get('/auth/login-activity'));
-      const sessions = data.sessions || data.data || [];
+      const data = await import('../js/api.js?v=api-host-3').then(m => m.api.get('/auth/login-activity'));
+      const sessions = data.sessions || data.activities || data.data || [];
       if (!sessions.length) { el.innerHTML = '<p style="font-size:.875rem;color:var(--text-muted);">No recent login activity.</p>'; return; }
-      el.innerHTML = sessions.slice(0,10).map(s=>`
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-4);background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);">
+      el.innerHTML = sessions.slice(0,10).map(s=>{
+        const parsed = parseUserAgent(s.user_agent || s.device || '');
+        const isAutomated = parsed.kind === 'automated';
+        const ip = s.ip_address || s.ip || 'Unknown IP';
+        const status = s.status || 'success';
+        return `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:${isAutomated ? 'var(--bg-surface)' : 'var(--bg-card)'};border:1px solid var(--border-subtle);border-radius:var(--radius-md);opacity:${isAutomated ? '.78' : '1'};">
           <div>
-            <div style="font-size:.875rem;font-weight:600;">${s.device||s.user_agent||'Unknown device'}</div>
-            <div style="font-size:.75rem;color:var(--text-muted);">${s.ip||'Unknown IP'} Â· ${formatDateTime(s.created_at)}</div>
+            <div style="font-size:.875rem;font-weight:700;color:var(--text-primary);">${parsed.os} · ${parsed.client}</div>
+            <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">${ip} · ${formatDateTime(s.created_at)}</div>
+            ${isAutomated ? '<div style="font-size:.7rem;color:var(--text-muted);margin-top:4px;">Automated API/client access</div>' : ''}
           </div>
-          ${s.is_current ? '<span class="badge-unlocked" style="font-size:.7rem;">Current</span>' : ''}
-        </div>`).join('');
+          <span class="${status === 'success' ? 'badge-unlocked' : 'badge-locked'}" style="font-size:.7rem;">${status}</span>
+        </div>`;
+      }).join('');
     } catch {
       el.innerHTML = '<p style="font-size:.875rem;color:var(--text-muted);">Unable to load login activity.</p>';
     }
@@ -270,9 +399,9 @@
           <th style="padding:8px 12px;text-align:left;color:var(--text-muted);">Date</th>
         </tr></thead>
         <tbody>${log.map(l=>`<tr style="border-bottom:1px solid var(--border-subtle);">
-          <td style="padding:8px 12px;">${l.action||'â€”'}</td>
+          <td style="padding:8px 12px;">${l.action||'—'}</td>
           <td style="padding:8px 12px;color:${l.action==='used'?'var(--color-danger)':'var(--color-success)'};">${l.action==='used'?'-':'+'}${l.amount||1}</td>
-          <td style="padding:8px 12px;font-weight:600;">${l.credits_remaining??'â€”'}</td>
+          <td style="padding:8px 12px;font-weight:600;">${l.credits_remaining??'—'}</td>
           <td style="padding:8px 12px;color:var(--text-muted);font-size:.75rem;">${formatDateTime(l.created_at)}</td>
         </tr>`).join('')}</tbody>
       </table>`;
@@ -285,6 +414,9 @@
     if (!confirm('This action CANNOT be undone. Type DELETE to confirm.')) return;
     Toast.show('Account deletion request sent. Contact support@tradewise.app', 'warning');
   });
+
+  // ===== THEME TOGGLE =====
+  bindThemeToggle(document.getElementById('theme-toggle-btn'));
 
   loadLoginActivity();
   loadCreditsLog();

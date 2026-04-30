@@ -13,6 +13,9 @@ const Realtime = {
    * @param {string} anonKey - Supabase anon key
    */
   init(url, anonKey) {
+    if (!url && !anonKey) {
+      return;
+    }
     if (!url || !anonKey || !url.startsWith('https://') || anonKey.length < 20) {
       console.warn('Realtime: Valid Supabase credentials required. Realtime disabled.');
       return;
@@ -151,6 +154,66 @@ const Realtime = {
       .subscribe();
 
     subscriptions[`comments:${tradeId}`] = channel;
+    return channel;
+  },
+
+  /**
+   * Subscribe to all new trades (for learner feed)
+   * @param {Object} callbacks - { onInsert }
+   */
+  subscribeToNewTrades({ onInsert } = {}) {
+    if (!this._isReady()) return;
+
+    const channel = supabase
+      .channel('trades:all_new')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'trades',
+        },
+        (payload) => onInsert && onInsert(payload)
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('Realtime: Subscribed to all new trades');
+        }
+      });
+
+    subscriptions['trades:all_new'] = channel;
+    return channel;
+  },
+
+  /**
+   * Subscribe to status changes on specific trades (for learners)
+   * Fires when a trade they unlocked gets closed (target_hit / sl_hit)
+   * @param {string[]} tradeIds - array of trade UUIDs
+   * @param {Function} onUpdate - callback(updatedTrade)
+   */
+  subscribeToTradeStatus(tradeIds, onUpdate) {
+    if (!this._isReady() || !tradeIds?.length) return;
+
+    // Subscribe to first 50 trades to avoid channel overhead
+    const ids = tradeIds.slice(0, 50);
+    const channel = supabase
+      .channel('trades:status_watch')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'trades',
+        },
+        (payload) => {
+          if (ids.includes(payload.new?.id) && onUpdate) {
+            onUpdate(payload.new);
+          }
+        }
+      )
+      .subscribe();
+
+    subscriptions['trades:status_watch'] = channel;
     return channel;
   },
 

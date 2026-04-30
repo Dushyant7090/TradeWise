@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+  <title>Subscribe - TradeWise</title>
+  <link rel="icon" type="image/svg+xml" href="../../shared/assets/logo.svg" />
+  <style>
+    :root {
+      --bg: #f4f8f6;
+      --surface: #ffffff;
+      --surface-soft: #eef7f3;
+      --text: #102019;
+      --muted: #65756d;
+      --line: rgba(16, 32, 25, 0.12);
+      --primary: #0f9f77;
+      --primary-dark: #08795c;
+      --danger: #d14343;
+      --success: #0f9f77;
+      --shadow: 0 22px 70px rgba(15, 47, 37, 0.12);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg: #050806;
+      --surface: #0c1210;
+      --surface-soft: #101d18;
+      --text: #f3fff9;
+      --muted: #8ba096;
+      --line: rgba(255, 255, 255, 0.12);
+      --shadow: 0 22px 70px rgba(0, 0, 0, 0.36);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 15% 0%, rgba(15,159,119,.14), transparent 30%), var(--bg); color: var(--text); }
+    .page { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0; }
+    .topline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 48px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.03em; }
+    .brand img { width: 34px; height: 34px; }
+    .back-link { color: var(--muted); text-decoration: none; font-weight: 700; font-size: .92rem; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: 28px; align-items: stretch; }
+    .profile-panel, .checkout-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+    .profile-panel { padding: 36px; min-height: 520px; display: flex; flex-direction: column; justify-content: space-between; }
+    .mentor-kicker { color: var(--primary); font-size: .78rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .mentor-name { margin: 14px 0 12px; font-size: clamp(2.2rem, 6vw, 4.5rem); line-height: .92; letter-spacing: -0.06em; max-width: 760px; }
+    .mentor-bio { color: var(--muted); font-size: 1.05rem; line-height: 1.7; max-width: 680px; }
+    .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 34px; }
+    .stat { background: var(--surface-soft); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+    .stat-value { font-size: 1.35rem; font-weight: 900; }
+    .stat-label { color: var(--muted); font-size: .78rem; margin-top: 4px; }
+    .checkout-panel { padding: 26px; position: sticky; top: 24px; }
+    .price { font-size: 3rem; font-weight: 900; letter-spacing: -0.06em; margin: 8px 0 4px; }
+    .price span { font-size: 1rem; color: var(--muted); letter-spacing: 0; }
+    .summary { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 16px 0; margin: 22px 0; display: grid; gap: 12px; }
+    .row { display: flex; justify-content: space-between; gap: 18px; color: var(--muted); font-size: .92rem; }
+    .row strong { color: var(--text); text-align: right; }
+    .form { display: grid; gap: 12px; margin-top: 18px; }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: .84rem; font-weight: 700; }
+    input { width: 100%; border: 1px solid var(--line); background: var(--surface-soft); color: var(--text); border-radius: 12px; padding: 12px 13px; font: inherit; outline: none; }
+    input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(15,159,119,.12); }
+    .pay-btn { width: 100%; border: 0; border-radius: 999px; padding: 15px 18px; margin-top: 16px; background: var(--primary); color: #fff; font-weight: 900; cursor: pointer; font-size: 1rem; }
+    .pay-btn:hover { background: var(--primary-dark); }
+    .pay-btn:disabled { opacity: .65; cursor: wait; }
+    .alert { display: none; margin-top: 14px; border-radius: 12px; padding: 12px; font-size: .88rem; }
+    .alert.error { display: block; color: var(--danger); background: rgba(209,67,67,.1); border: 1px solid rgba(209,67,67,.24); }
+    .alert.info { display: block; color: var(--primary); background: rgba(15,159,119,.1); border: 1px solid rgba(15,159,119,.24); }
+    .test-note { color: var(--muted); font-size: .78rem; line-height: 1.6; margin-top: 14px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      .checkout-panel { position: static; }
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topline">
+      <a class="brand" href="../../landing-page.html"><img src="../../shared/assets/logo.svg" alt="" />TradeWise</a>
+      <a class="back-link" href="feed.html">Back to feed</a>
+    </div>
+
+    <section class="layout">
+      <article class="profile-panel">
+        <div>
+          <div class="mentor-kicker">Verified Pro-Trader Subscription</div>
+          <h1 class="mentor-name" id="mentorName">Loading mentor...</h1>
+          <p class="mentor-bio" id="mentorBio">Fetching profile details.</p>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="stat-value" id="accuracy">--%</div><div class="stat-label">Accuracy score</div></div>
+          <div class="stat"><div class="stat-value">30 days</div><div class="stat-label">Access window</div></div>
+          <div class="stat"><div class="stat-value">90/10</div><div class="stat-label">Mentor/platform split</div></div>
+        </div>
+      </article>
+
+      <aside class="checkout-panel">
+        <div class="mentor-kicker">Monthly plan</div>
+        <div class="price" id="price">₹999 <span>/ month</span></div>
+        <div class="summary">
+          <div class="row"><span>Pro-Trader share</span><strong id="mentorSplit">₹899.10</strong></div>
+          <div class="row"><span>Platform share</span><strong id="adminSplit">₹99.90</strong></div>
+          <div class="row"><span>Gateway</span><strong>Cashfree Sandbox</strong></div>
+        </div>
+
+        <form class="form" id="subscribeForm">
+          <label>Name <input id="customerName" autocomplete="name" required /></label>
+          <label>Email <input id="customerEmail" type="email" autocomplete="email" required /></label>
+          <label>Phone <input id="customerPhone" inputmode="tel" autocomplete="tel" placeholder="9999999999" required /></label>
+          <button class="pay-btn" id="payButton" type="submit">Subscribe Now</button>
+        </form>
+        <div class="alert" id="alert"></div>
+        <p class="test-note">
+          Sandbox: Card 4706131211212123, 03/2028, CVV 123, OTP 111000. UPI testsuccess@gocash. Net banking bank code 3333.
+        </p>
+      </aside>
+    </section>
+  </main>
+
+  <script type="module">
+    import Auth from '../js/auth.js';
+    import Storage from '../js/storage.js';
+
+    if (!Auth.requireAuth()) throw new Error('Not authenticated');
+
+    const SUPABASE_URL = window.TW_SUPABASE_URL || 'https://rwdwrskkmnsrofxqaljb.supabase.co';
+    const SUPABASE_ANON_KEY = window.TW_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3ZHdyc2trbW5zcm9meHFhbGpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNjgyNjcsImV4cCI6MjA4OTk0NDI2N30.jEYZeWQufFi-YQf_tMw2wyAIhmogP5Q5zGgfFEMZvhA';
+    const FUNCTIONS_URL = `${SUPABASE_URL.replace(/\/$/, '')}/functions/v1`;
+    const params = new URLSearchParams(location.search);
+    const mentorId = params.get('mentor_id') || params.get('trader_id') || params.get('id');
+    let mentor = null;
+    let price = Number(params.get('amount')) || 999;
+
+    const currentUser = Auth.getCurrentUser() || {};
+    const learnerProfile = Auth.getLearnerProfile() || {};
+    document.getElementById('customerName').value = learnerProfile.display_name || learnerProfile.full_name || currentUser.email?.split('@')[0] || '';
+    document.getElementById('customerEmail').value = currentUser.email || '';
+
+    function showAlert(message, type = 'error') {
+      const el = document.getElementById('alert');
+      el.textContent = message;
+      el.className = `alert ${type}`;
+    }
+
+    function formatINR(value) {
+      return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value);
+    }
+
+    function renderPrice() {
+      document.getElementById('price').innerHTML = `${formatINR(price)} <span>/ month</span>`;
+      document.getElementById('mentorSplit').textContent = formatINR(Math.round(price * 90) / 100);
+      document.getElementById('adminSplit').textContent = formatINR(Math.round(price * 10) / 100);
+    }
+
+    async function rest(path) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      });
+      if (!res.ok) throw new Error('Unable to load profile');
+      return res.json();
+    }
+
+    async function loadMentor() {
+      if (!mentorId) {
+        showAlert('Missing mentor_id in URL.');
+        return;
+      }
+      const profiles = await rest(`profiles?select=id,user_id,full_name,display_name,accuracy_pct,cashfree_vendor_id&or=(id.eq.${mentorId},user_id.eq.${mentorId})&limit=1`);
+      mentor = profiles[0];
+      if (!mentor) throw new Error('Pro-Trader profile not found.');
+      const mentorUserId = mentor.user_id || mentor.id;
+      const ptRows = await rest(`pro_trader_profiles?select=bio,accuracy_score,monthly_subscription_price&user_id=eq.${mentorUserId}&limit=1`);
+      const pt = ptRows[0] || {};
+      if (Number(pt.monthly_subscription_price) > 0) price = Number(pt.monthly_subscription_price);
+      document.getElementById('mentorName').textContent = mentor.full_name || mentor.display_name || 'Pro Trader';
+      document.getElementById('mentorBio').textContent = pt.bio || 'Subscribe to unlock all current and upcoming trade ideas from this verified mentor.';
+      document.getElementById('accuracy').textContent = `${Number(mentor.accuracy_pct ?? pt.accuracy_score ?? 0).toFixed(1)}%`;
+      renderPrice();
+    }
+
+    async function load({ mode }) {
+      if (!window.Cashfree) {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+      return window.Cashfree({ mode });
+    }
+
+    document.getElementById('subscribeForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!mentor) return;
+      const button = document.getElementById('payButton');
+      button.disabled = true;
+      button.textContent = 'Creating secure order...';
+      showAlert('Creating Cashfree sandbox session...', 'info');
+
+      try {
+        const token = Storage.getToken();
+        const res = await fetch(`${FUNCTIONS_URL}/create-order`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            mentor_id: mentor.user_id || mentor.id,
+            amount: price,
+            customer_name: document.getElementById('customerName').value.trim(),
+            customer_email: document.getElementById('customerEmail').value.trim(),
+            customer_phone: document.getElementById('customerPhone').value.trim(),
+          }),
+        });
+        const order = await res.json();
+        if (!res.ok) throw new Error(order.error || 'Unable to create payment order.');
+
+        const cashfree = await load({ mode: 'sandbox' });
+        await cashfree.checkout({
+          paymentSessionId: order.payment_session_id,
+          redirectTarget: '_self',
+        });
+      } catch (error) {
+        showAlert(error.message || 'Payment could not be started.');
+        button.disabled = false;
+        button.textContent = 'Subscribe Now';
+      }
+    });
+
+    loadMentor().catch((error) => showAlert(error.message || 'Unable to load mentor.'));
+  </script>
+</body>
+</html>

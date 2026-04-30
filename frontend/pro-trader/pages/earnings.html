@@ -1,78 +1,137 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Earnings</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+  <script src="../../shared/js/config.js?v=api-host-3"></script>
+  <title>TradeWise - Earnings</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="../../shared/css/globals.css" />
   <link rel="stylesheet" href="../../shared/css/components.css" />
   <link rel="stylesheet" href="../../shared/css/pages.css" />
   <link rel="stylesheet" href="../../shared/css/responsive.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link rel="stylesheet" href="../css/theme.css?v=theme-sync-4" />
+  <script src="../../shared/vendor/chart.umd.js"></script>
 </head>
+
 <body>
   <div class="app-layout">
     <aside class="sidebar" id="sidebar" aria-label="Main navigation">
-      <a href="dashboard.html" class="sidebar-logo"><span>TradeWise Pro</span></a>
-            <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+        <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+        <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
+      </a>
+      <nav class="sidebar-nav">
         <div class="nav-section">
           <div class="nav-section-label">Overview</div>
           <a href="dashboard.html" class="nav-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+            </svg>Dashboard
           </a>
           <a href="analytics.html" class="nav-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>Analytics
           </a>
         </div>
         <div class="nav-section">
           <div class="nav-section-label">Trading</div>
           <a href="post-trade.html" class="nav-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Post Trade
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="16" />
+              <line x1="8" y1="12" x2="16" y2="12" />
+            </svg>Post Trade
           </a>
           <a href="active-trades.html" class="nav-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>Active Trades
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M3 3h18v18H3z" />
+              <path d="M3 9h18M9 21V9" />
+            </svg>Active Trades
           </a>
         </div>
         <div class="nav-section">
           <div class="nav-section-label">Monetization</div>
           <a href="earnings.html" class="nav-link active">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Earnings
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="12" y1="1" x2="12" y2="23" />
+              <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+            </svg>Earnings
           </a>
           <a href="subscribers.html" class="nav-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Subscribers
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 00-3-3.87" />
+              <path d="M16 3.13a4 4 0 010 7.75" />
+            </svg>Subscribers
           </a>
         </div>
         <div class="nav-section">
           <div class="nav-section-label">Account</div>
           <a href="kyc-setup.html" class="nav-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.91 14a16 16 0 006.06 6.06l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>KYC Setup
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path
+                d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.91 14a16 16 0 006.06 6.06l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
+            </svg>KYC Setup
           </a>
           <a href="notifications.html" class="nav-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 01-3.46 0" />
+            </svg>Notifications
           </a>
           <a href="profile-settings.html" class="nav-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>Profile
           </a>
           <a href="account-settings.html" class="nav-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Settings
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+            </svg>Settings
           </a>
         </div>
       </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="avatar-placeholder" id="sidebar-avatar" aria-hidden="true">P</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebar-user-name">Pro Trader</div>
+            <div class="sidebar-user-role">Pro Trader</div>
+          </div>
+        </div>
+      </div>
     </aside>
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 
     <div class="main-content">
       <header class="topbar" role="banner">
         <div class="topbar-left">
-          <button class="hamburger" id="hamburger" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+          <button class="hamburger" id="hamburger"
+            aria-label="Toggle navigation"><span></span><span></span><span></span></button>
           <h1 class="topbar-title">Earnings & Payouts</h1>
         </div>
         <div class="topbar-right">
           <button class="btn btn-icon btn-ghost" id="notif-bell" aria-label="Notifications">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 01-3.46 0" />
+            </svg>
             <span class="notif-badge hidden" id="notif-badge">0</span>
           </button>
           <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
@@ -89,8 +148,9 @@
         <div class="balance-hero">
           <div>
             <div class="balance-label">Available Balance</div>
-            <div class="balance-amount" id="available-balance" aria-live="polite">₹0.00</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;" id="min-withdrawal-msg"></div>
+            <div class="balance-amount" id="available-balance" aria-live="polite">Rs 0.00</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;" id="min-withdrawal-msg">
+            </div>
           </div>
           <button class="btn btn-primary btn-lg" id="withdraw-btn">
             Withdraw to Bank
@@ -101,15 +161,15 @@
         <div class="earnings-metrics">
           <div class="metric-card">
             <div class="metric-label">Total Lifetime Earnings</div>
-            <div class="metric-value success" id="lifetime-earnings">—</div>
+            <div class="metric-value success" id="lifetime-earnings">-</div>
           </div>
           <div class="metric-card">
             <div class="metric-label">This Month's Earnings</div>
-            <div class="metric-value" id="month-earnings">—</div>
+            <div class="metric-value" id="month-earnings">-</div>
           </div>
           <div class="metric-card">
             <div class="metric-label">Monthly Recurring Revenue</div>
-            <div class="metric-value" id="mrr">—</div>
+            <div class="metric-value" id="mrr">-</div>
             <div class="metric-trend" id="subscriber-count" style="margin-top: 0.5rem;"></div>
           </div>
         </div>
@@ -123,12 +183,16 @@
             </div>
             <button class="btn btn-secondary btn-sm" id="edit-price-btn">Edit Price</button>
           </div>
-          <div style="font-size: 2rem; font-weight: 800; color: var(--color-primary);" id="subscription-price">₹—/month</div>
+          <div style="font-size: 2rem; font-weight: 800; color: var(--color-primary);" id="subscription-price">Rs
+            0/month</div>
         </div>
 
         <!-- Earnings Chart -->
         <div class="card" style="margin-bottom: 2rem;">
-          <div class="card-header"><div class="card-title">Monthly Earnings Chart</div><div class="card-subtitle">Last 12 months</div></div>
+          <div class="card-header">
+            <div class="card-title">Monthly Earnings Chart</div>
+            <div class="card-subtitle">Last 12 months</div>
+          </div>
           <div class="chart-container" style="height: 240px;">
             <canvas id="earnings-chart" aria-label="Monthly earnings chart"></canvas>
           </div>
@@ -136,7 +200,9 @@
 
         <!-- Payout History -->
         <div class="card">
-          <div class="card-header"><div class="card-title">Payout History</div></div>
+          <div class="card-header">
+            <div class="card-title">Payout History</div>
+          </div>
           <div class="table-container">
             <table class="table" id="payouts-table" aria-label="Payout history table">
               <thead>
@@ -150,7 +216,9 @@
                 </tr>
               </thead>
               <tbody id="payouts-tbody">
-                <tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Loading...</td></tr>
+                <tr>
+                  <td colspan="6" style="text-align:center; color: var(--text-muted);">Loading...</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -164,16 +232,18 @@
     <div class="modal">
       <div class="modal-header">
         <h2 class="modal-title" id="withdraw-title">Withdraw to Bank</h2>
-        <button class="modal-close" id="close-withdraw-modal" aria-label="Close">×</button>
+        <button class="modal-close" id="close-withdraw-modal" aria-label="Close">x</button>
       </div>
-      <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">Money will arrive within 24 hours</p>
+      <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">Money will arrive within 24 hours
+      </p>
       <div class="form-group">
-        <label class="form-label" for="withdraw-amount">Amount (₹) <span class="required">*</span></label>
+        <label class="form-label" for="withdraw-amount">Amount (Rs) <span class="required">*</span></label>
         <input type="number" id="withdraw-amount" class="input" min="100" step="1" />
         <span class="form-error" id="withdraw-error"></span>
-        <span class="form-hint">Minimum withdrawal: ₹100</span>
+        <span class="form-hint">Minimum withdrawal: Rs 100</span>
       </div>
-      <div id="bank-info" style="padding: 1rem; background: var(--bg-surface); border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-secondary);">
+      <div id="bank-info"
+        style="padding: 1rem; background: var(--bg-surface); border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-secondary);">
         Withdrawal will be sent to your registered bank account.
       </div>
       <div id="withdraw-alert" class="alert hidden" role="alert"></div>
@@ -192,10 +262,10 @@
     <div class="modal">
       <div class="modal-header">
         <h2 class="modal-title" id="price-modal-title">Update Subscription Price</h2>
-        <button class="modal-close" id="close-price-modal" aria-label="Close">×</button>
+        <button class="modal-close" id="close-price-modal" aria-label="Close">x</button>
       </div>
       <div class="form-group">
-        <label class="form-label" for="new-price">New Monthly Price (₹) <span class="required">*</span></label>
+        <label class="form-label" for="new-price">New Monthly Price (?) <span class="required">*</span></label>
         <input type="number" id="new-price" class="input" min="1" step="1" placeholder="e.g. 599" />
         <span class="form-error" id="price-error"></span>
       </div>
@@ -214,12 +284,12 @@
 
   <script type="module">
     import Auth from '../js/auth.js';
-    import { earningsAPI, subscribersAPI, analyticsAPI } from '../js/api.js';
+    import { earningsAPI, subscribersAPI, analyticsAPI } from '../js/api.js?v=api-host-3';
     import { formatCurrency, formatNumber, formatDateTime } from '../js/utils.js';
-    import { createEarningsChart } from '../js/charts.js';
+    import { createEarningsChart } from '../js/charts.js?v=charts-fix-1';
     import Realtime from '../js/realtime.js';
     import Storage from '../js/storage.js';
-    import App from '../js/main.js';
+    import App from '../js/main.js?v=sidebar-kyc-1';
 
     if (!Auth.requireAuth()) throw new Error('Not authenticated');
 
@@ -228,7 +298,7 @@
         const c = document.getElementById('toast-container');
         const t = document.createElement('div');
         t.className = `toast toast-${type}`;
-        t.innerHTML = `<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;
+        t.innerHTML = `<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">x</button>`;
         c.appendChild(t);
         requestAnimationFrame(() => t.classList.add('show'));
         const d = () => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); };
@@ -238,7 +308,7 @@
     };
 
     App.init();
-let availableBalance = 0;
+    let availableBalance = 0;
 
     async function loadEarnings() {
       try {
@@ -257,7 +327,7 @@ let availableBalance = 0;
           const withdrawBtn = document.getElementById('withdraw-btn');
           if (availableBalance < 100) {
             withdrawBtn.disabled = true;
-            document.getElementById('min-withdrawal-msg').textContent = 'Minimum ₹100 required to withdraw.';
+            document.getElementById('min-withdrawal-msg').textContent = 'Minimum Rs 100 required to withdraw.';
           }
           document.getElementById('withdraw-amount').value = Math.floor(availableBalance);
         }
@@ -267,7 +337,7 @@ let availableBalance = 0;
           const d = earningsData.value;
           document.getElementById('lifetime-earnings').textContent = formatCurrency(d.lifetime_earnings ?? d.total_earnings ?? 0);
           document.getElementById('month-earnings').textContent = formatCurrency(d.monthly_earnings ?? d.current_month ?? 0);
-          document.getElementById('subscription-price').textContent = `₹${d.subscription_price ?? d.monthly_subscription_price ?? 0}/month`;
+          document.getElementById('subscription-price').textContent = `Rs ${d.subscription_price ?? d.monthly_subscription_price ?? 0}/month`;
         }
 
         // Subscribers + MRR
@@ -277,7 +347,8 @@ let availableBalance = 0;
           document.getElementById('subscriber-count').textContent = `${activeCount} active subscribers`;
           if (earningsData.status === 'fulfilled') {
             const price = earningsData.value.subscription_price ?? earningsData.value.monthly_subscription_price ?? 0;
-            document.getElementById('mrr').textContent = formatCurrency(activeCount * price);
+            const mrr = earningsData.value.monthly_recurring_revenue ?? (activeCount * price);
+            document.getElementById('mrr').textContent = formatCurrency(mrr);
           }
         }
 
@@ -291,7 +362,7 @@ let availableBalance = 0;
           const rows = monthlyData.value.data || monthlyData.value || [];
           createEarningsChart('earnings-chart', {
             labels: rows.map(r => r.month || r.label),
-            earnings: rows.map(r => r.earnings || r.revenue || 0),
+            earnings: rows.map(r => Number(r.earnings ?? r.revenue ?? r.monthly_earnings ?? 0)),
           });
         }
 
@@ -316,11 +387,11 @@ let availableBalance = 0;
       }
       const statusClass = { initiated: 'warning', processing: 'info', success: 'success', failed: 'danger' };
       tbody.innerHTML = payouts.map(p => `<tr>
-        <td>${formatDateTime(p.created_at)}</td>
+        <td>${formatDateTime(p.initiated_at || p.created_at)}</td>
         <td style="font-weight:600">${formatCurrency(p.amount)}</td>
         <td><span class="badge badge-${statusClass[p.status] || 'neutral'}">${p.status}</span></td>
-        <td style="font-family:var(--font-mono);font-size:0.75rem">${p.cashfree_payout_id || '—'}</td>
-        <td>${p.bank_account_last4 ? `****${p.bank_account_last4}` : '—'}</td>
+        <td style="font-family:var(--font-mono);font-size:0.75rem">${p.cashfree_payout_id || '-'}</td>
+        <td>${p.bank_account_last_4 ? `****${p.bank_account_last_4}` : '-'}</td>
         <td>${p.status === 'failed' ? `<button class="btn btn-secondary btn-sm retry-btn" data-id="${p.id}">Retry</button>` : ''}</td>
       </tr>`).join('');
     }
@@ -336,7 +407,7 @@ let availableBalance = 0;
     document.getElementById('confirm-withdraw').addEventListener('click', async () => {
       const amount = parseFloat(document.getElementById('withdraw-amount').value);
       const errEl = document.getElementById('withdraw-error');
-      if (!amount || amount < 100) { errEl.textContent = 'Minimum withdrawal is ₹100.'; return; }
+      if (!amount || amount < 100) { errEl.textContent = 'Minimum withdrawal is Rs 100.'; return; }
       if (amount > availableBalance) { errEl.textContent = 'Amount exceeds available balance.'; return; }
       errEl.textContent = '';
 
@@ -345,7 +416,7 @@ let availableBalance = 0;
       try {
         const result = await earningsAPI.initiatePayout({ amount });
         document.getElementById('withdraw-modal').classList.remove('active');
-        window.Toast.show(`Withdrawal initiated! Payout ID: ${result.payout_id || result.id || 'N/A'}`, 'success');
+        window.Toast.show(`Withdrawal initiated! Payout ID: ${result.payout?.id || result.payout_id || result.id || 'N/A'}`, 'success');
         loadEarnings();
       } catch (err) {
         const al = document.getElementById('withdraw-alert');
@@ -374,7 +445,7 @@ let availableBalance = 0;
         await earningsAPI.updateSubscriptionPrice({ monthly_subscription_price: price });
         document.getElementById('price-modal').classList.remove('active');
         window.Toast.show('Subscription price updated!', 'success');
-        document.getElementById('subscription-price').textContent = `₹${price}/month`;
+        document.getElementById('subscription-price').textContent = `Rs ${price}/month`;
       } catch (err) {
         const al = document.getElementById('price-alert');
         al.textContent = err.message || 'Failed to update price.';
@@ -388,4 +459,5 @@ let availableBalance = 0;
     loadEarnings();
   </script>
 </body>
+
 </html>

@@ -9,8 +9,9 @@ KYC routes
 - POST   /api/pro-trader/kyc/submit-review
 """
 import logging
+import mimetypes
 import uuid
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import get_jwt_identity
 
 from app import db
@@ -26,16 +27,28 @@ kyc_bp = Blueprint("kyc", __name__)
 @kyc_bp.route("/kyc/status", methods=["GET"])
 @require_pro_trader
 def get_kyc_status():
-    """Get KYC verification status."""
+    """Get full KYC + setup status for the dynamic kyc-setup page."""
     user_id = get_jwt_identity()
     pt_profile = ProTraderProfile.query.filter_by(user_id=user_id).first()
     if not pt_profile:
         return jsonify({"error": "Profile not found"}), 404
 
+    # Fetch subscription plans
+    from app.models import SubscriptionPlan
+    plans = SubscriptionPlan.query.filter_by(trader_id=user_id, is_active=True).all()
+
     return jsonify({
         "kyc_status": pt_profile.kyc_status,
         "kyc_documents": pt_profile.kyc_documents or {},
+        "kyc_rejection_reason": getattr(pt_profile, "kyc_rejection_reason", None),
         "has_bank_details": bool(pt_profile.bank_account_number_encrypted),
+        "bank_account_last_4": pt_profile.bank_account_last_4,
+        "ifsc_code": pt_profile.ifsc_code,
+        "account_holder_name": pt_profile.account_holder_name,
+        "onboarding_step": getattr(pt_profile, "onboarding_step", 0),
+        "is_review_pending": getattr(pt_profile, "is_review_pending", False),
+        "subscription_plans": [p.to_dict() for p in plans],
+        "monthly_subscription_price": float(pt_profile.monthly_subscription_price or 0),
     }), 200
 
 
@@ -48,11 +61,16 @@ def upload_kyc_document():
     if not pt_profile:
         return jsonify({"error": "Profile not found"}), 404
 
-    if "document" not in request.files:
+    file = request.files.get("document") or request.files.get("file")
+    if file is None:
         return jsonify({"error": "No document file provided"}), 400
 
-    file = request.files["document"]
-    doc_type = request.form.get("document_type", "").strip()
+    doc_type = request.form.get("document_type", "").strip().lower()
+    doc_type_aliases = {
+        "pan_card": "pan",
+        "id_proof": "aadhaar",
+    }
+    doc_type = doc_type_aliases.get(doc_type, doc_type)
 
     valid_doc_types = ["aadhaar", "pan", "passport", "voter_id", "driving_license", "bank_statement"]
     if not doc_type or doc_type not in valid_doc_types:
@@ -63,8 +81,11 @@ def upload_kyc_document():
     if not file.filename:
         return jsonify({"error": "Empty file"}), 400
 
-    allowed_types = {"image/jpeg", "image/png", "application/pdf"}
-    if file.content_type not in allowed_types:
+    allowed_types = {"image/jpeg", "image/jpg", "image/pjpeg", "image/png", "application/pdf"}
+    content_type = (file.content_type or "").lower().strip()
+    if not content_type:
+        content_type = (mimetypes.guess_type(file.filename)[0] or "").lower().strip()
+    if content_type not in allowed_types:
         return jsonify({"error": "Invalid file type. Use JPEG, PNG, or PDF"}), 400
 
     file_data = file.read()
@@ -77,21 +98,22 @@ def upload_kyc_document():
 
     try:
         from app.services.supabase_storage import supabase_storage
+        bucket = current_app.config.get("KYC_DOCUMENTS_BUCKET", "kyc-documents")
         url = supabase_storage.upload_file(
-            bucket="kyc-documents",
+            bucket=bucket,
             path=filename,
             file_data=file_data,
-            content_type=file.content_type,
+            content_type=content_type or "application/octet-stream",
         )
 
-        # Store in kyc_documents JSON
-        docs = pt_profile.kyc_documents or {}
+        # Store in kyc_documents JSON (copy to avoid in-place mutation tracking issues)
+        docs = dict(pt_profile.kyc_documents or {})
         docs[doc_id] = {
             "id": doc_id,
             "type": doc_type,
             "url": url,
             "filename": file.filename,
-            "content_type": file.content_type,
+            "content_type": content_type,
             "storage_path": filename,
             "uploaded_at": __import__("datetime").datetime.utcnow().isoformat(),
         }
@@ -132,7 +154,7 @@ def delete_kyc_document(doc_id):
     if pt_profile.kyc_status == "verified":
         return jsonify({"error": "Cannot delete documents after KYC is verified"}), 400
 
-    docs = pt_profile.kyc_documents or {}
+    docs = dict(pt_profile.kyc_documents or {})
     if doc_id not in docs:
         return jsonify({"error": "Document not found"}), 404
 
@@ -140,8 +162,9 @@ def delete_kyc_document(doc_id):
     # Delete from Supabase Storage
     try:
         from app.services.supabase_storage import supabase_storage
+        bucket = current_app.config.get("KYC_DOCUMENTS_BUCKET", "kyc-documents")
         supabase_storage.delete_file(
-            bucket="kyc-documents",
+            bucket=bucket,
             path=doc.get("storage_path", ""),
         )
     except Exception as e:

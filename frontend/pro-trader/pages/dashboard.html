@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TradeWise — Dashboard</title>
+
+  <script src="../../shared/js/theme.js?v=global-theme-1"></script>
+<script src="../../shared/js/config.js?v=api-host-3"></script>
+<title>TradeWise - Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -11,15 +14,17 @@
   <link rel="stylesheet" href="../../shared/css/components.css" />
   <link rel="stylesheet" href="../../shared/css/pages.css" />
   <link rel="stylesheet" href="../../shared/css/responsive.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link rel="stylesheet" href="../css/theme.css?v=theme-sync-4" />
+  <script src="../../shared/vendor/chart.umd.js" defer></script>
 </head>
 <body>
   <div class="app-layout">
 
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar" aria-label="Main navigation">
-      <a href="dashboard.html" class="sidebar-logo">
-        <span>TradeWise Pro</span>
+      <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+        <img src="../../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+        <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
       </a>
       <nav class="sidebar-nav">
         <div class="nav-section">
@@ -123,7 +128,7 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
             </div>
             <div class="metric-label">Accuracy Score</div>
-            <div class="metric-value success" id="accuracy-score">—</div>
+            <div class="metric-value success" id="accuracy-score"><span class="tw-skeleton tw-skeleton-line" style="width:60px;height:28px;display:inline-block;"></span></div>
             <div class="metric-trend" id="accuracy-trend"></div>
           </div>
           <div class="metric-card">
@@ -131,21 +136,21 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/></svg>
             </div>
             <div class="metric-label">Active Trades</div>
-            <div class="metric-value" id="active-trades">—</div>
+            <div class="metric-value" id="active-trades"><span class="tw-skeleton tw-skeleton-line" style="width:40px;height:28px;display:inline-block;"></span></div>
           </div>
           <div class="metric-card">
             <div class="metric-icon" aria-hidden="true">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
             </div>
             <div class="metric-label">Total Subscribers</div>
-            <div class="metric-value" id="total-subscribers">—</div>
+            <div class="metric-value" id="total-subscribers"><span class="tw-skeleton tw-skeleton-line" style="width:40px;height:28px;display:inline-block;"></span></div>
           </div>
           <div class="metric-card">
             <div class="metric-icon" aria-hidden="true">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
             </div>
             <div class="metric-label">Monthly Earnings</div>
-            <div class="metric-value success" id="monthly-earnings">—</div>
+            <div class="metric-value success" id="monthly-earnings"><span class="tw-skeleton tw-skeleton-line" style="width:80px;height:28px;display:inline-block;"></span></div>
           </div>
         </div>
 
@@ -174,16 +179,27 @@
                 <div class="card-title">Recent Trades</div>
                 <div class="card-subtitle">Your last 5 posted trades</div>
               </div>
-              <a href="active-trades.html" class="btn btn-ghost btn-sm">View all →</a>
+              <a href="active-trades.html" class="btn btn-ghost btn-sm">View all -></a>
             </div>
             <div class="activity-feed" id="activity-feed">
-              <div class="empty-state">
-                <div class="empty-state-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                </div>
-                <p class="empty-state-title">No trades yet</p>
-                <p class="empty-state-text">Post your first trade to get started</p>
-                <a href="post-trade.html" class="btn btn-primary btn-sm">Post Trade</a>
+              <!-- Skeleton loaders shown during data fetch -->
+              <div class="tw-skeleton-card" style="display:flex;align-items:center;gap:12px;padding:12px 16px;">
+                <span class="tw-skeleton tw-skeleton-line" style="width:70px;height:16px;display:inline-block;"></span>
+                <span class="tw-skeleton tw-skeleton-line" style="width:40px;height:20px;display:inline-block;border-radius:999px;"></span>
+                <span class="tw-skeleton tw-skeleton-line" style="width:90px;height:14px;display:inline-block;flex:1;"></span>
+                <span class="tw-skeleton tw-skeleton-line" style="width:50px;height:20px;display:inline-block;border-radius:999px;"></span>
+              </div>
+              <div class="tw-skeleton-card" style="display:flex;align-items:center;gap:12px;padding:12px 16px;">
+                <span class="tw-skeleton tw-skeleton-line" style="width:70px;height:16px;display:inline-block;"></span>
+                <span class="tw-skeleton tw-skeleton-line" style="width:40px;height:20px;display:inline-block;border-radius:999px;"></span>
+                <span class="tw-skeleton tw-skeleton-line" style="width:90px;height:14px;display:inline-block;flex:1;"></span>
+                <span class="tw-skeleton tw-skeleton-line" style="width:50px;height:20px;display:inline-block;border-radius:999px;"></span>
+              </div>
+              <div class="tw-skeleton-card" style="display:flex;align-items:center;gap:12px;padding:12px 16px;">
+                <span class="tw-skeleton tw-skeleton-line" style="width:70px;height:16px;display:inline-block;"></span>
+                <span class="tw-skeleton tw-skeleton-line" style="width:40px;height:20px;display:inline-block;border-radius:999px;"></span>
+                <span class="tw-skeleton tw-skeleton-line" style="width:90px;height:14px;display:inline-block;flex:1;"></span>
+                <span class="tw-skeleton tw-skeleton-line" style="width:50px;height:20px;display:inline-block;border-radius:999px;"></span>
               </div>
             </div>
           </div>
@@ -209,11 +225,11 @@
 
   <script type="module">
     import Auth from '../js/auth.js';
-    import { profileAPI, tradesAPI, analyticsAPI } from '../js/api.js';
+    import { profileAPI, tradesAPI, analyticsAPI } from '../js/api.js?v=api-host-3';
     import { formatCurrency, formatPercent, formatNumber, timeAgo } from '../js/utils.js';
     import Storage from '../js/storage.js';
-    import { createEarningsChart } from '../js/charts.js';
-    import App from '../js/main.js';
+    import { createEarningsChart } from '../js/charts.js?v=charts-fix-1';
+    import App from '../js/main.js?v=sidebar-kyc-1';
 
     if (!Auth.requireAuth()) throw new Error('Not authenticated');
 
@@ -223,7 +239,7 @@
         const c = document.getElementById('toast-container');
         const t = document.createElement('div');
         t.className = `toast toast-${type}`;
-        t.innerHTML = `<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">×</button>`;
+        t.innerHTML = `<div class="toast-content"><div class="toast-message">${msg}</div></div><button class="toast-dismiss">x</button>`;
         c.appendChild(t);
         requestAnimationFrame(() => t.classList.add('show'));
         const d = () => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); };
@@ -237,23 +253,30 @@
     // ===== LOAD DASHBOARD DATA =====
     async function loadDashboard() {
       try {
-        const [dashData, tradesData, monthlyData] = await Promise.allSettled([
+        const [dashData, profileData, tradesData, monthlyData] = await Promise.allSettled([
           profileAPI.getDashboard(),
+          profileAPI.getProfile(),
           tradesAPI.list('?limit=5'),
           analyticsAPI.getMonthlyStats(),
         ]);
 
         // User info
         const user = Storage.getUser();
-        if (user) {
+        const profile = profileData.status === 'fulfilled' && profileData.value
+          ? (profileData.value.profile || profileData.value)
+          : Storage.getProProfile();
+        if (profileData.status === 'fulfilled' && profile) Storage.setProProfile(profile);
+        const traderDisplayName = (profile?.display_name || user?.display_name || 'Pro Trader').trim();
+
+        if (user || profile) {
           const nameEl = document.getElementById('trader-name');
-          if (nameEl) nameEl.textContent = user.display_name || user.email || 'Pro Trader';
+          if (nameEl) nameEl.textContent = traderDisplayName;
 
           const sidebarName = document.getElementById('sidebar-user-name');
-          if (sidebarName) sidebarName.textContent = user.display_name || user.email || 'Pro Trader';
+          if (sidebarName) sidebarName.textContent = traderDisplayName;
 
           const sidebarAvatar = document.getElementById('sidebar-avatar');
-          if (sidebarAvatar) sidebarAvatar.textContent = (user.display_name || user.email || 'P')[0].toUpperCase();
+          if (sidebarAvatar) sidebarAvatar.textContent = traderDisplayName[0].toUpperCase();
         }
 
         // Metrics
@@ -284,7 +307,7 @@
         if (monthlyData.status === 'fulfilled') {
           const m = monthlyData.value;
           const labels = (m.data || m).map(r => r.month || r.label);
-          const earnings = (m.data || m).map(r => r.earnings || r.revenue || 0);
+          const earnings = (m.data || m).map(r => Number(r.earnings ?? r.revenue ?? r.monthly_earnings ?? 0));
           createEarningsChart('earnings-chart', { labels, earnings });
         }
       } catch (err) {
@@ -294,7 +317,15 @@
 
     function renderRecentTrades(trades) {
       const feed = document.getElementById('activity-feed');
-      if (!trades || trades.length === 0) return;
+      if (!trades || trades.length === 0) {
+        feed.innerHTML = `<div class="empty-state">
+          <div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+          <p class="empty-state-title">No trades yet</p>
+          <p class="empty-state-text">Post your first trade to get started</p>
+          <a href="post-trade.html" class="btn btn-primary btn-sm">Post Trade</a>
+        </div>`;
+        return;
+      }
 
       feed.innerHTML = trades.slice(0, 5).map(t => `
         <a href="active-trades.html" class="activity-item" aria-label="Trade ${t.symbol}">
@@ -305,7 +336,7 @@
             <span class="badge badge-${t.direction === 'buy' ? 'buy' : 'sell'}">${(t.direction || '').toUpperCase()}</span>
           </div>
           <div class="activity-details">
-            <div class="activity-price">Entry: ₹${t.entry_price}</div>
+            <div class="activity-price">Entry: Rs ${t.entry_price}</div>
           </div>
           <div>
             <span class="badge badge-${t.status === 'active' ? 'success' : 'neutral'}">${t.status || 'Active'}</span>

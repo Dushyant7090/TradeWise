@@ -22,6 +22,7 @@ from app.models.learner_notification import LearnerNotification
 from app.models.learner_flag import LearnerFlag
 from app.models.learner_trade_rating import LearnerTradeRating
 from app.models.learner_notification_preferences import LearnerNotificationPreferences
+from app.models.subscription_plan import SubscriptionPlan
 
 __all__ = [
     "User",
@@ -45,4 +46,5 @@ __all__ = [
     "LearnerFlag",
     "LearnerTradeRating",
     "LearnerNotificationPreferences",
+    "SubscriptionPlan",
 ]

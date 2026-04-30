@@ -44,6 +44,15 @@ def get_notifications():
     }), 200
 
 
+@notifications_bp.route("/notifications/unread-count", methods=["GET"])
+@require_auth
+def get_unread_count():
+    """Lightweight endpoint: return only the unread notification count."""
+    user_id = get_jwt_identity()
+    count = Notification.query.filter_by(user_id=user_id, is_read=False).count()
+    return jsonify({"unread_count": count}), 200
+
+
 @notifications_bp.route("/notifications/<notif_id>/read", methods=["PUT"])
 @require_auth
 def mark_as_read(notif_id):

@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../shared/js/theme.js?v=global-theme-1"></script>
   <title>TradeWise — Admin Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/admin.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link rel="stylesheet" href="css/admin.css?v=admin-comments-1" />
+  <link rel="icon" type="image/svg+xml" href="../shared/assets/logo.svg" />
+  <script src="../shared/vendor/chart.umd.js"></script>
 </head>
 <body>
   <!-- Mobile overlay -->
@@ -18,9 +20,9 @@
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <a href="dashboard.html" class="sidebar-logo">
-          <span class="logo-icon">⚡</span>
-          <span>TradeWise Admin</span>
+        <a href="dashboard.html" class="sidebar-logo" aria-label="TradeWise dashboard">
+          <img src="../shared/assets/logo.svg" alt="" class="sidebar-logo-mark" aria-hidden="true" />
+          <span class="sidebar-logo-text">Trade<span class="accent">Wise</span></span>
         </a>
         <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close sidebar">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -98,6 +100,10 @@
         </button>
         <h1 class="topbar-title" id="pageTitle">Dashboard</h1>
         <div class="topbar-actions">
+          <button class="topbar-btn theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="Switch theme" aria-pressed="false">
+            <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+            <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          </button>
           <button class="topbar-btn" id="refreshBtn" title="Refresh data">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
           </button>
@@ -529,6 +535,35 @@
     </div>
   </div>
 
+  <!-- KYC Documents Modal -->
+  <div class="modal-overlay" id="kycDocumentsModal" style="display:none;" role="dialog" aria-modal="true">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <div>
+          <h3 id="kycDocumentsTitle">KYC Documents</h3>
+          <p class="modal-kicker" id="kycDocumentsSubtitle">Uploaded files for review</p>
+        </div>
+        <button class="btn-close" onclick="closeModal('kycDocumentsModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="kyc-document-list" id="kycDocumentsList"></div>
+        <div class="kyc-document-preview hidden" id="kycDocumentPreview">
+          <div class="kyc-preview-header">
+            <div>
+              <div class="kyc-preview-title" id="kycPreviewTitle">Document preview</div>
+              <div class="kyc-preview-meta" id="kycPreviewMeta"></div>
+            </div>
+            <button class="btn btn-sm btn-outline" type="button" onclick="closeKYCPreview()">Back to documents</button>
+          </div>
+          <div class="kyc-preview-frame" id="kycPreviewFrame"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('kycDocumentsModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Confirm Ban Modal -->
   <div class="modal-overlay" id="banModal" style="display:none;" role="dialog" aria-modal="true">
     <div class="modal">
@@ -552,6 +587,6 @@
   <!-- Toast notification -->
   <div class="toast" id="toast" style="display:none;"></div>
 
-  <script src="js/admin.js"></script>
+  <script src="js/admin.js?v=comments-reply-1"></script>
 </body>
 </html>

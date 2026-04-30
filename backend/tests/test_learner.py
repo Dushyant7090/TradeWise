@@ -1,8 +1,8 @@
 """
 Tests for Learner Dashboard backend endpoints
 """
+import io
 import json
-import pytest
 
 
 def _register_learner(client, email="learner@example.com", password="TestPass1"):
@@ -69,7 +69,7 @@ class TestLearnerProfile:
             data=json.dumps({
                 "interests": ["stocks", "crypto"],
                 "experience_level": "intermediate",
-                "learning_goal": "Learn to trade profitably",
+                "learning_goal": "improve_consistency",
             }),
             content_type="application/json",
             headers=_auth_header(token),
@@ -78,7 +78,7 @@ class TestLearnerProfile:
         profile = resp.get_json()["profile"]
         assert profile["interests"] == ["stocks", "crypto"]
         assert profile["experience_level"] == "intermediate"
-        assert profile["learning_goal"] == "Learn to trade profitably"
+        assert profile["learning_goal"] == "improve_consistency"
 
     def test_update_profile_invalid_experience_level(self, client, db):
         data = _register_learner(client, email="profile_invalid@example.com")
@@ -92,9 +92,61 @@ class TestLearnerProfile:
         )
         assert resp.status_code == 400
 
+    def test_update_profile_invalid_learning_goal(self, client, db):
+        data = _register_learner(client, email="profile_invalid_goal@example.com")
+        token = data["access_token"]
+
+        resp = client.put(
+            "/api/learner/profile",
+            data=json.dumps({"learning_goal": "Learn to trade profitably"}),
+            content_type="application/json",
+            headers=_auth_header(token),
+        )
+        assert resp.status_code == 400
+
     def test_profile_requires_auth(self, client, db):
         resp = client.get("/api/learner/profile")
         assert resp.status_code == 401
+
+    def test_upload_profile_picture_accepts_file_field(self, client, db, monkeypatch):
+        data = _register_learner(client, email="profile_picture_file@example.com")
+        token = data["access_token"]
+
+        monkeypatch.setattr(
+            "app.routes.learner_profile.supabase_storage.upload_file",
+            lambda *args, **kwargs: "https://example.com/avatar-file.jpg",
+        )
+
+        resp = client.put(
+            "/api/learner/profile/picture",
+            data={"file": (io.BytesIO(b"fake image bytes"), "avatar.jpg", "image/jpeg")},
+            headers=_auth_header(token),
+            content_type="multipart/form-data",
+        )
+
+        assert resp.status_code == 200
+        payload = resp.get_json()
+        assert payload["avatar_url"] == "https://example.com/avatar-file.jpg"
+
+    def test_upload_profile_picture_accepts_picture_field(self, client, db, monkeypatch):
+        data = _register_learner(client, email="profile_picture_picture@example.com")
+        token = data["access_token"]
+
+        monkeypatch.setattr(
+            "app.routes.learner_profile.supabase_storage.upload_file",
+            lambda *args, **kwargs: "https://example.com/avatar-picture.jpg",
+        )
+
+        resp = client.put(
+            "/api/learner/profile/picture",
+            data={"picture": (io.BytesIO(b"fake image bytes"), "avatar.jpg", "image/jpeg")},
+            headers=_auth_header(token),
+            content_type="multipart/form-data",
+        )
+
+        assert resp.status_code == 200
+        payload = resp.get_json()
+        assert payload["avatar_url"] == "https://example.com/avatar-picture.jpg"
 
 
 class TestLearnerDashboard:
@@ -277,7 +329,7 @@ class TestLearnerSubscriptions:
         assert resp.status_code == 200
         assert resp.get_json()["subscriptions"] == []
 
-    def test_subscribe_and_unsubscribe(self, client, db):
+    def test_subscribe_and_status(self, client, db):
         trader_data = _register_pro_trader(client, email="sub_trader@example.com")
         trader_user_id = trader_data["user"]["id"]
 
@@ -302,13 +354,6 @@ class TestLearnerSubscriptions:
         )
         assert status_resp.get_json()["subscribed"] is True
 
-        # Unsubscribe
-        unsub_resp = client.delete(
-            f"/api/learner/subscriptions/{trader_user_id}",
-            headers=_auth_header(learner_token),
-        )
-        assert unsub_resp.status_code == 200
-
     def test_duplicate_subscription(self, client, db):
         trader_data = _register_pro_trader(client, email="dup_sub_trader@example.com")
         trader_user_id = trader_data["user"]["id"]
@@ -329,31 +374,6 @@ class TestLearnerSubscriptions:
             headers=_auth_header(learner_token),
         )
         assert resp.status_code == 409
-
-    def test_toggle_auto_renew(self, client, db):
-        trader_data = _register_pro_trader(client, email="renew_trader@example.com")
-        trader_user_id = trader_data["user"]["id"]
-
-        learner_data = _register_learner(client, email="renew_learner@example.com")
-        learner_token = learner_data["access_token"]
-
-        sub_resp = client.post(
-            f"/api/learner/subscriptions/{trader_user_id}/subscribe",
-            data=json.dumps({}),
-            content_type="application/json",
-            headers=_auth_header(learner_token),
-        )
-        sub_id = sub_resp.get_json()["subscription"]["id"]
-
-        resp = client.put(
-            f"/api/learner/subscriptions/{sub_id}/auto-renew",
-            data=json.dumps({"auto_renew": True}),
-            content_type="application/json",
-            headers=_auth_header(learner_token),
-        )
-        assert resp.status_code == 200
-        assert resp.get_json()["subscription"]["auto_renew"] is True
-
 
 class TestLearnerFlags:
     def _create_trade_for_test(self, client, trader_token):
@@ -613,6 +633,59 @@ class TestProTradersPublic:
         data = resp.get_json()
         assert "trades" in data
         assert len(data["trades"]) >= 1
+
+    def test_list_pro_traders_live_stats(self, client, db):
+        trader_data = _register_pro_trader(client, email="pub_live_stats_trader@example.com")
+        trader_id = trader_data["user"]["id"]
+        trader_token = trader_data["access_token"]
+
+        # Create a trade and close it as a win to generate live win-rate stats.
+        create_resp = client.post(
+            "/api/pro-trader/trades",
+            data=json.dumps({
+                "symbol": "NIFTY",
+                "direction": "buy",
+                "entry_price": 100.0,
+                "stop_loss_price": 95.0,
+                "target_price": 110.0,
+                "technical_rationale": "The price is consolidating near a key support zone showing clear signs of institutional accumulation with RSI indicating oversold conditions and a bullish divergence forming on the daily chart suggesting a high probability reversal to the upside targeting the next resistance level with a very favorable risk to reward setup for entry",
+            }),
+            content_type="application/json",
+            headers=_auth_header(trader_token),
+        )
+        trade_id = create_resp.get_json()["trade"]["id"]
+
+        close_resp = client.put(
+            f"/api/pro-trader/trades/{trade_id}/close",
+            data=json.dumps({"outcome": "win"}),
+            content_type="application/json",
+            headers=_auth_header(trader_token),
+        )
+        assert close_resp.status_code == 200
+
+        learner_data = _register_learner(client, email="pub_live_stats_learner@example.com")
+        learner_token = learner_data["access_token"]
+
+        # Create an active subscription so public subscriber stats are non-zero.
+        sub_resp = client.post(
+            f"/api/learner/subscriptions/{trader_id}/subscribe",
+            data=json.dumps({}),
+            content_type="application/json",
+            headers=_auth_header(learner_token),
+        )
+        assert sub_resp.status_code in (200, 201)
+
+        resp = client.get("/api/pro-traders", headers=_auth_header(learner_token))
+        assert resp.status_code == 200
+        payload = resp.get_json()
+        trader = next((t for t in payload["traders"] if t["trader_id"] == trader_id), None)
+
+        assert trader is not None
+        assert trader["total_trades"] >= 1
+        assert trader["winning_trades"] >= 1
+        assert trader["win_rate"] >= 100.0
+        assert trader["accuracy_score"] >= 100.0
+        assert trader["total_subscribers"] >= 1
 
 
 class TestLearnerComments:

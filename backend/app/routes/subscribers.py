@@ -8,6 +8,7 @@ import logging
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity
 from datetime import datetime, timezone
+from sqlalchemy.orm import joinedload
 
 from app import db
 from app.middleware import require_pro_trader
@@ -31,17 +32,36 @@ def get_subscribers():
     now = datetime.now(timezone.utc)
     query = Subscription.query.filter_by(
         trader_id=user_id, status="active"
-    ).filter(Subscription.ends_at > now).order_by(Subscription.started_at.desc())
+    ).filter(Subscription.ends_at > now).options(
+        joinedload(Subscription.payment)
+    ).order_by(Subscription.started_at.desc())
 
     paginated = query.paginate(page=page, per_page=per_page, error_out=False)
+
+    # Batch-fetch all subscriber profiles in one query (fixes N+1)
+    subscriber_ids = [sub.subscriber_id for sub in paginated.items]
+    profile_map = {}
+    if subscriber_ids:
+        profiles = Profile.query.filter(Profile.user_id.in_(subscriber_ids)).all()
+        profile_map = {p.user_id: p for p in profiles}
 
     subscribers = []
     for sub in paginated.items:
         sub_dict = sub.to_dict()
-        prof = Profile.query.filter_by(user_id=sub.subscriber_id).first()
+        prof = profile_map.get(sub.subscriber_id)
         if prof:
             sub_dict["subscriber_name"] = prof.display_name
             sub_dict["subscriber_avatar"] = prof.avatar_url
+        if sub.payment:
+            sub_dict["amount"] = float(sub.payment.amount or 0)
+            sub_dict["amount_paid"] = float(sub.payment.amount or 0)
+            sub_dict["currency"] = sub.payment.currency
+            sub_dict["payment_status"] = sub.payment.status
+        else:
+            sub_dict["amount"] = 0.0
+            sub_dict["amount_paid"] = 0.0
+            sub_dict["currency"] = "INR"
+            sub_dict["payment_status"] = None
         subscribers.append(sub_dict)
 
     return jsonify({
